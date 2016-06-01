@@ -1,0 +1,16 @@
+<<plot1, fig.pos="t", fig.height=4, fig.width=4, fig.cap="First plot">>=
+phi = 10
+tau = 0.5
+nu = 0.5
+x = seq(0, 5, by=0.1)
+gaussian.semivar = function(tau, nu, phi, x) { 
+  2 * (tau^2 + nu^2 * (1 - exp( -phi * x^2 ) ) ) 
+}
+y = gaussian.semivar( tau, nu, phi, x)
+plot( y~x, xlim=c(0, max(x)), ylim=c(0, 1.1* (nu+tau) ), type="l")
+abline( h=nu, lty="dotted" )
+text ( 0.5*max(x), 0.95*tau, "Nugget = Sill - Partial sill" )
+text ( 0.5*max(x), nu+0.5*tau, "Partial sill = Sill - Nugget" )
+text ( 0.5*max(x), (nu + tau)*1.05, "Sill = Nugget + Partial sill" )
+@
+

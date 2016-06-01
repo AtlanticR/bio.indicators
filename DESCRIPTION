@@ -1,0 +1,14 @@
+Package: bio.indicators
+Title: Package that interacts with bio and associated projects to provide timerseries.
+Version: 0.1
+Authors@R: c( person("Jae", "Choi", email="choijaeseok@gmail.com", role=c("aut", "cre")) ) 
+Description: This project interacts with the functionality of bio to estimate temporal indicators: merges indicators, sorted ordination, and mpa subprojects.
+Depends: R (>= 3.0.0)
+Imports: devtools, bio.base
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+License: MIT
+LazyData: true
+URL: https://github.com/jae0/bio.indicators/
+
+
