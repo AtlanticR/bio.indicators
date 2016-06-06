@@ -12,7 +12,7 @@ p$libs = RLibrary ( c(
   "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  ))
 
 p$init.files = loadfunctions( c(
-  "utility", "groundfish", "snowcrab", "bio", "biochem", "indicators", "remote.sensing", "habitat", "taxonomy",
+  "utility", "bio.groundfish", "snowcrab", "bio", "biochem", "indicators", "remote.sensing", "habitat", "taxonomy",
   "bathymetry", "substrate", "temperature", "polygons", "netmensuration", "spacetime", "sorted.ordination", "stomachs", 
   "condition", "speciesarea", "speciescomposition", "metabolism", "sizespectrum", "coastline", "mpa" ))
 
@@ -21,7 +21,7 @@ p = spatial.parameters( p, "SSE.mpa" )
 p$default.spatial.domain = "canada.east"  # for temperature lookups
 p$taxa =  "maxresolved"
 p$seasons = "allseasons"
-p$data.sources = c("groundfish", "snowcrab")  # for bio.db
+p$data.sources = c("bio.groundfish", "snowcrab")  # for bio.db
 p$nw = 10 # for lookup of temperature: number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
 
 p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
@@ -49,21 +49,21 @@ dev.off()
 # 3. bio.db trawl data summaries
 pdf( file=file.path(p$project.outdir.root, "trawl.time.density.pdf") )
   ss = bio.db( DS="set" )
-  dscols = c( snowcrab="green", groundfish="orange" ) 
+  dscols = c( snowcrab="green", bio.groundfish="orange" ) 
   plot( jitter( dyear) ~ jitter(yr), ss, pch=".", col=dscols[ss$data.source], xlab="Year", ylab="Fractional year", cex=1.5 )
 dev.off()
 
 
 pdf( file=file.path(p$project.outdir.root, "maps", "trawl.spatial.density.pdf") )
   ss = bio.db( DS="set" )
-  dscols = c( snowcrab="green", groundfish="orange" ) 
+  dscols = c( snowcrab="green", bio.groundfish="orange" ) 
   figure.trawl.density(p=p, ss=ss, dscols=dscols )
 dev.off()
 
 
 # 4. net mensuration related figures
-p$scanmar.dir = file.path( project.datadirectory("groundfish"), "data", "nets", "Scanmar" ) 
-p$marport.dir = file.path( project.datadirectory("groundfish"), "data", "nets", "Marport" ) 
+p$scanmar.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Scanmar" ) 
+p$marport.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Marport" ) 
 figures.netmensuration( DS="all", p=p, outdir=p$project.outdir.root  )
 
 
