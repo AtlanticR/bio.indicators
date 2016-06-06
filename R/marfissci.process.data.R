@@ -197,7 +197,7 @@ simply be populated with identical values as ",agg.field))
   if (save.CSV) {
     fn = file.path( ldir, "csv", paste(the.filename, "csv", sep="." ) )
     write.csv(df.agg, file=fn )
-    writeLines(paste0("csv file written to ", fn )
+    writeLines(paste0("csv file written to ", fn) )
   }
 
   if(save.SHP) {
