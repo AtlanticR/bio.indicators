@@ -14,7 +14,7 @@ p$libs = RLibrary (
 p$libs = c( p$libs,  bioLibrary(
   "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
   "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
-  "bio.coastline", "bio.inidcators" ))
+  "bio.coastline", "bio.indicators" ))
 
 
 p = spatial.parameters( p, "SSE.mpa" )
