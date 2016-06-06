@@ -3,7 +3,7 @@
 # this is the main calling program
 # new comment
 
-p = list( project.name="mpa" )
+p = list( project.name="bio.indicators" )
 
 p$project.outdir.root = project.datadirectory( p$project.name, "analysis" )
 

@@ -2,20 +2,20 @@ marfissci.get.data <- function(spp = NULL, gear=NULL, years = NULL, get.nonlandi
   library(RODBC)
   channel <- odbcConnect("PTRAN",uid = oracle.personal.username,pwd = oracle.personal.password)
   #'MMM March 31, 2016
-  #'This is a marfissci extraction that can limit results by species, gear(s) 
+  #'This is a marfissci extraction that can limit results by species, gear(s)
   #'and year(s).  By default, it gets all removed biomass, which includes catch
   #'that is defined seperately from typical "landings" (i.e. bait, discards, and
-  #'dead discards).  This can be disabled by setting get.nonlandings to F.  Also 
-  #'by default, this saves the output to a csv.  If this is not desired, you can 
+  #'dead discards).  This can be disabled by setting get.nonlandings to F.  Also
+  #'by default, this saves the output to a csv.  If this is not desired, you can
   #'change save.csv to F.
   #'
   #'Marfis is valid from 2002 forwards.
   #'
   #'If the "entered" coordinate is not available, then the "determined" coordinate
-  #'is used as the position for the data.  If no value for latitude is 
-  #'available, if becomes 0, and if no value for longitude is available, if 
-  #'becomes 0.  
-  
+  #'is used as the position for the data.  If no value for latitude is
+  #'available, if becomes 0, and if no value for longitude is available, if
+  #'becomes 0.
+
   if (!is.null(spp)) {
     spp.tweak = paste0("AND SPECIES_CODE IN (",paste(spp, collapse = ","),")")
   }else{
@@ -130,7 +130,7 @@ marfissci.get.data <- function(spp = NULL, gear=NULL, years = NULL, get.nonlandi
     "
   )
   data.raw = sqlQuery(channel,query.raw)
-  
+
   if (save.csv==T){
     #make a descriptive name so we know what we've got
     if (is.null(spp)){
@@ -154,7 +154,7 @@ marfissci.get.data <- function(spp = NULL, gear=NULL, years = NULL, get.nonlandi
     }else{
       years.file = paste0("_",paste(range(years),collapse = "_"))
     }
-    file.output = paste0(project.datadirectory("mpa"),"/marfissci/raw_data/",years.file,gear.file,spp.file,".csv")
+    file.output = paste0(project.datadirectory("bio.indicators", "data", "marfissci", "raw_data" ), years.file, gear.file, spp.file, ".csv")
     write.csv(data.raw, file.output, row.names = F)
     print(paste0("CSV written to ",file.output))
   }

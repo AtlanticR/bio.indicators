@@ -186,18 +186,24 @@ simply be populated with identical values as ",agg.field))
   coordinates(df.agg.sp) = c("LON", "LAT")
   proj4string(df.agg.sp) = CRS("+proj=longlat +datum=WGS84")
 
+  ldir = project.datadirectory("bio.indicators", "data", out.folder)
 
   if (save.RDS) {
-    saveRDS(df.agg.sp, file=paste0(project.datadirectory("mpa"),"/",out.folder,"/rds/",the.filename,".rds"))
-    writeLines(paste0("rds file written to ",project.datadirectory("mpa"),"/",out.folder,"/rds/",the.filename,".rds"))
+    fn = file.path( ldir, "rds", paste(the.filename,"rds", sep="." ) )
+    saveRDS(df.agg.sp, file=fn )
+    writeLines(paste0("rds file written to ", fn))
   }
+
   if (save.CSV) {
-    write.csv(df.agg,file=paste0(project.datadirectory("mpa"),"/",out.folder,"/csv/",the.filename,".csv"))
-    writeLines(paste0("csv file written to ",project.datadirectory("mpa"),"/",out.folder,"/csv/",the.filename,".csv"))
+    fn = file.path( ldir, "csv", paste(the.filename, "csv", sep="." ) )
+    write.csv(df.agg, file=fn )
+    writeLines(paste0("csv file written to ", fn )
   }
+
   if(save.SHP) {
-    writeOGR(df.agg.sp,dsn=paste0(project.datadirectory("mpa"),"/",out.folder,"/shapes"), layer=the.filename, driver='ESRI Shapefile', overwrite_layer=TRUE)
-    writeLines(paste0("shp file written to ",project.datadirectory("mpa"),"/",out.folder,"/shapes/",the.filename,".*"))
+    fnloc = file.path( ldir, "shapes" )
+    writeOGR(df.agg.sp, dsn=fnloc, layer=the.filename, driver='ESRI Shapefile', overwrite_layer=TRUE)
+    writeLines(paste0("shp file written to ", fnloc, the.filename, ".*"))
   }
   if (output == "RDS"){
     the.output = df.agg.sp

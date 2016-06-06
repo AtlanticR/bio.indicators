@@ -148,7 +148,7 @@ marfissci.simple.map<-function(rds,
 
    the.filename=paste0(name.detail,agg.type,the.filename,".png")
 
-   png(filename=paste0(project.datadirectory("bio.indicators", "data"),"/",out.folder,"/figures/",the.filename),
+   png(filename=paste0(project.datadirectory("bio.indicators", "data", ,out.folder, "figures" ), the.filename),
       width = 6, height = 4, units = "in", res= 300, pointsize = 4,
       bg = "white", family = "", restoreConsole = TRUE,
       type = c("windows", "cairo", "cairo-png"))

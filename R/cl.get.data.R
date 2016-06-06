@@ -1,7 +1,7 @@
 cl.get.data = function(spp = NULL, gear=NULL, years = NULL, save.csv=T){
   library(RODBC)
   channel <- odbcConnect("PTRAN",uid = oracle.cl.username,pwd = oracle.cl.password)
-  
+
   if (!is.null(spp)) {
     spp.tweak = paste0("AND SPECIES IN (",paste(spp, collapse = ","),")")
   }else{
@@ -17,7 +17,7 @@ cl.get.data = function(spp = NULL, gear=NULL, years = NULL, save.csv=T){
   }else{
     years.tweak = ""
   }
-  
+
   query.raw = paste0(
     "SELECT Z.LATITUDE LAT,
   Z.LONGITUDE LON,
@@ -57,13 +57,13 @@ cl.get.data = function(spp = NULL, gear=NULL, years = NULL, save.csv=T){
     }else{
       years.file = paste0("_",paste(range(years),collapse = "_"))
     }
-    file.output = paste0(project.datadirectory("mpa"),"/cl/raw_data/cl_raw",years.file,gear.file,spp.file,".csv")
+    file.output = file.path(project.datadirectory("bio.indicators", "data"), "cl", "raw_data", "cl_raw" , paste(years.file,gear.file,spp.file,".csv", sep="") )
     write.csv(data.raw, file.output, row.names = F)
     print(paste0("CSV written to ",file.output))
   }
   odbcClose(channel)
   return(data.raw)
-  
+
 }
 # years=seq(from = 1986, to = 2002) #2002 represents an overlap with marfissci
 # #years=c(1986,1987)
