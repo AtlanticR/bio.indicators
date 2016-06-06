@@ -1,28 +1,28 @@
-marfissci.batch.process <- function(folder=file.path(project.datadirectory("mpa"),"marfissci","raw_data"), 
+marfissci.batch.process <- function(folder=file.path(project.datadirectory("bio.indicators", "data"),"marfissci","raw_data"),
                                     out.folder="marfissci",
                                     combine=T){
   #' The purpose of this batch process function is to facilitate the mass
-  #' generation of data products from marfis data.  It assumes that data has 
+  #' generation of data products from marfis data.  It assumes that data has
   #' been extracted via marfissci.get.data(), and the resultant csv file(s) are
   #' saved locally.
-  #' 
-  #' When called, this batch function will allow the user to select what data 
+  #'
+  #' When called, this batch function will allow the user to select what data
   #' (i.e. years, species, and/or gears) should be aggregated together.  It will
   #' then generate rds files and figures for all the data.
-  start.time <- Sys.time()  
- 
+  start.time <- Sys.time()
+
   do.it = function(all.data){
-    library(lubridate) 
+    library(lubridate)
     all.data$YEAR_FISHED=year(all.data$DATE_FISHED)
     if (range(all.data$YEAR_FISHED)[1] == range(all.data$YEAR_FISHED)[2]) {
       years.file = range(all.data$YEAR_FISHED)[1]
     }else{
       years.file = paste(range(all.data$YEAR_FISHED),collapse = "_")
     }
-    
+
     agg.by=c("SPECIES_CODE","GEAR_CODE")
-    
-    
+
+
     library(RODBC)
     channel <- odbcConnect("PTRAN",uid = oracle.personal.username,pwd = oracle.personal.password)
     for (a in 1:length(agg.by)){
@@ -35,7 +35,7 @@ marfissci.batch.process <- function(folder=file.path(project.datadirectory("mpa"
       }
       the.codes = sqlQuery(channel,query)
       combos=merge(combos,the.codes)
-      
+
       for (i in 1:nrow(combos)){
         writeLines(paste0("Analysing: ", combos[i,2]))
         #print(paste0("working on ",all.data$DESC_ENG[all.data[agg.by]==combos[i,]]))
@@ -61,14 +61,14 @@ marfissci.batch.process <- function(folder=file.path(project.datadirectory("mpa"
           writeLines(paste0("Insufficient data to plot a figure for ",combos[i,2]))
         }
       }
-      
+
     }
-  } 
-  
-  
+  }
+
+
   if (combine){
   writeLines("Combining all of the csv files into a single one")
-    all.data=do.call(rbind,lapply(file.path(folder,list.files(path=folder, pattern="\\.csv$")), 
+    all.data=do.call(rbind,lapply(file.path(folder,list.files(path=folder, pattern="\\.csv$")),
                                   read.csv, header=TRUE, sep=","))
     do.it(all.data)
   } else {
@@ -78,13 +78,12 @@ marfissci.batch.process <- function(folder=file.path(project.datadirectory("mpa"
       do.it(all.data)
     }
   }
-  
+
   diff=difftime(Sys.time(),start.time, units = "secs")
   diff = format(.POSIXct(diff,tz="GMT"), "%H:%M:%S")
   writeLines(paste0(diff, " elapsed"))
   return(NULL)
 }
-#loadfunctions("mpa")
 
 
 

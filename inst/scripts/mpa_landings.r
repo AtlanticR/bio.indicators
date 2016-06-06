@@ -1,5 +1,5 @@
 
-p = list( project.name="mpa" )
+p = list( project.name="bio.indicators" )
 
 p$project.outdir.root = project.datadirectory( p$project.name, "analysis" )
 
@@ -7,10 +7,10 @@ p$libs = RLibrary ( c(
   "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
   "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  ))
 
-p$init.files = loadfunctions( c(
-  "utility", "groundfish", "snowcrab", "bio", "biochem", "indicators", "remote.sensing", "habitat", "taxonomy",
-  "bathymetry", "substrate", "temperature", "polygons", "netmensuration", "spacetime", "sorted.ordination", "stomachs",
-  "condition", "speciesarea", "speciescomposition", "metabolism", "sizespectrum", "coastline", "mpa" ))
+p$libs = c( p$libs,  bioLibrary(
+  "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
+  "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
+  "bio.coastline", "bio.inidcators" ))
 
 p = spatial.parameters( p, "SSE.mpa" )
 
@@ -27,7 +27,7 @@ p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
 p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
 
 
-p$init.files = loadfunctions( "mpa" )
+p$libs = bioLibrary( "bio.indicators" )
 
 marfissci.get.data(save.csv=FALSE)
 

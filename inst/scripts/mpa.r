@@ -7,16 +7,17 @@ p = list( project.name="mpa" )
 
 p$project.outdir.root = project.datadirectory( p$project.name, "analysis" )
 
-p$libs = RLibrary ( c(
-  "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA", 
-  "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  ))
+p$libs = RLibrary (
+  "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
+  "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  )
 
-p$init.files = loadfunctions( c(
-  "utility", "bio.groundfish", "snowcrab", "bio", "biochem", "indicators", "remote.sensing", "habitat", "taxonomy",
-  "bathymetry", "substrate", "temperature", "polygons", "netmensuration", "spacetime", "sorted.ordination", "stomachs", 
-  "condition", "speciesarea", "speciescomposition", "metabolism", "sizespectrum", "coastline", "mpa" ))
+p$libs = c( p$libs,  bioLibrary(
+  "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
+  "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
+  "bio.coastline", "bio.inidcators" ))
 
-p = spatial.parameters( p, "SSE.mpa" )  
+
+p = spatial.parameters( p, "SSE.mpa" )
 
 p$default.spatial.domain = "canada.east"  # for temperature lookups
 p$taxa =  "maxresolved"
@@ -28,7 +29,7 @@ p$map.regions = c("Canada", "USA") # library "map" coastline polygon designation
 p$map.output.directory = file.path( p$project.outdir.root, "maps")
 p$map.palette = colorRampPalette(c("darkblue","blue3", "green", "yellow", "orange","red3", "darkred"), space = "Lab")(100)
 p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
-p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" ) 
+p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
 
 polys = mpa.db( p=p, DS="polygons.redo" ) # obtain and save a local cache of polygons of the mpa/aoi
 # polys = mpa.db( p=p, DS="polygons" )
@@ -49,25 +50,25 @@ dev.off()
 # 3. bio.db trawl data summaries
 pdf( file=file.path(p$project.outdir.root, "trawl.time.density.pdf") )
   ss = bio.db( DS="set" )
-  dscols = c( snowcrab="green", bio.groundfish="orange" ) 
+  dscols = c( snowcrab="green", bio.groundfish="orange" )
   plot( jitter( dyear) ~ jitter(yr), ss, pch=".", col=dscols[ss$data.source], xlab="Year", ylab="Fractional year", cex=1.5 )
 dev.off()
 
 
 pdf( file=file.path(p$project.outdir.root, "maps", "trawl.spatial.density.pdf") )
   ss = bio.db( DS="set" )
-  dscols = c( snowcrab="green", bio.groundfish="orange" ) 
+  dscols = c( snowcrab="green", bio.groundfish="orange" )
   figure.trawl.density(p=p, ss=ss, dscols=dscols )
 dev.off()
 
 
 # 4. net mensuration related figures
-p$scanmar.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Scanmar" ) 
-p$marport.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Marport" ) 
+p$scanmar.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Scanmar" )
+p$marport.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Marport" )
 figures.netmensuration( DS="all", p=p, outdir=p$project.outdir.root  )
 
 
 #  mybreaks = classIntervals( u, n=length(mypalette), style="quantile")$brks
- 
+
 
 
