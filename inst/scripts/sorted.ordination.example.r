@@ -1,10 +1,10 @@
 
-	bioLibrary( "bio.indicators")
+	bioLibrary( "bio.utilities", "bio.indicators" )
 
 
   # load data of interest (annual time-series)
   # .. an example dataset from the Eastern Scotian Shelf
-    data( "ess.data.rdata" )
+    data( "ess.data" )
 
   # choose subset of data of interest and scale/center
     rownames( ess.data ) = ess.data$yr  # the rownames must be set
