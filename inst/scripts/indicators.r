@@ -1,9 +1,6 @@
 
 
-  require(chron)
-
-
-  bioLibrary( "bio.bio.indicators", "bio.spacetime", "bio.utilities")
+  bioLibrary( "bio.indicators", "bio.spacetime", "bio.utilities")
 
   setwd( project.datadirectory("bio.indicators") )
 
@@ -98,23 +95,23 @@ for (i in .keyfactors) {
 
   # fishery landed value
   .fishery.value = c(indic$landedvalue.NS, indic$landedvalue.totals.NS )
-  Y = pca.analyse.data( indic$data, .fishery.value, t0, t1, fname=file.path(project.datadirectory("bio.bio.indicators"), "landedvalue" ))
+  Y = pca.analyse.data( indic$data, .fishery.value, t0, t1, fname=file.path(project.datadirectory("bio.indicators"), "landedvalue" ))
 
   # fishery -- overall
   .fishery = c(indic$landedvalue.NS, indic$landedvalue.totals.NS, indic$landings.NS, indic$landings.totals.NS )
-  Y = pca.analyse.data( indic$data, .fishery, t0=1970, t1, fname=file.path(project.datadirectory("bio.bio.indicators"), "fishery.overall" ))
+  Y = pca.analyse.data( indic$data, .fishery, t0=1970, t1, fname=file.path(project.datadirectory("bio.indicators"), "fishery.overall" ))
 
   # bio.snowcrab
   .bio.snowcrab = c(indic$bio.snowcrab, "groundfish.stratified.mean.totwgt.bio.snowcrab", "groundfish.stratified.mean.totno.bio.snowcrab" )
-  Y = pca.analyse.data(indic$data, .bio.snowcrab, t0, t1, fname=file.path(project.datadirectory("bio.bio.indicators"), "bio.snowcrab" ))
+  Y = pca.analyse.data(indic$data, .bio.snowcrab, t0, t1, fname=file.path(project.datadirectory("bio.indicators"), "bio.snowcrab" ))
 
   # climate
   .climate = c( indic$climate )
-  Y = pca.analyse.data(indic$data, .climate, t0, t1, fname=file.path(project.datadirectory("bio.bio.indicators"), "climate" ))
+  Y = pca.analyse.data(indic$data, .climate, t0, t1, fname=file.path(project.datadirectory("bio.indicators"), "climate" ))
 
   # ecosystem
   .ecosystem = c( indic$ecosystem )
-  Y = pca.analyse.data(indic$data, .ecosystem, t0, t1, fname=file.path(project.datadirectory("bio.bio.indicators"), "ecosystem" ))
+  Y = pca.analyse.data(indic$data, .ecosystem, t0, t1, fname=file.path(project.datadirectory("bio.indicators"), "ecosystem" ))
 
 
 
