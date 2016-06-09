@@ -15,7 +15,7 @@
       data = read.table( fn, skip=nheaderlines, as.is=T)
 
       names(data) = c("date", "sa.km2")
-      data$date = lubridate::parse_date_time( data$date, orders="d-b-y H:M:OS" )
+      data$date = lubridate::parse_date_time( data$date, orders="d-b-y H:M:OS" )  # default is utc should be OK as these are daily/monthly summaries
       return (data )
     }
 
