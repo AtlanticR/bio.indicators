@@ -563,7 +563,7 @@
 
       # temperatures
       td = NULL
-      for (yy in 1970:p$current.assessment.year) {
+      for (yy in 1970:p$year.assessment) {
        td =  rbind( td, snowcrab.habitat.db ( DS="K", p=p, v="R0.mass", y=yy ) )
       }
 
