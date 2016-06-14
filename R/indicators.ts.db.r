@@ -489,7 +489,7 @@
         return(res)
       }
 
-      p = bio.snowcrab::initialise.local.environment()
+      p = bio.snowcrab::load.environment()
 
       # trawl data
       tsdata =  get.time.series ( from.file=T )  # this returns 1.96SE as "se"
