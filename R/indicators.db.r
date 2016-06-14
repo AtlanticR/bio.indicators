@@ -17,8 +17,8 @@
       # form a basic prediction surface in planar coords for SS habitat for
       # factors that do not "change" rapidly and
 
-      outdir = file.path( project.datadirectory("bio.habitat"), "data", p$spatial.domain, "baseline" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("habitat"), "data", "SSE", "baseline" )
+      outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "baseline" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE", "baseline" )
 
       dir.create(outdir, recursive=T, showWarnings=F)
       outfile =  file.path( outdir, "PS.baseline.rdata" )
@@ -78,8 +78,8 @@
 
 ### NOTE -- "complete", "complete.redo" here as a temporay measure to skip other indicators for 2015/2016
 
-      outdir =  file.path( project.datadirectory("habitat"), "data", p$spatial.domain, "environmentals" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("habitat"), "data", "SSE","environmentals" )
+      outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "environmentals" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","environmentals" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS %in% c( "environmentals", "complete")  ) {
@@ -117,10 +117,10 @@
 
 
 
-    if (DS %in% c("complete.off", "complete.off.redo") ) {
+    if (DS %in% c("complete", "complete.redo") ) {
 
-      outdir =  file.path( project.datadirectory("habitat"), "data", p$spatial.domain, "complete" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("habitat"), "data", "SSE","complete" )
+      outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "complete" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","complete" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS=="complete" ) {
@@ -148,17 +148,8 @@
         # ---------------------
         # Species-area
         # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = p
-        pm$modtype = pm$speciesarea.modeltype
-        pm$taxa = p$speciesarea.taxa
-        pm$season = p$speciesarea.season
-        pm$data.sources = p$speciesarea.data.sources
-        pm$varstomodel = pm$speciesarea.variables
-        pm$project.name = "speciesarea"
-        pm$project.outdir.root = project.datadirectory( pm$project.name, "analysis" )
-
+        pm = indicators.parameters( "speciesarea", p=p )
         SAG =  habitat.interpolate( DS="all", p=pm, yr=max(1970,yr)   )
-
         # remove duplicates derived from repeated tows
         oo = which( duplicated (SAG$platplon ) )
         if (length( oo)> 0 ) {
@@ -180,15 +171,7 @@
         # ---------------------
         # Species composition
         # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = p
-        pm$modtype = pm$speciescomposition.modeltype
-        pm$taxa = p$speciescomposition.taxa
-        pm$season = p$speciescomposition.season
-        pm$varstomodel= pm$speciescomposition.variables
-        pm$project.name = "speciescomposition"
-        pm$project.outdir.root = project.datadirectory( pm$project.name, "analysis" )
-
-
+        pm = indicators.parameters( "speciescomposition", p=p )
         SC = habitat.interpolate( DS="all", p=pm, yr=max(1970,yr) )
 
         # remove duplicates derived from repeated tows --- slow ...
@@ -211,15 +194,7 @@
 
         # ---------------------
         # size spectrum stats
-        pm = p
-        pm$modtype = pm$sizespectrum.modeltype
-        pm$taxa = p$sizespectrum.taxa
-        pm$season = p$sizespectrum.season
-        pm$varstomodel = pm$sizespectrum.variables
-        pm$project.name = "sizespectrum"
-        pm$project.outdir.root = project.datadirectory( pm$project.name, "analysis" )
-
-
+        pm = indicators.parameters( "sizespectrum", p=p )
         SS = habitat.interpolate ( DS="all", p=pm, yr=max(1970,yr) )
 
         # remove duplicates derived from repeated tows --- slow ...
@@ -240,21 +215,10 @@
         rm(SS)
 
 
-
-        # ---------------
-        # Condition db
-
-       pm = p
-       pm$modtype = pm$condition.modeltype
-       pm$taxa = p$condition.taxa
-       pm$season = p$condition.season
-       pm$varstomodel = pm$condition.variables
-       pm$project.name = "condition"
-       pm$project.outdir.root = project.datadirectory( pm$project.name, "analysis" )
-
-
+       # ---------------
+       # Condition db
+       pm = indicators.parameters( "condition", p=p )
        CD = habitat.interpolate ( DS="all", p=pm,  yr=max(1970,yr) )
-
        # remove duplicates derived from repeated tows --- slow ...
        oo = which( duplicated (CD$platplon ) )
        if (length( oo)> 0 ) {
@@ -272,23 +236,11 @@
        PS = merge( PS, CD, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".CD" ) )
        rm(CD)
 
-
-
         # ---------------
         # metabolic rates
         # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = p
-        pm$modtype = pm$metabolism.modeltype
-        pm$taxa = p$metabolism.taxa
-        pm$season = p$metabolism.season
-        pm$varstomodel = p$metabolism.variables
-        pm$project.name = "metabolism"
-        pm$project.outdir.root = project.datadirectory( pm$project.name, "analysis" )
-
-
+        pm = indicators.parameters( "metabolism", p=p )
         MR = habitat.interpolate ( DS="all", p=pm, yr=max(1970,yr) )
-
-
         # remove duplicates derived from repeated tows --- slow ...
         oo = which( duplicated (MR$platplon ) )
         if (length( oo)> 0 ) {
@@ -305,7 +257,6 @@
         MR = MR[ , c("plon", "plat", pm$metabolism.variables ) ]
         PS = merge( PS, MR, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".mr" ) )
         rm(MR)
-
 
         vars = setdiff( names(PS), c("plon", "plat") )
         require (gstat)
