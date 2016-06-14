@@ -1,5 +1,5 @@
 
-  bio.indicators.db = function( db="", ref.year=2008  ) {
+  indicators.ts.db = function( db="", ref.year=2008  ) {
 
     if (db %in% c("climate", "climate.redo" ) ) {
       fn = file.path(  project.datadirectory("bio.indicators"), "data", "climate.rdata")
@@ -183,7 +183,7 @@
     }
 
     if (db=="landedvalue.annual") {
-      lv = bio.indicators.db( db="landedvalue", ref.year=ref.year )  # 1000 $ (CAD, inflation adjusted to refyear )
+      lv = indicators.ts.db( db="landedvalue", ref.year=ref.year )  # 1000 $ (CAD, inflation adjusted to refyear )
       lv$ns =  adjust.inflation(  x=lv$ns, yr=lv$year, reference.year=ref.year )
       lv$atlantic =  adjust.inflation(  x=lv$atlantic, yr=lv$year, reference.year=ref.year )
 
@@ -200,7 +200,7 @@
     }
 
     if (db=="landings.annual") {
-      ld = bio.indicators.db( db="landings", ref.year=ref.year )  ## metric tons
+      ld = indicators.ts.db( db="landings", ref.year=ref.year )  ## metric tons
 
       ns = as.data.frame.matrix( xtabs( ns~ year+type, ld ) )
       names(ns) = paste( "landings.ns", names(ns), sep="." )
@@ -229,7 +229,7 @@
 
 
     if (db %in% c("landings.ns") ) {
-      ld = bio.indicators.db( db="landings" ) # metric tons
+      ld = indicators.ts.db( db="landings" ) # metric tons
       vars = c("year", "type", "ns")
       to.extract = c("groundfish~total", "pelagic~total", "shellfish~total", "other~total" )
       ld = ld[ which(ld$type %in% to.extract), vars ]
@@ -237,7 +237,7 @@
     }
 
     if (db %in% c("landedvalue.ns") ) {
-      lv = bio.indicators.db( db="landedvalue", ref.year=ref.year )
+      lv = indicators.ts.db( db="landedvalue", ref.year=ref.year )
       vars = c("year", "type", "ns")
       to.extract = c("groundfish~total", "pelagic~total", "shellfish~total", "other~total" )
       lv = lv[ which(lv$type %in% to.extract), vars ]  # CAN
@@ -300,7 +300,7 @@
       names(lvy) = c("year", "landedvalue" )
       lvy$year = as.numeric( as.character( lvy$year ) )
       # load  number of fishers
-      demogr = bio.indicators.db( db="demographics" )
+      demogr = indicators.ts.db( db="demographics" )
       lvy = merge( lvy, demogr, by="year" )
       lvy$fish_harvesters_ns [ which( lvy$year %in% c(2003: 2007) ) ] = lvy$fish_harvesters_ns[ which(lvy$year==2002) ]
       lvy$percapita.landedvalue = lvy$landedvalue / lvy$fish_harvesters_ns
@@ -608,26 +608,26 @@
       }
 
       # refresh the survey data
-      groundfish = bio.indicators.db( db="groundfish.timeseries" )
-      snowcrab = bio.indicators.db( db="snowcrab.timeseries")
-      climate = bio.indicators.db (db="climate" )
-      shrimp = bio.indicators.db( db="shrimp.timeseries")
+      groundfish = indicators.ts.db( db="groundfish.timeseries" )
+      snowcrab = indicators.ts.db( db="snowcrab.timeseries")
+      climate = indicators.ts.db (db="climate" )
+      shrimp = indicators.ts.db( db="shrimp.timeseries")
 
-      sar = bio.indicators.db( db="species.area" )
-      nss = bio.indicators.db( db="sizespectrum" )
-      metab = bio.indicators.db( db="metabolism" )
-      sc = bio.indicators.db( db="species.composition" )
+      sar = indicators.ts.db( db="species.area" )
+      nss = indicators.ts.db( db="sizespectrum" )
+      metab = indicators.ts.db( db="metabolism" )
+      sc = indicators.ts.db( db="species.composition" )
 
-      economics = bio.indicators.db( db="economic.data" )
+      economics = indicators.ts.db( db="economic.data" )
 
       # hand constructed and updated ..
-      plankton = bio.indicators.db( db="plankton.timeseries" )
-      human = bio.indicators.db( db="demographics.redo" )
-      climate = bio.indicators.db (db="climate" )
+      plankton = indicators.ts.db( db="plankton.timeseries" )
+      human = indicators.ts.db( db="demographics.redo" )
+      climate = indicators.ts.db (db="climate" )
 
-      seals = bio.indicators.db( db="seal.timeseries" )
-      landedvalue = bio.indicators.db( db="landedvalue.annual", ref.year=2008 )
-      landings = bio.indicators.db( db="landings.annual" )
+      seals = indicators.ts.db( db="seal.timeseries" )
+      landedvalue = indicators.ts.db( db="landedvalue.annual", ref.year=2008 )
+      landings = indicators.ts.db( db="landings.annual" )
 
 
       # merge all data

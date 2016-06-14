@@ -16,7 +16,7 @@
         return ( set )
       }
 
-      set = indicators.db( DS="set" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set" ) # kg/km^2, no/km^2
 
       # filter area
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]
@@ -41,7 +41,7 @@
       set$platplon = paste( set$plat , set$plon, sep="_" )
 
       # match sets and other data sources
-      det = indicators.db( DS="det" ) # kg/km^2, no/km^2
+      det = survey.db( DS="det" ) # kg/km^2, no/km^2
       det = det[ which( det$id %in% unique( set$id) ), ]
       det = det[, c("id", "spec_bio", "residual", "cfdet" ) ]
 

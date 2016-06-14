@@ -21,23 +21,23 @@
 
 
   # load and glue data together
-  indicators.db( DS="set.init.redo", p=p )
-  print("Finished   indicators.db( DS=set.init.redo, p=p )")
-  indicators.db( DS="cat.init.redo", p=p )
-  print("Finished   indicators.db( DS=cat.init.redo, p=p )")
-  indicators.db( DS="det.init.redo", p=p )
-  print("Finished indicators.db( DS=det.init.redo, p=p )")
+  survey.db( DS="set.init.redo", p=p )
+  print("Finished   survey.db( DS=set.init.redo, p=p )")
+  survey.db( DS="cat.init.redo", p=p )
+  print("Finished   survey.db( DS=cat.init.redo, p=p )")
+  survey.db( DS="det.init.redo", p=p )
+  print("Finished survey.db( DS=det.init.redo, p=p )")
 
 
   # sanity checking and creation of new variables
-  indicators.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-  print("Finished indicators.db (DS=set.intermediate.redo)")
-  indicators.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
-  print ("Finished indicators.db (DS=det.redo)")
-  indicators.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
-  print ("Finished indicators.db(DS=cat.redo)")
-  indicators.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
-  print ("Finished indicators.db (DS=set.redo)")
+  survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+  print("Finished survey.db (DS=set.intermediate.redo)")
+  survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
+  print ("Finished survey.db (DS=det.redo)")
+  survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
+  print ("Finished survey.db(DS=cat.redo)")
+  survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
+  print ("Finished survey.db (DS=set.redo)")
 
 
   # generic plots

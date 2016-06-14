@@ -18,7 +18,7 @@
         return (ss )
       }
 
-      x =  indicators.db( "det" )  # mass and length are not transformed
+      x =  survey.db( "det" )  # mass and length are not transformed
       x = x[ which( x$data.source=="groundfish"), ]
 
       # x = x[ which(x$settype %in% c(1,2,5) ), ]
@@ -76,7 +76,7 @@
         return ( nss )
       }
 
-      sm = indicators.db( "set" )
+      sm = survey.db( "set" )
       sm = sm[ which( sm$data.source=="groundfish") ,]
       sm$area = sm$sa
       sm$sa = NULL

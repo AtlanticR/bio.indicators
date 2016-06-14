@@ -1,5 +1,5 @@
 
-  indicators.db = function( DS, p=NULL ) {
+  survey.db = function( DS, p=NULL ) {
 
     dir.create( file.path( project.datadirectory("bio.indicators"), "data" ), showWarnings=FALSE, recursive=TRUE )
 
@@ -207,7 +207,7 @@
         if (file.exists( fn) ) load( fn)
         return ( set )
       }
-      set = indicators.db( DS="set.init", p=p )
+      set = survey.db( DS="set.init", p=p )
       set = set[ which(is.finite(set$lon + set$lat + set$yr ) ) , ]  #  fields are required
       oo =  which( !duplicated(set$id) )
       if (length(oo) > 0 ) set = set[ oo, ]
@@ -249,7 +249,7 @@
         #  mature = 1
         #  mat.unknown = 2
 
-      det = indicators.db( DS="det.init", p=p )
+      det = survey.db( DS="det.init", p=p )
       det = det[ which( is.finite( det$spec_bio)), ]
       det$sex[ which( !is.finite(det$sex)) ] = 2 # set all uncertain sexes to one code sex code
       det$mat[ which( !is.finite(det$mat)) ] = 2 # set all uncertain sexes to one code sex code
@@ -328,7 +328,7 @@
       }
 
       # estimate metabolic rates estimates (requires temperature estimate )
-      set = indicators.db( DS="set.intermediate" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set.intermediate" ) # kg/km^2, no/km^2
       set = set[ , c("id", "t")]  # temperature is required to estimate MR ..
 
       det = merge( det, set, by="id", all.x=T, all.y=F, sort=F )
@@ -338,7 +338,7 @@
 
       ## det$cfdet needs to be updated as it was formed without the above re-estimation of missing weights
 
-      cat = indicators.db( DS="cat.init", p=p )
+      cat = survey.db( DS="cat.init", p=p )
 
       massTotCat = applySum( det[ ,c("id2", "mass")], newnames=c("id2","massTotdet" ) )
 
@@ -412,12 +412,12 @@
         return ( cat )
       }
 
-      set = indicators.db( DS="set.init" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set.init" ) # kg/km^2, no/km^2
 
-      det = indicators.db( DS="det" ) # size information, no, cm, kg
+      det = survey.db( DS="det" ) # size information, no, cm, kg
       det = det[ which( det$id %in% unique( set$id) ), ]
 
-      cat = indicators.db( DS="cat.init", p=p )
+      cat = survey.db( DS="cat.init", p=p )
       cat = cat[ which( cat$id %in% unique( set$id) ), ]
       cat$cfcat = NULL  # no longer needed as each data point is ~ equivalent
 
@@ -524,12 +524,12 @@
         return ( set )
       }
 
-      set = indicators.db( DS="set.intermediate", p=p )
+      set = survey.db( DS="set.intermediate", p=p )
 
-      det = indicators.db( DS="det" ) # size information, no, cm, kg
+      det = survey.db( DS="det" ) # size information, no, cm, kg
       det = det[ which( det$id %in% unique( set$id) ), ]
 
-      cat = indicators.db( DS="cat", p=p )
+      cat = survey.db( DS="cat", p=p )
       cat = cat[ which( cat$id %in% unique( set$id) ), ]
 
       # NOTE: cat$totno and cat$totmass have already been cf corrected ---> already in per km2

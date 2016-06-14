@@ -22,7 +22,7 @@ p = spatial.parameters( p, "SSE.mpa" )
 p$default.spatial.domain = "canada.east"  # for temperature lookups
 p$taxa =  "maxresolved"
 p$seasons = "allseasons"
-p$data.sources = c("groundfish", "snowcrab")  # for indicators.db
+p$data.sources = c("groundfish", "snowcrab")  # for survey.db
 p$nw = 10 # for lookup of temperature: number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
 
 p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
@@ -47,16 +47,16 @@ pdf( file=file.path(p$project.outdir.root, "maps", "mpa.pdf") )
 dev.off()
 
 
-# 3. indicators.db trawl data summaries
+# 3. survey.db trawl data summaries
 pdf( file=file.path(p$project.outdir.root, "trawl.time.density.pdf") )
-  ss = indicators.db( DS="set" )
+  ss = survey.db( DS="set" )
   dscols = c( snowcrab="green", groundfish="orange" )
   plot( jitter( dyear) ~ jitter(yr), ss, pch=".", col=dscols[ss$data.source], xlab="Year", ylab="Fractional year", cex=1.5 )
 dev.off()
 
 
 pdf( file=file.path(p$project.outdir.root, "maps", "trawl.spatial.density.pdf") )
-  ss = indicators.db( DS="set" )
+  ss = survey.db( DS="set" )
   dscols = c( snowcrab="green", groundfish="orange" )
   figure.trawl.density(p=p, ss=ss, dscols=dscols )
 dev.off()

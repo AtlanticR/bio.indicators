@@ -14,7 +14,7 @@
         return ( set )
       }
 
-      set = indicators.db( DS="set" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set" ) # kg/km^2, no/km^2
 
       # filter area
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]

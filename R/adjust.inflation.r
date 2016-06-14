@@ -2,7 +2,7 @@
  
 
   adjust.inflation = function( x, yr, reference.year, reverse=F) {
-    cpi = indicators.db( db="cpi", ref.year=reference.year )
+    cpi = survey.db( db="cpi", ref.year=reference.year )
     out = x * NA
     yrs = sort(unique(yr))
     for (YY in yrs) {

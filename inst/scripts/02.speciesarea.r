@@ -2,7 +2,7 @@
 	### requires an update of databases entering into analysis:
   # snow crab:  "cat" and "set.clean"
   # groundfish: "sm.base", "set"
-  # and the glue function "indicators.db"
+  # and the glue function "survey.db"
 
 # create base species area stats  ... a few hours
   p = list( project.name = "speciesarea" )
@@ -30,7 +30,7 @@
 # Run BIO.DB to update the multi-survey databases /home/jae/ecomod/bio/src/bio.r
 # -------------------------------------------------------------------------------------
 
-  # count and record rarification curves from all available data --- refresh "indicators.db" ~/ecomod/bio/src/bio.r
+  # count and record rarification curves from all available data --- refresh "survey.db" ~/ecomod/bio/src/bio.r
   speciesarea.db( DS="speciesarea.counts.redo", p=p )  # 60 MB / process  -- can use all cpus
 
   # compute species-area relationships

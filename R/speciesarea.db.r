@@ -21,8 +21,8 @@
         return (SC.ny)
       }
 
-      set = indicators.db (DS="set", p=p)
-      scat = indicators.db (DS="cat", p=p)
+      set = survey.db (DS="set", p=p)
+      scat = survey.db (DS="cat", p=p)
 
       p$nsets = nrow( set )
       p$nlengthscale = length(p$lengthscale)
@@ -113,7 +113,7 @@
 
       # save ( o, file=fn, compress=T )
 
-      set = indicators.db (DS="set", p=p)
+      set = survey.db (DS="set", p=p)
 
       if ( nrow(set) != nrow(o ) ) {
         print( "Error: data merge failure" )

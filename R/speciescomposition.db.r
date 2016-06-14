@@ -30,12 +30,12 @@
         return ( ca.out )
       }
 
-      sc = indicators.db( DS="cat" )  # species catch
+      sc = survey.db( DS="cat" )  # species catch
       sc = sc[ which(is.finite( sc$zn ) ), ]
       sc = sc[ , c("id", "spec_bio", "zn" ) ]  # zscore-transformed into 0,1
       sc = sc[ , c("id", "zn","spec_bio" ) ]  # zscore-transformed into 0,1
 
-      set = indicators.db( DS="set" ) # trip/set loc information
+      set = survey.db( DS="set" ) # trip/set loc information
       set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z" ) ]
       set = na.omit( set ) # all are required fields
 

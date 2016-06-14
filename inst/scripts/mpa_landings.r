@@ -17,7 +17,7 @@ p = spatial.parameters( p, "SSE.mpa" )
 p$default.spatial.domain = "canada.east"  # for temperature lookups
 p$taxa =  "maxresolved"
 p$seasons = "allseasons"
-p$data.sources = c("groundfish", "snowcrab")  # for indicators.db
+p$data.sources = c("groundfish", "snowcrab")  # for survey.db
 p$nw = 10 # for lookup of temperature: number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
 
 p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations

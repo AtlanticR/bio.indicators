@@ -5,7 +5,7 @@
 	### requires an update of databases entering into analysis:
   # snow crab:  "cat" and "set.clean"
   # groundfish: "sm.base", "set"
-  # and the glue function "indicators.db"
+  # and the glue function "survey.db"
 
 
   # create base species area stats  ... a few hours
