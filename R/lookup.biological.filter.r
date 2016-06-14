@@ -3,8 +3,8 @@
 lookup.biological.filter = function( ss, additional.data=NULL ) {
   
   # a list of sex, maturity, codes, etc  to define det subsets
-  # sex codes defined in bio.db.r ( female=1, male=0, ?=2 )
-  # mat codes defined in bio.db.r ( imm=0, mat=1, ?=2 )
+  # sex codes defined in indicators.db.r ( female=1, male=0, ?=2 )
+  # mat codes defined in indicators.db.r ( imm=0, mat=1, ?=2 )
 
   out = list()
   

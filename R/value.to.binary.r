@@ -3,7 +3,7 @@
 		# convert abundance (x) to binary using quantile information, 
 		# need to be clever if there is more than 1 survey (y)
 
-		# ---	bc = bio.db( DS="cat.with.zeros", p=p)
+		# ---	bc = indicators.db( DS="cat.with.zeros", p=p)
 
 		# ---	bc$bn = value.to.binary( pr=p$quantile.threshold, x=bc$totno, y=bc$data.source ) 
 	

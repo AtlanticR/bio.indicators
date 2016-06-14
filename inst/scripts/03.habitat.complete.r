@@ -78,7 +78,7 @@
 
 
   # 3. Contains all environmental data == baseline and temperature data ... none of the 'higher level indicators'
-  # Used for merging back into bio.db as the 'higher level indicators have not yet been created/updated
+  # Used for merging back into indicators.db as the 'higher level indicators have not yet been created/updated
   p = make.list( list( yrs=p$yearstomodel), Y=p )
   #parallel.run( habitat.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
   habitat.db( DS="environmentals.redo", p=p )

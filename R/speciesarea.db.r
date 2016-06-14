@@ -21,8 +21,8 @@
         return (SC.ny)
       }
 
-      set = bio.db (DS="set", p=p)
-      scat = bio.db (DS="cat", p=p)
+      set = indicators.db (DS="set", p=p)
+      scat = indicators.db (DS="cat", p=p)
 
       p$nsets = nrow( set )
       p$nlengthscale = length(p$lengthscale)
@@ -113,7 +113,7 @@
 
       # save ( o, file=fn, compress=T )
 
-      set = bio.db (DS="set", p=p)
+      set = indicators.db (DS="set", p=p)
 
       if ( nrow(set) != nrow(o ) ) {
         print( "Error: data merge failure" )

@@ -1,7 +1,7 @@
 
   # glue biological data sets together from various surveys
 
-  p = list( project.name = "integrated" )
+  p = list( project.name = "indicators" )
 
   p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name, "analysis" ) #required for interpolations and mapping
   p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
@@ -21,23 +21,23 @@
 
 
   # load and glue data together
-  bio.db( DS="set.init.redo", p=p )
-  print("Finished   bio.db( DS=set.init.redo, p=p )")
-  bio.db( DS="cat.init.redo", p=p )
-  print("Finished   bio.db( DS=cat.init.redo, p=p )")
-  bio.db( DS="det.init.redo", p=p )
-  print("Finished bio.db( DS=det.init.redo, p=p )")
+  indicators.db( DS="set.init.redo", p=p )
+  print("Finished   indicators.db( DS=set.init.redo, p=p )")
+  indicators.db( DS="cat.init.redo", p=p )
+  print("Finished   indicators.db( DS=cat.init.redo, p=p )")
+  indicators.db( DS="det.init.redo", p=p )
+  print("Finished indicators.db( DS=det.init.redo, p=p )")
 
 
   # sanity checking and creation of new variables
-  bio.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-  print("Finished bio.db (DS=set.intermediate.redo)")
-  bio.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
-  print ("Finished bio.db (DS=det.redo)")
-  bio.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
-  print ("Finished bio.db(DS=cat.redo)")
-  bio.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
-  print ("Finished bio.db (DS=set.redo)")
+  indicators.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+  print("Finished indicators.db (DS=set.intermediate.redo)")
+  indicators.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
+  print ("Finished indicators.db (DS=det.redo)")
+  indicators.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
+  print ("Finished indicators.db(DS=cat.redo)")
+  indicators.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
+  print ("Finished indicators.db (DS=set.redo)")
 
 
   # generic plots

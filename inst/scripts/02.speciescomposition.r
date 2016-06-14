@@ -4,7 +4,7 @@
   ### requires an update of databases entering into analysis:
   # snow crab:  "cat" and "set.clean"
   # groundfish: "sm.base", "set"
-  # and the glue function "bio.db"
+  # and the glue function "indicators.db"
 
 
   p = list( project.name = "speciescomposition" )
