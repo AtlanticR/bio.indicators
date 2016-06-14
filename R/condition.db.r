@@ -3,7 +3,7 @@
 
     if (DS %in% c( "condition", "condition.redo" ) ) {
 
-      ddir = file.path( project.datadirectory("bio.indicators", "condition"), "data" )
+      ddir = project.datadirectory("bio.indicators", "data", "condition")
       dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
       infix = paste(p$spatial.domain, p$season, sep=".")

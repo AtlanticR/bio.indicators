@@ -1,12 +1,14 @@
 
   survey.db = function( DS, p=NULL ) {
+    #\\ assimilation of all survey data into a coherent form
 
-    dir.create( file.path( project.datadirectory("bio.indicators"), "data" ), showWarnings=FALSE, recursive=TRUE )
+    sdir = file.path( project.datadirectory("bio.indicators"), "data", "survey" )
+    dir.create( sdir, showWarnings=FALSE, recursive=TRUE )
 
     if (DS %in% c("set.init","set.init.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "set.init.rdata"  )
+      fn = file.path( sdir, "set.init.rdata"  )
       if (DS=="set.init") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -18,7 +20,8 @@
         # settype: 1=stratified random, 2=regular survey, 3=unrepresentative(net damage),
         #  4=representative sp recorded(but only part of total catch), 5=comparative fishing experiment,
         #  6=tagging, 7=mesh/gear studies, 8=explorartory fishing, 9=hydrography
-        y = groundfish.db( "set.base" )
+
+        y = bio.groundfish::groundfish.db( "set.base" )
         y$data.source = "groundfish"
         y$sa = y$sakm2
         y$cfset = 1 / y$sa
@@ -30,7 +33,7 @@
         rm (y); gc()
       }
       if ( "snowcrab" %in% p$data.sources ) {
-        y =  snowcrab.db( DS ="set.clean" )
+        y =  bio.snowcrab::snowcrab.db( DS ="set.clean" )
         y$data.source = "snowcrab"
         y$id = paste( y$trip, y$set, sep="." )
         y$cfset = 1 # assume 100% q
@@ -57,7 +60,7 @@
     if (DS %in% c("cat.init","cat.init.redo") ) {
       # all species caught
       cat = NULL # trip/cat loc information
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "cat.init.rdata"  )
+      fn = file.path( sdir, "cat.init.rdata"  )
       if (DS=="cat.init") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -69,7 +72,7 @@
       cat.names =  c("data.source", "id", "spec", "spec_bio", "totno", "totmass", "cfcat")
       if ( "groundfish" %in% p$data.sources ) {
 
-        x = groundfish.db( "cat" )   ## not really set but "cat"
+        x = bio.groundfish::groundfish.db( "cat" )   ## not really set but "cat"
         # totno and totmass are sa, vessel and sub-sampling corrected ::  cf = cfvessel / sakm2
         # no./km2 ; and  kg/km2
         x$data.source = "groundfish"
@@ -82,7 +85,7 @@
       }
 
       if ( "snowcrab" %in% p$data.sources ) {
-        x =  snowcrab.db( DS ="cat.georeferenced" ) # sa corrected ; kg/km2; no./km2
+        x = bio.snowcrab::snowcrab.db( DS ="cat.georeferenced" ) # sa corrected ; kg/km2; no./km2
         x$data.source = "snowcrab"
         x$spec_bio = taxonomy.recode( from="spec", to="parsimonious", tolookup=x$spec )
         x$id = paste( x$trip, x$set, sep="." )
@@ -115,7 +118,7 @@
     if (DS %in% c("det.init","det.init.redo") ) {
       # all species caught
       det = NULL # biologicals
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "det.init.rdata"  )
+      fn = file.path( sdir, "det.init.rdata"  )
       if (DS=="det.init") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -135,7 +138,7 @@
 
       det.names =  c("data.source", "id", "spec", "spec_bio", "detid", "sex", "mass", "len", "mat", "cfdet" )
       if ( "groundfish" %in% p$data.sources ) {
-        x = groundfish.db( "det" )
+        x = bio.groundfish::groundfish.db( "det" )
         x$data.source = "groundfish"
         x$detid = x$fshno
 
@@ -173,7 +176,7 @@
 
       if ( "snowcrab" %in% p$data.sources ) {
 
-        x =  snowcrab.db( DS ="det.georeferenced" )
+        x = bio.snowcrab::snowcrab.db( DS ="det.georeferenced" )
         x$data.source = "snowcrab"
         x$id = paste( x$trip, x$set, sep="." )
         x$spec = 2526
@@ -202,7 +205,7 @@
     if (DS %in% c("set.intermediate","set.intermediate.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "set.intermediate.rdata"  )
+      fn = file.path( sdir, "set.intermediate.rdata"  )
       if (DS=="set.intermediate") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -233,7 +236,7 @@
       # error checking, imputation, etc
 
       det = NULL
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "det.rdata"  )
+      fn = file.path( sdir, "det.rdata"  )
       if (DS=="det") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -406,7 +409,7 @@
     if (DS %in% c("cat", "cat.redo") ) {
       # all species caught
       cat = NULL # biologicals
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "cat.rdata"  )
+      fn = file.path( sdir, "cat.rdata"  )
       if (DS=="cat") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -518,7 +521,7 @@
     if (DS %in% c("set","set.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( project.datadirectory("bio.indicators"), "data", "set.rdata"  )
+      fn = file.path( sdir, "set.rdata"  )
       if (DS=="set") {
         if (file.exists( fn) ) load( fn)
         return ( set )
