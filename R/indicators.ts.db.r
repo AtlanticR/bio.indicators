@@ -382,7 +382,7 @@
 
       res = data.frame( yr=yrs, C=NA, Z=NA, Npred=NA )
       for ( i in 1:length(yrs) ) {
-        H = habitat.db( DS="complete", p=p, year=yrs[i] )
+        H = indicators.db( DS="complete", p=p, year=yrs[i] )
         res$C[i] = mean( H$C )
         res$Z[i] = mean( H$Z )
         #res$sar.rsq[i] = mean( H$sar.rsq )
@@ -410,7 +410,7 @@
 
       res = data.frame( yr=yrs, nss.rsquared=NA, nss.b1=NA, nss.shannon=NA )
       for ( i in 1:length(yrs) ) {
-        H = habitat.db( DS="complete", p=p, year=yrs[i] )
+        H = indicators.db( DS="complete", p=p, year=yrs[i] )
         res$nss.rsquared[i] = mean( H$nss.rsquared )
       #  res$nss.b0[i] = mean( H$nss.b0 )
         res$nss.b1[i] = mean( H$nss.b1 )
@@ -439,7 +439,7 @@
 
       res = data.frame( yr=yrs,  smr=NA, meanlen=NA, meanwgt=NA )
       for ( i in 1:length(yrs) ) {
-        H = habitat.db( DS="complete", p=p, year=yrs[i] )
+        H = indicators.db( DS="complete", p=p, year=yrs[i] )
         #res$mr[i] = mean( H$mr )
         res$smr[i] = mean( H$smr )
         res$meanlen[i] = mean( H$len )
@@ -468,7 +468,7 @@
 
       res = data.frame( yr = yrs, ca1=NA, ca2=NA)#, pca1=NA, pca2=NA )
       for ( i in 1:length(yrs) ) {
-        H = habitat.db( DS="complete", p=p, year=yrs[i] )
+        H = indicators.db( DS="complete", p=p, year=yrs[i] )
         res$ca1[i] = mean( H$ca1 )
         res$ca2[i] = mean( H$ca2 )
         #res$pca1[i] = mean( H$pca1 )

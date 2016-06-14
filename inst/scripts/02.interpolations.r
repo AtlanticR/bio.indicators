@@ -192,6 +192,6 @@
   #        .. at present data from 1970 are copied to all pre 1970 data years
 
   p = make.list( list( yrs=p$yearstomodel), Y=p )
-  parallel.run(  habitat.db, DS="complete.redo", p=p )
-  # habitat.db ( DS="complete.redo", p=p )
+  parallel.run(  indicators.db, DS="complete.redo", p=p )
+  # indicators.db ( DS="complete.redo", p=p )
 

@@ -112,12 +112,12 @@
   ### loadfunctions( "groundfish", functionname="1.groundfish.r" )
   ### loadfunctions( "taxonomy", functionname="taxonomy.r" )
   ### loadfunctions( "temperature", functionname="temperature.r" )
-  habitat.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
+  indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
   lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
 
   # 3. Contains all environmental data == baseline and temperature data ... none of the 'higher level indicators'
   # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
   p = make.list( list( yrs=p$yearstomodel), Y=p )
-  #parallel.run( habitat.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
-  habitat.db( DS="environmentals.redo", p=p )
+  #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
+  indicators.db( DS="environmentals.redo", p=p )
 

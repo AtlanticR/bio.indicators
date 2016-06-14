@@ -5,7 +5,7 @@
 
 p = list( project.name="bio.indicators" )
 
-p$project.outdir.root = project.datadirectory( p$project.name, "analysis" )
+p$project.outdir.root = project.datadirectory( p$project.name, "analysis", "mpa" )
 
 p$libs = RLibrary (
   "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
