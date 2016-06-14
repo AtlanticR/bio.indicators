@@ -65,7 +65,7 @@ dev.off()
 # 4. net mensuration related figures
 p$scanmar.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Scanmar" )
 p$marport.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Marport" )
-figures.netmensuration( DS="all", p=p, outdir=p$project.outdir.root  )
+figures.netmensuration( DS="all", p=p, outdir=p$project.outdir.root  )  # for latex a copy here
 
 
 

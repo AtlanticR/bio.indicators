@@ -62,14 +62,12 @@
   p = bio.indicators::indicators.parameters( DS="metabolism", p=p)
   bio.indicators::metabolism.db( DS="metabolism.redo", p=p )
 
-
   # -----------------------------
   # analysis and spatial database of normalised size spectrum, average size
   p = bio.indicators::indicators.parameters( DS="sizespectrum", p=p)
   bio.indicators::sizespectrum.db( DS="sizespectrum.by.set.redo", p=p ) #MG takes 1 minute
   bio.indicators::sizespectrum.db( DS="sizespectrum.stats.redo", p=p )  #MG took 20 minutes
   bio.indicators::sizespectrum.db( DS="sizespectrum.redo", p=p )  # all point data to be interpolated #MG took 5 minutes
-
 
   # -----------------------------
   # count and record rarification curves from all available data --- refresh "survey.db" ~/ecomod/bio/src/bio.r
@@ -78,45 +76,25 @@
   bio.indicators::speciesarea.db( DS="speciesarea.stats.redo", p=p ) # ~ 1 minute
   bio.indicators::speciesarea.db( DS="speciesarea.redo", p=p ) # intermediary file for modelling and interpolation ... lookup up missing data and covariates
 
-
  # -----------------------------
    # ordination
   p = bio.indicators::indicators.parameters( DS="speciescomposition", p=p)
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
 
-
  # -----------------------------
- # glue them all together
-
+ # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
   p = list( project.name = "habitat" )
-  p = bio.indicators::indicators.parameters( DS=p$project.name, p=p)
-
   # p$yearstomodel = 1970:2015  --- change this
 
-  # choose:
-  # p$clusters = rep( "localhost", 1)  # if length(p$clusters) > 1 .. run in parallel
-  # p$clusters = c( rep( "nyx", 24), rep("tartarus", 24), rep("kaos", 24 ) )
-  # p$clusters = rep("localhost", detectCores() )
-
-  # 2. physical characteristics (depth, temp, substrate)
-  # Time-invariant data (depth, substate, etc)
-  #  baseline prediction surface in planar coords
-  #  a glue function to bring in all available temperature and biological and substrate information
-  #  This step needs to be completed after temperature db refresh
-
-  ### ENSURE all following incoming data are up to date before running this:
-  ### i.e. :
-  ### loadfunctions( "bathymetry", functionname="bathymetry.r" )
-  ### loadfunctions( "substrate", functionname="substrate.r" )
-  ### loadfunctions( "groundfish", functionname="1.groundfish.r" )
-  ### loadfunctions( "taxonomy", functionname="taxonomy.r" )
-  ### loadfunctions( "temperature", functionname="temperature.r" )
+  p = bio.indicators::indicators.parameters( DS=p$project.name, p=p)
   indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
   lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
 
-  # 3. Contains all environmental data == baseline and temperature data ... none of the 'higher level indicators'
-  # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
+  # p$clusters = rep( "localhost", 1)  # if length(p$clusters) > 1 .. run in parallel
+  # p$clusters = rep("localhost", detectCores() )
+  # p$clusters = c( rep( "nyx", 24), rep("tartarus", 24), rep("kaos", 24 ) )
+
   p = make.list( list( yrs=p$yearstomodel), Y=p )
   #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
   indicators.db( DS="environmentals.redo", p=p )
