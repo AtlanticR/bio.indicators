@@ -7,7 +7,7 @@
   #required for interpolations and mapping
 
   p = list( project.name = "speciescomposition" )
-  p = indicators.parameters( DS=p$project.name, p=p )
+  p = bio.indicators::indicators.parameters( DS=p$project.name, p=p )
 
   # p$yearstomodel = 1970:2015  --- change this
    # p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )

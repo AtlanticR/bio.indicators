@@ -2,11 +2,8 @@
   metabolism.db = function( DS="", p=NULL, yr=NULL ) {
 
     if (DS %in% c( "metabolism", "metabolism.redo" ) ) {
-
-      ddir = file.path( project.datadirectory("bio.indicators", "metabolism"), "data" )
-      dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
-
-      fn = file.path( ddir, paste( "set.metabolism",  p$spatial.domain, p$taxa, p$season, ".rdata", sep=".") )
+      dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
+      fn = file.path( p$project.outdir.root, paste( "set.metabolism",  p$spatial.domain, p$taxa, p$season, ".rdata", sep=".") )
 
       if (DS=="metabolism") {
         set = NULL

@@ -3,49 +3,17 @@
 # this is the main calling program
 # new comment
 
-p = list( project.name="bio.indicators" )
-
-p$project.outdir.root = project.datadirectory( p$project.name, "analysis", "mpa" )
-
-p$libs = RLibrary (
-  "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
-  "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  )
-
-p$libs = c( p$libs,  bioLibrary(
-  "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
-  "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
-  "bio.coastline", "bio.indicators" ))
-
-
-p = spatial.parameters( p, "SSE.mpa" )
-
-p$default.spatial.domain = "canada.east"  # for temperature lookups
-p$taxa =  "maxresolved"
-p$seasons = "allseasons"
-p$data.sources = c("groundfish", "snowcrab")  # for survey.db
-p$nw = 10 # for lookup of temperature: number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
-
-p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
-p$map.output.directory = file.path( p$project.outdir.root, "maps")
-p$map.palette = colorRampPalette(c("darkblue","blue3", "green", "yellow", "orange","red3", "darkred"), space = "Lab")(100)
-p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
-p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
+p = list( project.name="mpa" )
+p = bio.indicators::indicators.parameters( DS=p$project.name, p=p )
 
 polys = mpa.db( p=p, DS="polygons.redo" ) # obtain and save a local cache of polygons of the mpa/aoi
 # polys = mpa.db( p=p, DS="polygons" )
 
-
 # 1. close-up map of area of interest:
-pdf( file=file.path(p$project.outdir.root, "maps", "mpa_closeup.pdf") )
-  figure.mpa.closeup(p )
-dev.off()
-
+figure.mpa.closeup(p)
 
 # 2. map of area of interest:
-pdf( file=file.path(p$project.outdir.root, "maps", "mpa.pdf") )
-  figure.mpa.aoi(p )
-dev.off()
-
+figure.mpa.aoi(p )
 
 # 3. survey.db trawl data summaries
 pdf( file=file.path(p$project.outdir.root, "trawl.time.density.pdf") )
@@ -54,13 +22,11 @@ pdf( file=file.path(p$project.outdir.root, "trawl.time.density.pdf") )
   plot( jitter( dyear) ~ jitter(yr), ss, pch=".", col=dscols[ss$data.source], xlab="Year", ylab="Fractional year", cex=1.5 )
 dev.off()
 
-
 pdf( file=file.path(p$project.outdir.root, "maps", "trawl.spatial.density.pdf") )
   ss = survey.db( DS="set" )
   dscols = c( snowcrab="green", groundfish="orange" )
   figure.trawl.density(p=p, ss=ss, dscols=dscols )
 dev.off()
-
 
 # 4. net mensuration related figures
 p$scanmar.dir = file.path( project.datadirectory("bio.groundfish"), "data", "nets", "Scanmar" )

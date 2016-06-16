@@ -342,7 +342,7 @@
       p = bio.groundfish::load.groundfish.environment()
 
       # data from groundfish data series
-      set = groundfish.db( "set.partial" )
+      set = groundfish.db( "set" )  ## TODO --- convert to indicators.db
       variables = c( variable.list.expand("all"), "area")
       byyear = ts.getdata(set=set, fname="byear.4vw", from.file=F, variables=variables, plottimes="annual", regions="nafo.4vw", custom="normal")
       yrs = sort( unique( byyear$yr ) )

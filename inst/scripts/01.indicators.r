@@ -1,29 +1,17 @@
 
   # glue biological data sets together from various surveys
   p = list( project.name = "survey" )
-
-  p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
-  p$libs = c( p$libs, bioLibrary ( "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
-  p$taxa =  "maxresolved"
-  # p$seasons = "allseasons"
-  p$data.sources = c("groundfish", "snowcrab")
-
-  # habitat lookup parameters .. depth/temperature
-  p$nw = 10 # number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
-  p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
-  p$default.spatial.domain = "canada.east"  # for temperature lookups
-	p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+  p = bio.indicators::indicators.parameters( DS="survey", p=p )
 
   # load and glue data together
   survey.db( DS="set.init.redo", p=p )
   survey.db( DS="cat.init.redo", p=p )
   survey.db( DS="det.init.redo", p=p )
-
-  # sanity checking and creation of new variables
   survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
   survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
   survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
   survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
+
 
   # generic plots
   figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control

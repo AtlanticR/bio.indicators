@@ -2,8 +2,7 @@
   sizespectrum.db = function( DS="", p=NULL ) {
     ### dependency is only groundfish db for now. ...
 
-    ddir = project.datadirectory( "bio.indicators", "sizespectrum", "data"  )
-    dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
+    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
 
     infix = paste( p$nss.taxa, p$nss.type, p$nss.base, sep="." )
 
@@ -13,7 +12,7 @@
       # make the base normalised size spectral statistics summaries
 
       if (DS == "sizespectrum.by.set" ) {
-        fn = file.path( ddir, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
+        fn = file.path( p$project.outdir.root, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
         load( fn )
         return (ss )
       }
@@ -49,7 +48,7 @@
           # midpoints = (l.bound [2:n.size] + l.bound [1:(n.size-1)] ) /2
          infix = paste( tx, vname, p$nss.base, sep="." )
 
-          fn = file.path( ddir, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
+          fn = file.path( p$project.outdir.root, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
 
           ss = NULL
           tt = XX$cfdet*XX[,vname]
@@ -68,7 +67,7 @@
     if (DS %in% c( "sizespectrum.stats", "sizespectrum.stats.redo" ) ) {
 
 
-      fn = file.path( ddir, paste( "set.sizespectrum.stats", infix, "rdata", sep=".")  )
+      fn = file.path( p$project.outdir.root, paste( "set.sizespectrum.stats", infix, "rdata", sep=".")  )
 
       if (DS=="sizespectrum.stats") {
         nss = NULL
@@ -135,7 +134,7 @@
 
       # make the base normalised size spectral statistics summaries
 
-      fn = file.path( ddir, paste( "sizespectrum", infix, "rdata", sep="." ) )
+      fn = file.path( p$project.outdir.root, paste( "sizespectrum", infix, "rdata", sep="." ) )
 
       if ( DS=="sizespectrum" ) {
         SC = NULL

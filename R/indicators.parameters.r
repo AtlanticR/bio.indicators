@@ -2,8 +2,24 @@
 
 indicators.parameters = function( DS, p ) {
 
+  if (DS=="survey"){
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
+    p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
+    p$taxa =  "maxresolved"
+    # p$seasons = "allseasons"
+    p$data.sources = c("groundfish", "snowcrab")
+    # habitat lookup parameters .. depth/temperature
+    p$nw = 10 # number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
+    p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
+    p$default.spatial.domain = "canada.east"  # for temperature lookups
+    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    return(p)
+  }
+
+
   if (DS=="condition") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and mapping
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
@@ -19,11 +35,11 @@ indicators.parameters = function( DS, p ) {
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is default (newton), then this as a failsafe .. see GAM options
     # p$mods = c("simple","simple.highdef", "complex", "full" )  # model types to attempt
     p$modtype = "complex"
-
+    return(p)
   }
 
   if (DS=="metabolism") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and mapping
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
@@ -40,10 +56,11 @@ indicators.parameters = function( DS, p ) {
     p$nw = 10
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is bam, then this .. see GAM options
     p$modtype = "complex"
+    return(p)
   }
 
   if (DS=="sizespectrum") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and mapping
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -82,11 +99,12 @@ indicators.parameters = function( DS, p ) {
 
     if (p$nss.type=="mass") p$nss.bins = bins.df( "gf.mass", p$nss.base )
     if (p$nss.type=="len")  p$nss.bins = bins.df( "gf.len",  p$nss.base )
+    return(p)
   }
 
 
   if (DS=="speciesarea") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and mapping
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
@@ -114,12 +132,13 @@ indicators.parameters = function( DS, p ) {
     p$nw = 10
     p$spatial.knots = 100
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton, then this .. see GAM options
+    return(p)
   }
 
 
   if (DS=="speciescomposition") {
 
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and mapping
+    p$project.outdir.root = project.datadirectory( "bio.indicators",  p$project.name ) #required for interpolations and mapping
 
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
@@ -140,12 +159,12 @@ indicators.parameters = function( DS, p ) {
     p$modtype = "complex"
     p$spatial.knots = 100
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton (default), then this .. see GAM options
-
+    return(p)
   }
 
   if (DS=="habitat") {
 
-    p$project.outdir.root = project.datadirectory( "bio.indicators", "analysis", p$project.name ) #required for interpolations and
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
@@ -184,7 +203,32 @@ indicators.parameters = function( DS, p ) {
     p$metabolism.taxa = "alltaxa"
     p$metabolism.season = "allseasons"
     p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
-
+    return(p)
   }
-  return(p)
+
+  if (DS=="mpa") {
+
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
+
+    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
+      "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  )
+
+    p$libs = c( p$libs,  bioLibrary(
+      "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
+      "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
+      "bio.coastline", "bio.indicators" ))
+    p = spatial.parameters( p, "SSE.mpa" )
+    p$default.spatial.domain = "canada.east"  # for temperature lookups
+    p$taxa =  "maxresolved"
+    p$seasons = "allseasons"
+    p$data.sources = c("groundfish", "snowcrab")  # for survey.db
+    p$nw = 10 # for lookup of temperature: number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
+    p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
+    p$map.output.directory = file.path( p$project.outdir.root, "maps")
+    p$map.palette = colorRampPalette(c("darkblue","blue3", "green", "yellow", "orange","red3", "darkred"), space = "Lab")(100)
+    p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
+    p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
+    return(p)
+  }
+
 }

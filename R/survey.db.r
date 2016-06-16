@@ -2,13 +2,12 @@
   survey.db = function( DS, p=NULL ) {
     #\\ assimilation of all survey data into a coherent form
 
-    sdir = file.path( project.datadirectory("bio.indicators"), "data", "survey" )
-    dir.create( sdir, showWarnings=FALSE, recursive=TRUE )
+    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
 
-    if (DS %in% c("set.init","set.init.redo") ) {
+    if (DS %in% c("set.init", "set.init.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( sdir, "set.init.rdata"  )
+      fn = file.path( p$project.outdir.root, "set.init.rdata"  )
       if (DS=="set.init") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -16,14 +15,24 @@
 
 			set.names =  c("data.source", "id", "timestamp", "yr", "lon", "lat",
                      "z", "t", "sal", "oxyml", "settype", "sa", "cfset")
+
       if ( "groundfish" %in% p$data.sources ) {
-        # settype: 1=stratified random, 2=regular survey, 3=unrepresentative(net damage),
-        #  4=representative sp recorded(but only part of total catch), 5=comparative fishing experiment,
-        #  6=tagging, 7=mesh/gear studies, 8=explorartory fishing, 9=hydrography
+        # settype:
+        # 1=stratified random,
+        # 2=regular survey,
+        # 3=unrepresentative(net damage),
+        # 4=representative sp recorded(but only part of total catch),
+        # 5=comparative fishing experiment,
+        # 6=tagging,
+        # 7=mesh/gear studies,
+        # 8=explorartory fishing,
+        # 9=hydrography
 
         y = bio.groundfish::groundfish.db( "set.base" )
+        w2a = which( y$geardesc == "Western IIA trawl" & y$settype %in% c(1,2,5) ) # for distribution checks for western IIA trawl
+
         y$data.source = "groundfish"
-        y$sa = y$sakm2
+        y$sa = y$sweptarea
         y$cfset = 1 / y$sa
 
         set = rbind( set, y[ ,c("data.source", "id", "timestamp", "yr", "lon", "lat",
@@ -32,6 +41,7 @@
         set = set[ set$settype %in% c(1,2,5) ,] # remove bad sets
         rm (y); gc()
       }
+
       if ( "snowcrab" %in% p$data.sources ) {
         y =  bio.snowcrab::snowcrab.db( DS ="set.clean" )
         y$data.source = "snowcrab"
@@ -60,7 +70,7 @@
     if (DS %in% c("cat.init","cat.init.redo") ) {
       # all species caught
       cat = NULL # trip/cat loc information
-      fn = file.path( sdir, "cat.init.rdata"  )
+      fn = file.path( p$project.outdir.root, "cat.init.rdata"  )
       if (DS=="cat.init") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -118,7 +128,7 @@
     if (DS %in% c("det.init","det.init.redo") ) {
       # all species caught
       det = NULL # biologicals
-      fn = file.path( sdir, "det.init.rdata"  )
+      fn = file.path( p$project.outdir.root, "det.init.rdata"  )
       if (DS=="det.init") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -205,7 +215,7 @@
     if (DS %in% c("set.intermediate","set.intermediate.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( sdir, "set.intermediate.rdata"  )
+      fn = file.path( p$project.outdir.root, "set.intermediate.rdata"  )
       if (DS=="set.intermediate") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -236,7 +246,7 @@
       # error checking, imputation, etc
 
       det = NULL
-      fn = file.path( sdir, "det.rdata"  )
+      fn = file.path( p$project.outdir.root, "det.rdata"  )
       if (DS=="det") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -409,7 +419,7 @@
     if (DS %in% c("cat", "cat.redo") ) {
       # all species caught
       cat = NULL # biologicals
-      fn = file.path( sdir, "cat.rdata"  )
+      fn = file.path( p$project.outdir.root, "cat.rdata"  )
       if (DS=="cat") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -521,7 +531,7 @@
     if (DS %in% c("set","set.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( sdir, "set.rdata"  )
+      fn = file.path( p$project.outdir.root, "set.rdata"  )
       if (DS=="set") {
         if (file.exists( fn) ) load( fn)
         return ( set )

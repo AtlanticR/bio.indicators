@@ -2,7 +2,7 @@
 
 bioLibrary( "bio.indicators", "bio.spacetime", "bio.utilities")
 
-setwd( project.datadirectory("bio.indicators") )
+setwd( project.datadirectory("bio.indicators", "data") )
 
 # not all are fully refreshed automatically .. they are just place holders for now
 groundfish = indicators.ts.db( db="groundfish.timeseries.redo" )

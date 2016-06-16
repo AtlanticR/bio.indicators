@@ -1,16 +1,14 @@
 
   speciesarea.db = function( DS="", p=NULL, yr=NULL ) {
 
-    ddir = project.datadirectory("bio.indicators", "speciesarea", "data"  )
-    dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
-
+    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
     infix = paste( p$spatial.domain, p$taxa, p$season, paste(p$data.sources, collapse="."), p$speciesarea.method, sep="." )
 
 
     if (DS %in% c("speciesarea.counts", "speciesarea.counts.ny", "speciesarea.counts.redo") ) {
 
-      fn = file.path( ddir, paste( "speciesarea.counts", infix, "rdata", sep=".") )
-      fn.ny = file.path( ddir, paste( "speciesarea.counts.ny", infix, "rdata", sep=".") )
+      fn = file.path( p$project.outdir.root, paste( "speciesarea.counts", infix, "rdata", sep=".") )
+      fn.ny = file.path( p$project.outdir.root, paste( "speciesarea.counts.ny", infix, "rdata", sep=".") )
 
       if (DS=="speciesarea.counts") {
         load( fn)
@@ -77,7 +75,7 @@
 
     if (DS %in% c("speciesarea.stats","speciesarea.stats.redo") ) {
 
-      fn = file.path( ddir, paste("speciesarea.stats", infix, "rdata", sep=".") )
+      fn = file.path( p$project.outdir.root, paste("speciesarea.stats", infix, "rdata", sep=".") )
 
       if (DS=="speciesarea.stats") {
         load( fn)
@@ -137,7 +135,7 @@
 
     if (DS %in% c( "speciesarea", "speciesarea.redo" ) ) {
 
-      fn = file.path( ddir, paste( "set.speciesarea.merged", infix, "rdata", sep="." ) )
+      fn = file.path( p$project.outdir.root, paste( "set.speciesarea.merged", infix, "rdata", sep="." ) )
 
       if (DS=="speciesarea") {
         SC = NULL

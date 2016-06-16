@@ -2,13 +2,9 @@
   condition.db = function( DS="", p=NULL, yr=NULL ) {
 
     if (DS %in% c( "condition", "condition.redo" ) ) {
-
-      ddir = project.datadirectory("bio.indicators", "data", "condition")
-      dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
-
+      dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
       infix = paste(p$spatial.domain, p$season, sep=".")
-
-      fn = file.path( ddir, paste("set.condition", infix, "rdata", sep=".") )
+      fn = file.path( p$project.outdir.root, paste("set.condition", infix, "rdata", sep=".") )
 
       if (DS=="condition") {
         set = NULL
