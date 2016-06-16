@@ -25,22 +25,20 @@
     # a = biomass.estimation (DS="saved"", p=p )
 
 
-  ######################################
+  # ----------------------------------------------------------
   # all landings
-  ######################################
   marfissci.get.data(save.csv=FALSE)
     # TODO:: create into a landings.db approach
 
 
 
-  ######################################
+  # ----------------------------------------------------------
   # survey data assimilation complete.
   # now, generate indicators of interest from survey data
-  ######################################
 
   p = list(project.name = "indicators" )
 
-  # -----------------------------
+  # ----------------------------------------------------------
   # estimate condition
   p = bio.indicators::indicators.parameters( DS="condition", p=p)
   bio.indicators::condition.db( DS="condition.redo", p=p ) # takes a minute
