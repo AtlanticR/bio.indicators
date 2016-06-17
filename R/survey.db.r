@@ -282,18 +282,10 @@
       det$sex[ which( !is.finite(det$sex)) ] = 2 # set all uncertain sexes to one code sex code
       det$mat[ which( !is.finite(det$mat)) ] = 2 # set all uncertain sexes to one code sex code
 
-      # do this here rather than in the condition subsystem as the models are useful in predicting missing data ...
-      # length-weight modelling and estimate parameters as well as residuals
-      det$spec0 = det$spec
-      det$spec  = det$spec_bio
-      det = length.weight.regression( x=det )
-      det$spec = det$spec0
-      det$spec0 = NULL
-
       # fix mass, length estimates where possible using model parameters
       # try finest match first: by spec:mat, spec:sex, spec
 
-      lwp = length.weight.regression( DS="parameters" )
+      lwp = lengthweight.db( DS="parameters" )
       # note: lwp$spec is derived from spec_bio, as above
 
       ims = which( !is.finite( det$mass) )

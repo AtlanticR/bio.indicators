@@ -7,7 +7,10 @@
   survey.db( DS="set.init.redo", p=p )
   survey.db( DS="cat.init.redo", p=p )
   survey.db( DS="det.init.redo", p=p )
+
   survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+  lengthweight.db( DS="update" )  # update the lcoal tables (not necessary)
+
   survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
   survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
   survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
