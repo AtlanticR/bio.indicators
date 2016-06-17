@@ -348,7 +348,7 @@
       }
 
       # estimate metabolic rates estimates (requires temperature estimate )
-      set = survey.db( DS="set.intermediate" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set.intermediate", p=p  ) # kg/km^2, no/km^2
       set = set[ , c("id", "t")]  # temperature is required to estimate MR ..
 
       det = merge( det, set, by="id", all.x=T, all.y=F, sort=F )
@@ -432,9 +432,9 @@
         return ( cat )
       }
 
-      set = survey.db( DS="set.init" ) # kg/km^2, no/km^2
+      set = survey.db( DS="set.init", p=p  ) # kg/km^2, no/km^2
 
-      det = survey.db( DS="det" ) # size information, no, cm, kg
+      det = survey.db( DS="det", p=p  ) # size information, no, cm, kg
       det = det[ which( det$id %in% unique( set$id) ), ]
 
       cat = survey.db( DS="cat.init", p=p )
@@ -545,7 +545,7 @@
 
       set = survey.db( DS="set.intermediate", p=p )
 
-      det = survey.db( DS="det" ) # size information, no, cm, kg
+      det = survey.db( DS="det", p=p  ) # size information, no, cm, kg
       det = det[ which( det$id %in% unique( set$id) ), ]
 
       cat = survey.db( DS="cat", p=p )
