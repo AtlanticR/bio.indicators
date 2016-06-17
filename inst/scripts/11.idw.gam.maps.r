@@ -1,11 +1,12 @@
 
---- convert to use indicators.db ...
 
-p = bio.groundfish::load.groundfish.environment()
-p = bio.snowcrab::load.environment(p=p)
+# p = bio.groundfish::load.groundfish.environment()
+# p = bio.snowcrab::load.environment(p=p)
 
 # ----------------------------
 # 1 - define plot parameters
+bioLibrary( "bio.utilities", "bio.spacetime" )
+RLibrary( "mgcv", "gstat", "sp" )
 
 plottimes = c("decadal",  "globalaverage")
 
@@ -26,34 +27,34 @@ p$spatial.domain = params$spatial.domain = "SSE"
 params = gmt.parameters( params ) # default settings
 
 
-  set = groundfish.db( "set" )  ### TODO -- convert to indicators.db
-  set$sa = 1  # dummy required for mapping
-  season = "summer"
-  set = set[ filter.season( set$julian, period=season, index=T ) , ]
+set = bio.groundfish::groundfish.db( "set" )  ### TODO -- convert to indicators.db
+set$sa = 1  # dummy required for mapping
+season = "summer"
+set = set[ filter.season( set$julian, period=season, index=T ) , ]
+
+tp = lonlat2planar( set, proj.type=p$internal.projection )
+
+tp$lon = grid.internal( tp$lon, p$lons )
+tp$lat = grid.internal( tp$lat, p$lats )
+
+tp$plon = grid.internal( tp$plon, p$plons )
+tp$plat = grid.internal( tp$plat, p$plats )
+
+tp = tp[which(tp$strat %in% 440:495),]
+tp = tp[which(is.finite(tp$plon) & is.finite(tp$plat)),]
 
 
-          tp = lonlat2planar( set, proj.type=p$internal.projection )
+Z = bio.bathymetry::bathymetry.db( p=p, DS="baseline" )  # SS to a depth of 500 m  the default used for all planar SS grids
+Z = Z[which(Z$z>30),]
 
-          tp$lon = grid.internal( tp$lon, p$lons )
-          tp$lat = grid.internal( tp$lat, p$lats )
+fn = file.path( bio.datadirectory("bio.polygons"), "data", "Science", "scotia.fundy.dat" )
+a = read.table( fn, header=F)
+names(a) = c('lon','lat')
+a = lonlat2planar(a,proj.type='utm20')
+ii = which(point.in.polygon(Z$plon,Z$plat,a$plon,a$plat) !=0)
+Z = Z[ii,]
 
-          tp$plon = grid.internal( tp$plon, p$plons )
-          tp$plat = grid.internal( tp$plat, p$plats )
-
-    tp = tp[which(tp$strat %in% 440:495),]
-    tp = tp[which(is.finite(tp$plon) & is.finite(tp$plat)),]
-
-
-  Z = bathymetry.db( p=p, DS="baseline" )  # SS to a depth of 500 m  the default used for all planar SS grids
-  Z = Z[which(Z$z>30),]
-
-  fn = file.path( bio.datadirectory("bio.polygons"), "data", "Science", "scotia.fundy.dat" )
-  a = read.table( fn, header=F)
-  names(a) = c('lon','lat')
-  a = lonlat2planar(a,proj.type='utm20')
-  ii = which(point.in.polygon(Z$plon,Z$plat,a$plon,a$plat) !=0)
-  Z = Z[ii,]
-  tp$depth = tp$z
+tp$depth = tp$z
 tp$z = log(tp$totwgt.cod)
 tp$z[ which(is.na(tp$z))] = 0
 tp1 <- tp[which(tp$yr<1985),]

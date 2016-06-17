@@ -3,8 +3,7 @@
 # this is the main calling program
 # new comment
 
-p = list( project.name="mpa" )
-p = bio.indicators::indicators.parameters( DS=p$project.name, p=p )
+p = bio.indicators::indicators.parameters( DS="mpa" )
 
 polys = mpa.db( p=p, DS="polygons.redo" ) # obtain and save a local cache of polygons of the mpa/aoi
 # polys = mpa.db( p=p, DS="polygons" )

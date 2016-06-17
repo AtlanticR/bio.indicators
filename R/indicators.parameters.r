@@ -1,6 +1,9 @@
 
 
-indicators.parameters = function( DS, p ) {
+indicators.parameters = function( DS, p=NULL ) {
+
+  if ( is.null(p) ) p=list()
+  if ( !exists("project.name", p) ) p$project.name=DS
 
   if (DS=="survey"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )

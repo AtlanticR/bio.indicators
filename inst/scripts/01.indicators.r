@@ -1,7 +1,7 @@
 
   # glue biological data sets together from various surveys
-  p = list( project.name = "survey" )
-  p = bio.indicators::indicators.parameters( DS="survey", p=p )
+
+  p = bio.indicators::indicators.parameters( DS="survey" )
 
   # load and glue data together
   survey.db( DS="set.init.redo", p=p )
@@ -36,44 +36,41 @@
   # survey data assimilation complete.
   # now, generate indicators of interest from survey data
 
-  p = list(project.name = "indicators" )
-
   # ----------------------------------------------------------
   # estimate condition
-  p = bio.indicators::indicators.parameters( DS="condition", p=p)
+  p = bio.indicators::indicators.parameters( DS="condition" )
   bio.indicators::condition.db( DS="condition.redo", p=p ) # takes a minute
 
   # -----------------------------
   # estimate metabolic demand, given size structure
-  p = bio.indicators::indicators.parameters( DS="metabolism", p=p)
+  p = bio.indicators::indicators.parameters( DS="metabolism")
   bio.indicators::metabolism.db( DS="metabolism.redo", p=p )
 
   # -----------------------------
   # analysis and spatial database of normalised size spectrum, average size
-  p = bio.indicators::indicators.parameters( DS="sizespectrum", p=p)
+  p = bio.indicators::indicators.parameters( DS="sizespectrum" )
   bio.indicators::sizespectrum.db( DS="sizespectrum.by.set.redo", p=p ) #MG takes 1 minute
   bio.indicators::sizespectrum.db( DS="sizespectrum.stats.redo", p=p )  #MG took 20 minutes
   bio.indicators::sizespectrum.db( DS="sizespectrum.redo", p=p )  # all point data to be interpolated #MG took 5 minutes
 
   # -----------------------------
   # count and record rarification curves from all available data --- refresh "survey.db" ~/ecomod/bio/src/bio.r
-  p = bio.indicators::indicators.parameters( DS="speciesarea", p=p)
+  p = bio.indicators::indicators.parameters( DS="speciesarea" )
   bio.indicators::speciesarea.db( DS="speciesarea.counts.redo", p=p )  # 60 MB / process  -- can use all cpus
   bio.indicators::speciesarea.db( DS="speciesarea.stats.redo", p=p ) # ~ 1 minute
   bio.indicators::speciesarea.db( DS="speciesarea.redo", p=p ) # intermediary file for modelling and interpolation ... lookup up missing data and covariates
 
+
  # -----------------------------
    # ordination
-  p = bio.indicators::indicators.parameters( DS="speciescomposition", p=p)
+  p = bio.indicators::indicators.parameters( DS="speciescomposition" )
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
 
+
  # -----------------------------
  # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
-  p = list( project.name = "habitat" )
-  # p$yearstomodel = 1970:2015  --- change this
-
-  p = bio.indicators::indicators.parameters( DS=p$project.name, p=p)
+  p = bio.indicators::indicators.parameters( DS="habitat" )
   indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
   lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
 
