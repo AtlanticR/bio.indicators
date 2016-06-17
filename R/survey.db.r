@@ -14,7 +14,7 @@
       }
 
 			set.names =  c("data.source", "id", "timestamp", "yr", "lon", "lat",
-                     "z", "t", "sal", "oxyml", "settype", "sa", "cfset")
+                     "z", "t", "sal", "oxyml", "sa", "gear", "setquality" )
 
       if ( "groundfish" %in% p$data.sources ) {
         # settype:
@@ -27,41 +27,37 @@
         # 7=mesh/gear studies,
         # 8=explorartory fishing,
         # 9=hydrography
-
         y = bio.groundfish::groundfish.db( "set.base" )
-        w2a = which( y$geardesc == "Western IIA trawl" & y$settype %in% c(1,2,5) ) # for distribution checks for western IIA trawl
-
         y$data.source = "groundfish"
-        y$sa = y$sweptarea
-        y$cfset = 1 / y$sa
-
-        set = rbind( set, y[ ,c("data.source", "id", "timestamp", "yr", "lon", "lat",
-                                "sdepth", "temp", "sal", "oxyml", "settype", "sa", "cfset") ] )
+        y$sa = y$sweptarea  # sa is in km^2
+        y$z = y$sdepth  # m
+        y$gear = y$geardesc
+        y$setquality = NA
+        y$setquality[ which( y$settype %in% c(1,2,5) ) ] = "good"
+        gsvn = c("data.source", "id", "timestamp", "yr", "lon", "lat",
+                 "z", "temp", "sal", "oxyml", "sa", "gear", "setquality")
+        set = rbind( set, y[ ,gsvn ] )
         names(set) = set.names
-        set = set[ set$settype %in% c(1,2,5) ,] # remove bad sets
         rm (y); gc()
       }
 
       if ( "snowcrab" %in% p$data.sources ) {
         y =  bio.snowcrab::snowcrab.db( DS ="set.clean" )
         y$data.source = "snowcrab"
+        y$gear ="Nephrops trawl"
         y$id = paste( y$trip, y$set, sep="." )
-        y$cfset = 1 # assume 100% q
-        y$settype = y$towquality # 1=good
-        iii = which( y$settype != 1 )
-        if (length(iii)>0 ) y$settype[iii ] = NA  # should not happen as only good tows have already been selected .. here in case something changes in snow crab data stream
-        y$sal = NA
-        y$oxyml = NA
-        set = rbind( set, y[ , set.names ] )
+        y$setquality = NA
+        y$setquality[ which( y$towquality == 1 ) ] = "good"  # 1=good
+        y$sal = NA  # dummy
+        y$oxyml = NA # dummy var
+
+        set = rbind( set, y[ , set.names ] )  # sa is in km^2
         rm (y); gc()
       }
-
-      # set$timestamp = as.POSIXct( chron::as.chron( set$chron ) )
 
       save( set, file=fn, compress=T )
       return (fn)
     }
-
 
 
     # --------------------
@@ -76,19 +72,43 @@
         return ( cat )
       }
 
-
       ###  NOTE:: cf == correction factor is a reweighting required to make each totno and totmass comparable for each set and species subsampling
 
-      cat.names =  c("data.source", "id", "spec", "spec_bio", "totno", "totmass", "cfcat")
+      cat.names =  c("data.source", "id", "spec", "spec_bio", "totno", "totmass" )
       if ( "groundfish" %in% p$data.sources ) {
 
-        x = bio.groundfish::groundfish.db( "cat" )   ## not really set but "cat"
-        # totno and totmass are sa, vessel and sub-sampling corrected ::  cf = cfvessel / sakm2
-        # no./km2 ; and  kg/km2
+        x = bio.groundfish::groundfish.db( "cat.base" )  #kg/set, no/set
+
         x$data.source = "groundfish"
         x$spec_bio = taxonomy.recode( from="spec", to="parsimonious", tolookup=x$spec )
-        x$totmass = x$totwgt
-        x$cfcat = x$cfset * x$cfvessel
+
+        x$totnumber = NA
+        x$totmass = NA
+        # netmesuration and/or positional information based sa estimates for WIIa net
+        isa = which(is.finite( x$sweptarea))
+        x$totnumber[isa] = x$totno[isa] / x$sweptarea[isa]
+        x$totmass[isa] = x$totwgt[isa] / x$sweptarea[isa]
+
+        # if without sweptarea, most likely another gear, use SA based upon positional info: sakm2
+        isana = which(! is.finite( x$sweptarea))
+        x$totnumber[isana] = x$totno[isana] / x$sakm2[isana]
+        x$totmass[isana] = x$totwgt[isana] / x$sakm2[isana]
+
+        sa.gear =  tapply( x$sakm2, x$geardesc, mean, na.rm=TRUE )
+        isnaz = which( !is.finite( x$totmass ) )
+        if (length(isnaz) > 0) {
+          sa.estim = sa.gear[x$geardesc[isnaz] ]
+          x$totmass[isnaz] = x$totwgt[isnaz] / x$sakm2[isnaz]
+        }
+
+        isnaz = which( !is.finite( x$totnumber ) )
+        if (length(isnaz) > 0) {
+          sa.estim = sa.gear[x$geardesc[isnaz] ]
+          x$totnumber[isnaz] = x$totno[isnaz] / x$sakm2[isnaz]
+        }
+
+        x$totno = x$totnumber
+        x = x[ which( x$itis.tsn > 0 ), ]
 				x = x[, cat.names]
         cat = rbind( cat, x )
         rm (x); gc()
@@ -99,17 +119,12 @@
         x$data.source = "snowcrab"
         x$spec_bio = taxonomy.recode( from="spec", to="parsimonious", tolookup=x$spec )
         x$id = paste( x$trip, x$set, sep="." )
-        x$cfcat = 1/x$sa  # no other correction factors as there is no species-based subsampling
         x = x[, cat.names]
-
         iissp = taxonomy.recode( from="spec", to="parsimonious", tolookup=2526 ) # snow crab using groundfish codes
-
         oo = which( !is.finite(x$totno) & x$spec_bio==iissp  )  # snow crab are assumed to be real zeros
         if (length(oo) > 0 ) x$totno[oo] = 0
-
         oo = which( !is.finite(x$totmass) & x$spec_bio== iissp )  # snow crab are assumed to be real zeros
         if (length(oo) > 0 ) x$totmass[oo] = 0
-
 				cat = rbind( cat, x  )
         rm (x); gc()
       }
@@ -146,7 +161,7 @@
         #  mat.unknown = 2
 
 
-      det.names =  c("data.source", "id", "spec", "spec_bio", "detid", "sex", "mass", "len", "mat", "cfdet" )
+      det.names =  c("data.source", "id", "spec", "spec_bio", "detid", "sex", "mass", "len", "mat" )
       if ( "groundfish" %in% p$data.sources ) {
         x = bio.groundfish::groundfish.db( "det" )
         x$data.source = "groundfish"
@@ -193,7 +208,7 @@
         x$spec_bio =  taxonomy.recode( from="spec", to="parsimonious", tolookup=x$spec ) # snow crab using groundfish codes
         x$detid = x$crabno
         x$len = x$cw / 10  # convert mm to cm
-        x$cfdet = 1/x$sa  ########## <<<<<< ------ NOTE THIS accounts only for SA as there is no subsampling (so far)
+        # x$cfdet = 1/x$sa  ########## <<<<<< ------ NOTE THIS accounts only for SA as there is no subsampling (so far)
         x$sex = as.numeric( as.character( x$sex) )
         x$mat = as.numeric( as.character( x$mat) )
         x$mass = x$mass /1000  # g to kg
@@ -432,7 +447,6 @@
 
       cat = survey.db( DS="cat.init", p=p )
       cat = cat[ which( cat$id %in% unique( set$id) ), ]
-      cat$cfcat = NULL  # no longer needed as each data point is ~ equivalent
 
       oo = which( duplicated( cat$id2) )
       if (length( oo) > 0 ) cat = cat[ -oo, ]
