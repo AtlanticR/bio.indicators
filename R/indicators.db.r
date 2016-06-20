@@ -9,8 +9,6 @@
     if (DS == "condition")  return( bio.indicators::condition.db( DS=DS, p=p ) )
     if (DS == "biochem")  return( bio.indicators::biochem.db( DS=DS, p=p ) )
 
-    # if (exists( "init.files", p)) LoadFiles( p$init.files )
-    # if (exists( "libs", p)) RLibrary( p$libs )
 
     if (DS %in% c("baseline", "baseline.redo") ) {
 
@@ -74,7 +72,7 @@
     #  -------------------------------
 
 
-    if (DS %in% c("environmentals", "environmentals.redo", "complete", "complete.redo") ) {
+    if (DS %in% c("environmentals", "environmentals.redo") ) {
 
 ### NOTE -- "complete", "complete.redo" here as a temporay measure to skip other indicators for 2015/2016
 
@@ -82,7 +80,7 @@
       if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","environmentals" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
-      if ( DS %in% c( "environmentals", "complete")  ) {
+      if ( DS %in% c( "environmentals")  ) {
         outfile =  file.path( outdir, paste( "PS", year, "rdata", sep= ".") )
         PS = NULL
         if ( file.exists( outfile ) ) load( outfile )
@@ -92,11 +90,12 @@
         }
         return (PS)
       }
-     # if (!exists("ip")) ip = 1:p$nruns
-        yrs=p$yearstomodel
-        #for (iy in ip) {
-        for (yr in yrs) {
-        #yr = p$runs[iy, "yrs"]
+
+      if (exists( "libs", p)) RLibrary( p$libs )
+      if (!exists("ip")) ip = 1:p$nruns
+
+      for (iy in ip) {
+        yr = p$runs[iy, "yrs"]
         print(yr)
         outfile =  file.path( outdir, paste( "PS", yr, "rdata", sep= ".") )
         PS = NULL
@@ -135,6 +134,7 @@
         return (PS)
       }
 
+      if (exists( "libs", p)) RLibrary( p$libs )
       if (is.null(ip)) ip = 1:p$nruns
 
       for (iy in ip) {
