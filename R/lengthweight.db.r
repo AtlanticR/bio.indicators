@@ -1,5 +1,5 @@
 
-lengthweight.db = function( DS="update", x=NULL  ) {
+lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
 
   ## TODO -- make parallel require(multicore)
 
@@ -18,7 +18,7 @@ lengthweight.db = function( DS="update", x=NULL  ) {
 
     if (is.null(x)) {
       # this mirrors the relevent changes/recoding in indicators.db("det")
-      x = survey.db( DS="det.init" )
+      x = survey.db( DS="det.init", p=p )
       x$spec = x$spec_bio
       x = x[ which( is.finite( x$spec)), ]
       x$sex[ which( !is.finite(x$sex)) ] = 2 # set all uncertain sexes to one code sex code

@@ -20,6 +20,7 @@ indicators.parameters = function( DS, p=NULL ) {
     return(p)
   }
 
+  # ---------------------
 
   if (DS=="condition") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
@@ -41,6 +42,8 @@ indicators.parameters = function( DS, p=NULL ) {
     return(p)
   }
 
+  # ---------------------
+
   if (DS=="metabolism") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
@@ -61,6 +64,8 @@ indicators.parameters = function( DS, p=NULL ) {
     p$modtype = "complex"
     return(p)
   }
+
+  # ---------------------
 
   if (DS=="sizespectrum") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
@@ -105,6 +110,7 @@ indicators.parameters = function( DS, p=NULL ) {
     return(p)
   }
 
+  # ---------------------
 
   if (DS=="speciesarea") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
@@ -138,6 +144,7 @@ indicators.parameters = function( DS, p=NULL ) {
     return(p)
   }
 
+  # ---------------------
 
   if (DS=="speciescomposition") {
 
@@ -164,6 +171,8 @@ indicators.parameters = function( DS, p=NULL ) {
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton (default), then this .. see GAM options
     return(p)
   }
+
+  # ---------------------
 
   if (DS=="habitat") {
 
@@ -208,6 +217,8 @@ indicators.parameters = function( DS, p=NULL ) {
     p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
     return(p)
   }
+
+  # ---------------------
 
   if (DS=="mpa") {
 

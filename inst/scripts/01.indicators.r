@@ -9,12 +9,11 @@
   survey.db( DS="det.init.redo", p=p )
 
   survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-  lengthweight.db( DS="update" )  # update the lcoal tables (not necessary)
+  lengthweight.db( DS="update", p=p  )  # update the lcoal tables (not necessary)
 
   survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
   survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
   survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
-
 
   # generic plots
   figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control
@@ -31,8 +30,7 @@
   # ----------------------------------------------------------
   # all landings
   marfissci.get.data(save.csv=FALSE)
-    # TODO:: create into a landings.db approach
-
+  # TODO:: create into a landings.db approach
 
 
   # ----------------------------------------------------------
