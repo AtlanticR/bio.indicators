@@ -29,8 +29,9 @@
 
   # ----------------------------------------------------------
   # all landings
-  marfissci.get.data(save.csv=FALSE)
-  # TODO:: create into a landings.db approach
+
+  p = bio.indicators::indicators.parameters( DS="landings" )
+  bio.indicators::landings.db( DS="odbc", p=p ) # NOTE: run on MSWindows
 
 
   # ----------------------------------------------------------

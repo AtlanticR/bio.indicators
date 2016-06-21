@@ -1,9 +1,10 @@
 
 
-indicators.parameters = function( DS, p=NULL ) {
+indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
+  if ( is.null(current.year)) current.year = lubridate::year(lubridate::now()
 
   if (DS=="survey"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
@@ -20,6 +21,18 @@ indicators.parameters = function( DS, p=NULL ) {
     return(p)
   }
 
+
+  # ---------------------
+
+  if (DS=="landings"){
+    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
+    p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
+    p$marfis.years=2002:current.year
+    return(p)
+  }
+
+
   # ---------------------
 
   if (DS=="condition") {
@@ -29,7 +42,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
     p$spatial.knots = 100
@@ -53,7 +66,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p$habitat.predict.time.julian = "Sept-1" # Sept 1
     p$default.spatial.domain = "canada.east"
     p$prediction.dyear = 0.75
@@ -83,7 +96,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p$season = "allseasons"
     # for spatial interpolation of nss stats
     p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p$modtype =  "complex"
     p$spatial.knots = 100
     p$prediction.dyear = 0.75
@@ -117,7 +130,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
     p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
 
@@ -163,7 +176,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p$prediction.dyear = 0.75
     p$nw = 10
 
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
 
     p$modtype = "complex"
@@ -185,7 +198,7 @@ indicators.parameters = function( DS, p=NULL ) {
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$interpolation.nmax = 100
     p$nw = 10  # from temperature.r, number of intervals in a year
-    p$yearstomodel = 1970:lubridate::year( lubridate::now())
+    p$yearstomodel = 1970:current.year
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
 
     p$speciesarea.modeltype = "complex"
