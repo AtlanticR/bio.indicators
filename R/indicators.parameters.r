@@ -4,7 +4,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
-  if ( is.null(current.year)) current.year = lubridate::year(lubridate::now()
+  if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
 
   if (DS=="survey"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
