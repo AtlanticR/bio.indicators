@@ -7,14 +7,14 @@
       log.transform = bio.indicators::variable.list.expand("log.transform")
       scaled.centered = bio.indicators::variable.list.expand("scaled.centered")
       sn = bio.indicators::variable.list.expand("all.data")
-      set = bio.indicators::snowcrab.db(DS="set.merge.cat") # base transform characteristics
-      logs = bio.indicators::logbook.db(DS='logbook')
+      set = bio.snowcrab::snowcrab.db(DS="set.merge.cat") # base transform characteristics
+      logs = bio.snowcrab::logbook.db(DS='logbook')
       repository = file.path( project.datadirectory("bio.snowcrab"), "R", "transform.lookup.rdata" )
     } else if (db=="groundfish") {
       log.transform = bio.indicators::variable.list.expand("log.transform")
       scaled.centered = bio.indicators::variable.list.expand("scaled.centered")
       sn = bio.indicators::variable.list.expand("all")
-      set = bio.indicators::groundfish.db( DS="set" )
+      set = bio.groundfish::groundfish.db( DS="set" )
 	    logs=NULL
       repository = file.path( project.datadirectory("bio.groundfish"), "R", "transform.lookup.rdata" )
     } else {
