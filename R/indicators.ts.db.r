@@ -492,7 +492,7 @@
       p = bio.snowcrab::load.environment()
 
       # trawl data
-      tsdata =  get.time.series ( from.file=T )  # this returns 1.96SE as "se"
+      tsdata =  snowcrab.timeseries.db( DS="biologicals" )  # this returns 1.96SE as "se"
       tsdata = tsdata[ tsdata$region=="cfaall", ]
       yrs = sort( unique( tsdata$year ) )
       vars = sort( unique( tsdata$variable ) )
