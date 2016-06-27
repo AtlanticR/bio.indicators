@@ -9,6 +9,8 @@
   survey.db( DS="det.init.redo", p=p )
 
   survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+
+  # TODO:: parallelize me ...
   lengthweight.db( DS="update", p=p  )  # update the lcoal tables (not necessary)
 
   survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
@@ -37,6 +39,7 @@
   # ----------------------------------------------------------
   # survey data assimilation complete.
   # now, generate indicators of interest from survey data
+
 
   # ----------------------------------------------------------
   # estimate condition
