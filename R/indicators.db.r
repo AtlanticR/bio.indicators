@@ -15,8 +15,8 @@
       # form a basic prediction surface in planar coords for SS habitat for
       # factors that do not "change" rapidly and
 
-      outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "baseline" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE", "baseline" )
+      outdir = file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "baseline" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "habitat"), "SSE", "baseline" )
 
       dir.create(outdir, recursive=T, showWarnings=F)
       outfile =  file.path( outdir, "PS.baseline.rdata" )

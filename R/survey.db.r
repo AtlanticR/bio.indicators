@@ -1,7 +1,6 @@
 
   survey.db = function( DS, p=NULL ) {
     #\\ assimilation of all survey data into a coherent form
-
     dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
 
     if (DS %in% c("set.init", "set.init.redo") ) {

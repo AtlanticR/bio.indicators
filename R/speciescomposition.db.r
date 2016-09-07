@@ -30,14 +30,18 @@
         return ( ca.out )
       }
 
-      sc = survey.db( DS="cat" )  # species catch
+      p$project.outdir.root = project.datadirectory( "bio.indicators", "survey" )
+
+      sc = survey.db( DS="cat" ,p=p)  # species catch
       sc = sc[ which(is.finite( sc$zn ) ), ]
       sc = sc[ , c("id", "spec_bio", "zn" ) ]  # zscore-transformed into 0,1
       sc = sc[ , c("id", "zn","spec_bio" ) ]  # zscore-transformed into 0,1
 
-      set = survey.db( DS="set" ) # trip/set loc information
+      set = survey.db( DS="set" ,p=p) # trip/set loc information
       set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z" ) ]
       set = na.omit( set ) # all are required fields
+      
+      p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
 
       # filter area
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]
@@ -46,6 +50,9 @@
 
       # filter species
       # sc$spec = taxonomy.parsimonious( spec=sc$spec )
+
+     # browser()
+
       isc = taxonomy.filter.taxa( sc$spec_bio, method=p$taxa, outtype="internalcodes" )
       set = set[ which( set$id %in% unique( sc$id[isc]) ),]
 
