@@ -54,6 +54,7 @@ indicators.lookup = function( DS, yr=NULL, p=NULL ) {
   }
 
   if (is.null(H)) {
+    if(DS=="temperature")stop("returned baseline data NOT TEMPERATURE")
     H = bio.indicators::indicators.db( DS="baseline", p=p ) # default for most, including depth, substrate, etc
   }
 
