@@ -287,6 +287,11 @@
       lwp = lengthweight.db( DS="parameters" )
       # note: lwp$spec is derived from spec_bio, as above
 
+      # load the residuals from lengthweight.db
+      load(file.path( project.datadirectory("bio.indicators", "data", "bio.length.weight.residuals.rdata" ) ) )
+      det = merge(det,lwr,all=T)
+      rm(lwr)
+
       ims = which( !is.finite( det$mass) )
       sps = sort( unique( det$spec_bio[ ims ] ) )
       mats = sort( unique( det$mat))
@@ -449,6 +454,7 @@
       # averages of these variables
       newvars = c( "residual", "mass", "len", "Ea", "A", "Pr.Reaction", "smr"  )
       for ( nv in newvars ) {
+      #browser()
         cm = merge( cm,
           applyMean( det[ , c("id2", nv, "cfdet")] ), by="id2", all.x=TRUE, all.y=FALSE, sort=FALSE )
       }

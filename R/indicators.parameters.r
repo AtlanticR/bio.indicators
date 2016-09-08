@@ -9,7 +9,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="survey"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
     p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
-    p$libs = c( p$libs, bioLibrary ( "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
+    p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat", "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
     p$taxa =  "maxresolved"
     # p$seasons = "allseasons"
     p$data.sources = c("groundfish", "snowcrab")
@@ -27,7 +27,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="landings"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
     p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
-    p$libs = c( p$libs, bioLibrary ( "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
     p$marfis.years=2002:current.year
     return(p)
   }
@@ -38,7 +38,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="condition") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat",  "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
@@ -60,7 +60,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="metabolism") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
     p$taxa = "alltaxa"   # do not use any other category
     p$season = "allseasons"
@@ -83,7 +83,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="sizespectrum") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     # faster to use RAM-based data objects but this forces use only of local cpu's
     # configure SHM (shared RAM memory to be >18 GB .. in fstab .. in windows not sure how to do this?)
     p$use.bigmemory.file.backing = FALSE
@@ -128,7 +128,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="speciesarea") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
     p$yearstomodel = 1970:current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
@@ -164,7 +164,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$project.outdir.root = project.datadirectory( "bio.indicators",  p$project.name ) #required for interpolations and mapping
 
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
     p$data.sources = c("groundfish", "snowcrab")
@@ -191,7 +191,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat","bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
     p$taxa = "maxresolved"
     p$season = "allseasons"
@@ -241,7 +241,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
       "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  )
 
     p$libs = c( p$libs,  bioLibrary(
-      "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
+      "bio.base", "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
       "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
       "bio.coastline", "bio.indicators" ))
     p = spatial.parameters( p, "SSE.mpa" )

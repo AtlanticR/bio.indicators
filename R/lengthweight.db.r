@@ -7,6 +7,7 @@ lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
   dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
   fn = file.path( ddir, "bio.length.weight.parameters.rdata" )
+  fn2 = file.path( ddir, "bio.length.weight.residuals.rdata" )
 
   if (DS=="parameters") {
     res = NULL
@@ -53,7 +54,6 @@ lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
     res$b0.se = NA
     res$b1.se = NA
     res$pvalue = NA
-
     for (i in 1:nrow(res)) {
 
       wsp = which( x$spec == res$spec[i] )
@@ -100,6 +100,8 @@ lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
     }
     ooo = which( abs( x$residual ) > 4 )
     if (length(ooo) > 0 ) x$residual [ooo] = NA
+    lwr = x
+    save( lwr, file=fn2, compress=TRUE )
     save( res, file=fn, compress=TRUE )
     return( fn )
   }
