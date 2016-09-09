@@ -76,8 +76,8 @@
 
 ### NOTE -- "complete", "complete.redo" here as a temporay measure to skip other indicators for 2015/2016
 
-      outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "environmentals" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","environmentals" )
+      outdir =  file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "environmentals" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators",  "habitat"), "SSE","environmentals" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS %in% c( "environmentals")  ) {
