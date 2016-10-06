@@ -110,7 +110,7 @@ marfissci.simple.map<-function(rds,
    p$libs = RLibrary( "rgdal", "maps", "mapdata", "maptools", "lattice", "geosphere", "sp", "raster", "colorspace" )
    p$libs = c( p$libs, bioLibrary( "bio.spacetime", "bio.utilities", "bio.polygons", "bio.bathymetry" )  )
 
-   p = spatial.parameters( type="canada.east.highres", p=p )
+   p = spacetime_parameters( type="canada.east.highres", p=p )
    depths = c(100, 200, 300, 400, 500, 600, 700, 800, 900) #, 2000, 5000 )
    plygn = isobath.db( p=p, DS="isobath", depths=depths  )
    #data must be clipped so it doesn't extend beyond the bounding box

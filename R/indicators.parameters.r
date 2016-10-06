@@ -17,7 +17,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$nw = 10 # number of intervals in time within a year in the temperature interpolations ( must match temperature.r 's value )
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
     p$default.spatial.domain = "canada.east"  # for temperature lookups
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
     return(p)
   }
 
@@ -38,8 +38,13 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="condition") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
+<<<<<<< HEAD
     p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat",  "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+=======
+    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
+>>>>>>> develop
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:current.year
@@ -60,8 +65,13 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="metabolism") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
+<<<<<<< HEAD
     p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
     p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+=======
+    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
+>>>>>>> develop
     p$taxa = "alltaxa"   # do not use any other category
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
@@ -89,7 +99,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$use.bigmemory.file.backing = FALSE
     # p$use.bigmemory.file.backing = TRUE  # file-backing is slower but can use all cpu's in a distributed cluster
 
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
     p$taxa = "maxresolved"
     # p$taxa = "family.or.genera"
     # p$taxa = "alltaxa"
@@ -132,7 +142,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
     p$yearstomodel = 1970:current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
     # configure SHM (shared RAM memory to be >18 GB .. in fstab .. in windows not sure how to do this?)
@@ -166,7 +176,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal" )
     p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
     p$data.sources = c("groundfish", "snowcrab")
 
     p$taxa = "maxresolved"
@@ -199,7 +209,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$interpolation.nmax = 100
     p$nw = 10  # from temperature.r, number of intervals in a year
     p$yearstomodel = 1970:current.year
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+    p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
 
     p$speciesarea.modeltype = "complex"
     p$speciesarea.method = "glm"   ## this is chosen in speciesarea.r ... make sure it matches up
@@ -244,7 +254,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
       "bio.base", "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
       "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
       "bio.coastline", "bio.indicators" ))
-    p = spatial.parameters( p, "SSE.mpa" )
+    p = spacetime_parameters( p, "SSE.mpa" )
     p$default.spatial.domain = "canada.east"  # for temperature lookups
     p$taxa =  "maxresolved"
     p$seasons = "allseasons"
