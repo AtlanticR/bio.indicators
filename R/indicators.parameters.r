@@ -38,13 +38,10 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
   if (DS=="condition") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
     p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
-<<<<<<< HEAD
+
     p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat",  "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
-    p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
-=======
-    p$libs = c( p$libs, bioLibrary ( "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+
     p = spacetime_parameters( p, "SSE" )  # data are from this domain .. so far
->>>>>>> develop
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:current.year
