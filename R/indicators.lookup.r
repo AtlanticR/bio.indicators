@@ -33,7 +33,7 @@ indicators.lookup = function( DS, yr=NULL, p=NULL ) {
     }
     if ( DS %in% c( "temperature.annual", "temperature", "temperature.seasonal" ) ) {
       # note this is valid only for the default spatial domain .. so must regrid
-      H = bio.temperature::temperature.db( p=p, DS="spatial.interpolation", yr=yr  )
+      H = bio.temperature::temperature.db( p=p, DS="spacetime.prediction", yr=yr  )
     }
     if ( DS %in% c( "temperature.complete" ) ) {
       H = bio.temperature::temperature.db( p=p, DS="complete", year=yr  )
