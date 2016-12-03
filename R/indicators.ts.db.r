@@ -374,7 +374,7 @@
         return(res)
       }
 
-			p = spacetime_parameters( type="SSE" )
+			p = spatial_parameters( type="SSE" )
       fns = list.files( file.path( project.datadirectory("bio.indicators"), "data", "SSE","complete" ) )
       yrs = substring( fns, 4,7)
       yrs = as.numeric(yrs)
@@ -402,7 +402,7 @@
         return(res)
       }
 
-      p = spacetime_parameters( type="SSE" )
+      p = spatial_parameters( type="SSE" )
       fns = list.files( file.path( project.datadirectory("bio.indicators"), "data", "SSE",'complete' ) )
       yrs = substring( fns, 4,7)
       yrs = as.numeric(yrs)
@@ -431,7 +431,7 @@
       }
 
 
-      p = spacetime_parameters( type="SSE" )
+      p = spatial_parameters( type="SSE" )
       fns = list.files( file.path( project.datadirectory("bio.indicators"), "data", "SSE","complete" ) )
       yrs = substring( fns, 4,7)
       yrs = as.numeric(yrs)
@@ -460,7 +460,7 @@
         return(res)
       }
 
-      p = spacetime_parameters( type="SSE" )
+      p = spatial_parameters( type="SSE" )
       fns = list.files( file.path( project.datadirectory("bio.indicators"), "data", "SSE","complete" ) )
       yrs = substring( fns, 4,7)
       yrs = as.numeric(yrs)
