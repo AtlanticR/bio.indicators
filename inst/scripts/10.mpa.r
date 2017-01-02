@@ -3,7 +3,12 @@
 # this is the main calling program
 # new comment
 
-p = bio.indicators::indicators.parameters( DS="mpa" )
+current.year = 2016
+
+
+p = bio.indicators::indicators.parameters( DS="mpa", current.year=current.year  )
+p$lbm_local_modelengine = "gam"
+p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
 
 polys = mpa.db( p=p, DS="polygons.redo" ) # obtain and save a local cache of polygons of the mpa/aoi
 # polys = mpa.db( p=p, DS="polygons" )

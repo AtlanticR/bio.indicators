@@ -76,6 +76,9 @@
  # -----------------------------
  # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
   p = bio.indicators::indicators.parameters( DS="habitat" )
+  
+  # NOTE:: this is deprecated .. use method in indicators.db(DS="lbm_inputs")
+
   indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
   lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
 

@@ -17,8 +17,8 @@ indicators.lookup = function( DS, yr=NULL, p=NULL ) {
 
   if ( DS=="substrate") {
     H = bio.substrate::substrate.db ( p=p, DS="planar")
-    H$substrate.mean = log(H$grainsize)
-    H = H[, c("plon", "plat", "substrate.mean") ]
+    H$log.substrate.grainsize = log(H$grainsize)
+    H = H[, c("plon", "plat", "log.substrate.grainsize") ]
   }
 
   if ( DS %in% c( "temperature.complete", "temperature.annual", "temperature", "temperature.seasonal", "temperature.climatology" ) ) {
