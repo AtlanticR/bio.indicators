@@ -167,7 +167,7 @@
 
 
     if (DS %in%  c("prediction.surface", "prediction.surface.redo") ) {
-      fn = file.path( project.datadirectory("bio.indicators")0, "analysis", "habitat", p$spatial.domain, "prediction.surface.rdata" )
+      fn = file.path( project.datadirectory("bio.indicators"), "analysis", "habitat", p$spatial.domain, "prediction.surface.rdata" ) 
       PS = NULL
       
       if (DS=="prediction.surface") {
