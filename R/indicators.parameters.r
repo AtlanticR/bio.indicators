@@ -183,8 +183,11 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton (default), then this .. see GAM options
 
 
-    p$variables = list( Y="t", LOCS=c("plon", "plat"), TIME="tiyr", COV="z" )
-    
+    p$variables = list( Y="t", LOCS=c("plon", "plat"), TIME="tiyr", 
+      COV=c("z", "dZ", "ddZ", "log.substrate.grainsize"), 
+      COVT=c("t", "tmean", "tamp", "wmin" ) )
+    p$varnames = c( p$variables$LOCS, p$variables$COV ) #
+
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
     if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
 

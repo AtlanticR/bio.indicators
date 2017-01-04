@@ -57,9 +57,8 @@
       }
 
 			# depth is the primary constraint
-      Zbase = bathymetry.db( p=p, DS="baseline" ) # area -prefiltered for depth/bounds
-      Zbase$z = NULL
-      Z = bathymetry.db( p=p, DS="complete" )  # SS to a depth of 500 m  the default used for all planar SS grids
+      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames ) # area -prefiltered for depth/bounds
+
       Z$id = 1:nrow(Z)
       Z$dZ = log( Z$dZ )
       Z$ddZ = log( Z$ddZ)
@@ -176,28 +175,25 @@
       }
 
       # default output grid
-      Z = bathymetry.db( p=p, DS="complete" )  # SS to a depth of 500 m  the default used for all planar SS grids
-      Z = Z[ which(Z$z >0), ] 
-      zid = lbm::array_map( "2->1", trunc(cbind(Z$plon-p$plon[1], Z$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
+      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames )  
+#      zid = lbm::array_map( "2->1", trunc(cbind(Z$plon-p$plon[1], Z$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
+      S = substrate.db( p=p, DS="complete", varnames=p$varnames ) 
+#      sid = lbm::array_map( "2->1", trunc(cbind(S$plon-p$plon[1], S$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
+#      u = match( sid, zid )
       
-      Z$id = 1:nrow(Z)
-      S = substrate.db( DS="complete" ) 
-      sid = lbm::array_map( "2->1", trunc(cbind(S$plon-p$plon[1], S$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
-      u = match( sid, zid )
-      
-      PS = cbind(S, B[u, ] )
-      PS = PS[ is.finite( rowSums(PS) ), ]
+      PS = cbind(S, Z)
+      PS$id = 1:nrow(PS)
 
       # add climatology temperatures
-      TM = temperature.db( p=p, DS="climatology" )
-      tid = lbm::array_map( "2->1", trunc(cbind(TM$plon-p$plon[1], TM$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
+      TM = temperature.db( p=p, DS="climatology", varnames=p$varnames )
+#      tid = lbm::array_map( "2->1", trunc(cbind(TM$plon-p$plon[1], TM$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
      
       # choose temps at p$prediction.dyear 
-      v = match( sid, zid )
+#      v = match( sid, zid )
       
       PS = merge( PS, TM, by="id")
 
-      TM = temperature.db( p=p, DS="timeslice", dyear= )
+      TM = temperature.db( p=p, DS="timeslice", dyear=... )
 
 
       # print( "Interpolating missing data where possible.." )

@@ -44,7 +44,7 @@ tp = tp[which(tp$strat %in% 440:495),]
 tp = tp[which(is.finite(tp$plon) & is.finite(tp$plat)),]
 
 
-Z = bio.bathymetry::bathymetry.db( p=p, DS="baseline" )  # SS to a depth of 500 m  the default used for all planar SS grids
+Z = bio.bathymetry::bathymetry.db( p=p, DS="baseline", varnames=c("plon", "plat", "z") )  # SS to a depth of 500 m  the default used for all planar SS grids
 Z = Z[which(Z$z>30),]
 
 fn = file.path( bio.datadirectory("bio.polygons"), "data", "Science", "scotia.fundy.dat" )
