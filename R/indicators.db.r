@@ -1,93 +1,68 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL ) {
-
-    # simple wrappers to load relevant, uninterpolated point data
-    if (DS == "sizespectrum")  {
-      o = bio.indicators::sizespectrum.db( DS=DS, p=p )
-      return( o )
-    }
-
-    if (DS == "metabolism") {
-      o = bio.indicators::metabolism.db( DS=DS, p=p ) 
-      return(o)
-    }   
-
-    if (DS == "speciesarea") {
-      o = bio.indicators::speciesarea.db( DS=DS, p=p ) 
-      return( o)
-    }  
-    
-    if (DS == "speciescomposition") {
-      o = bio.indicators::speciescomposition.db( DS=DS, p=p )
-      return( o )
-    } 
-
-    if (DS == "condition")  {
-      o = bio.indicators::condition.db( DS=DS, p=p )
-      return( o )
-    }
-
-    if (DS == "biochem") {
-      bio.indicators::biochem.db( DS=DS, p=p )
-      return( o )
-    }  
+  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, dyear=NULL ) {
 
 
     if (DS %in% c("baseline", "baseline.redo") ) {
+      # form a basic prediction surface in planar coords for SS habitat 
 
-      # form a basic prediction surface in planar coords for SS habitat for
-      # factors that do not "change" rapidly and
-      # NOTE this depends upon GMT ..  to be pahsed out .
-
-      message( "This is deprecated due to GMT dependency .. kept for backwards compatability")
-
-      outdir = file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "baseline" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "habitat"), "SSE", "baseline" )
-
+      outdir = file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
-      outfile =  file.path( outdir, "PS.baseline.rdata" )
+
+      if (is.null(dyear)) {
+        if (exists("prediction.dyear", p)) {
+          dyear=p$prediction.dyear
+        } else{
+          dyear=0.8
+        }
+      }
+      if (exists("dyears", p)) {
+        dyear_index = which.min( abs( dyear - p$dyears))
+      } else {
+        dyear_index = 1
+      }    
+
+      outfile =  file.path( outdir, paste("PS.baseline", dyear_index, "rdata", sep=".") )
 
       if ( DS=="baseline" ) {
+        PS = NULL
         if (file.exists(outfile)) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
         return (PS)
       }
 
-			# depth is the primary constraint
-      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames ) # area -prefiltered for depth/bounds
+      gridparams = list( dims=c(p$nplons,p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) )
 
-      Z$id = 1:nrow(Z)
+      # depth is the primary constraint
+      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames ) # area -prefiltered for depth/bounds
+      zid = lbm::array_map( "xy->1", Z[,c("plon","plat")],  gridparams=gridparams )
+   
       Z$dZ = log( Z$dZ )
       Z$ddZ = log( Z$ddZ)
-      Z = Z[, c("plon", "plat", "id", "z", "dZ", "ddZ" )]
-      Z = merge(Zbase, Z, by=c("plon", "plat"), all.x=TRUE, all.y=FALSE, sort=FALSE )
 
-      S =  substrate.db ( p=p, DS="planar")
-      S$log.substrate.grainsize = log(S$grainsize)
-      S$grainsize = NULL
 
-      PS = merge( Z, S, by  =c("plon", "plat"), all.x=T, all.y=F, sort=F )
 
-      print( "Interpolating missing data where possible.." )
-        vars = setdiff( names(PS), c("plon", "plat") )
-        require (gstat)
-        for (v in vars) {
-          print(v)
+      S =  substrate.db ( p=p, DS="complete", varnames=p$varnames )
+      sid = lbm::array_map( "xy->1", S[,c("plon","plat")],  gridparams=gridparams ) 
+   
+      u = match( sid, zid )
+      PS = cbind( Z, S[u,] )
+   
+      Z = S = sid = NULL
 
-          for (dists in p$interpolation.distances) {
-            ii = which ( !is.finite( PS[, v]) )
-            if (length(ii)==0) break()
-            print( paste("N = ", length(ii), "data points") )
-            gs = gstat( id=v, formula=PS[-ii,v]~1, locations=~plon+plat, data=PS[-ii,],
-                nmax=p$interpolation.nmax, maxdist=dists, set=list(idp=.5))
-            PS[ii,v] = predict( object=gs, newdata=PS[ii,] ) [,3]
-        }}
+      TM = temperature.db(p=p, DS="climatology" )
+      tid = lbm::array_map( "xy->1", TM[,c("plon","plat")], gridparams=gridparams )
+      
+       
+      u = match( tid, zid )
+      PS = cbind( PS, TM[u,])
 
-      PS = PS[ order( PS$id), ]
-      PS$id = NULL
+
+      TM = matrix( NA, ncol=p$ny, nrow=nrow(PS) )
+      for (iy in 1:p$ny){
+        u = NULL
+        u = temperature.db(p=p, DS="lbm.prediction.mean", yr=p$tyears[iy] )
+        if (!is.null(u)) PS[,iy] = u[,id]
+      }
+
 
       save (PS, file=outfile, compress=T )
       return( outfile )
@@ -176,17 +151,12 @@
 
       # default output grid
       Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames )  
-#      zid = lbm::array_map( "2->1", trunc(cbind(Z$plon-p$plon[1], Z$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
       S = substrate.db( p=p, DS="complete", varnames=p$varnames ) 
-#      sid = lbm::array_map( "2->1", trunc(cbind(S$plon-p$plon[1], S$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
-#      u = match( sid, zid )
       
       PS = cbind(S, Z)
-      PS$id = 1:nrow(PS)
 
       # add climatology temperatures
       TM = temperature.db( p=p, DS="climatology", varnames=p$varnames )
-#      tid = lbm::array_map( "2->1", trunc(cbind(TM$plon-p$plon[1], TM$plat-p$plat[1])/p$pres) + 1, c(p$nplons,p$nplats) )
      
       # choose temps at p$prediction.dyear 
 #      v = match( sid, zid )
@@ -227,17 +197,12 @@
 ### NOTE -- "complete", "complete.redo" here as a temporay measure to skip other indicators for 2015/2016
 
       outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "environmentals" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","environmentals" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS %in% c( "environmentals")  ) {
         outfile =  file.path( outdir, paste( "PS", year, "rdata", sep= ".") )
         PS = NULL
         if ( file.exists( outfile ) ) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
         return (PS)
       }
 
@@ -269,18 +234,13 @@
     if (DS %in% c("complete", "complete.redo") ) {
 
       outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "complete" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","complete" )
+
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS=="complete" ) {
         outfile =  file.path( outdir, paste( "PS", year, "rdata", sep= ".") )
         PS = NULL
         if ( file.exists( outfile ) ) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
-
         return (PS)
       }
 
@@ -428,6 +388,8 @@
         for (o in 1:ncol(PS) ) attributes( PS[,o]) <- NULL  # remove rownames, etc .. reduces size of data object
 
         save (PS, file=outfile, compress=T )
+
+        message ( "TODO: regrid to smaller grids here ..  ")
       }
       return( "Complete" )
     }

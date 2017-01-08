@@ -6,7 +6,8 @@
 # also, it becomes relatively simple to add other indicators using this approach ..
     
     current.year = 2016
-
+ 
+ resolution fixed at SSE
 
     # project.names = c( "speciescomposition", "speciesarea", "sizespectrum", "metabolism", "condition", "biochem", "..." )
     
@@ -27,6 +28,24 @@
       }
 
     }
+
+
+    # re-grid to smaller grids
+    p$new.grids = c("SSE", "snowcrab")
+
+    #   zSSE = bathymetry.db ( p=spatial_parameters( type="SSE" ), DS="baseline" )
+    #   zSSE$id.sse = 1:nrow(zSSE)
+
+    #   zsc  = bathymetry.db ( p=spatial_parameters( type="snowcrab" ), DS="baseline" )
+    #   zsc$id.sc = 1:nrow(zsc)
+
+    #   z = merge( zSSE, zsc, by =c("plon", "plat"), all.x=T, all.y=T, sort=F )
+    #   ii = which(is.finite(z$id.sc ) & is.finite(z$id.sse )  )
+    #   if (length(ii) != nrow(zsc) ) stop("Error in sse-snowcrab lookup table size")
+    #   id = sort( z$id.sse[ ii] )
+ 
+
+      }
 
 
       if (0) {
@@ -60,7 +79,7 @@
         parallel.run(  indicators.db, DS="complete.redo", p=p )
         # indicators.db ( DS="complete.redo", p=p )
 
-      }
+
 
 
 

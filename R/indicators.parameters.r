@@ -1,31 +1,52 @@
 
 
-indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
+indicators.parameters = function( DS="indicators", p=NULL, current.year=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
+
+  p$libs = c( p$libs, RLibrary ( "lubridate", "rgdal", "parallel", "sp", "lattice", "fields", "mgcv" ) )
+  p$libs = c( p$libs, bioLibrary ("bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
+
   if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
 
   p$clusters = rep("localhost", detectCores() )
 
-  p$prediction.dyear = 0.75
-  p$spatial.domain = "SSE" # almost all expect "mpa"
-  p$default.spatial.domain = "canada.east"  # for temperature lookups
+  p$newyear = current.year
+  p$tyears = c(1950:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+
+  if ( !exists("yrs", p) )  p$yrs = p$tyears  # yr labels for output
+  
+  p$ny = length(p$yrs)
+  p$nw = 10 # number of intervals in time within a year
+  p$nt = p$nw*p$ny # must specify, else assumed = 1
+  p$tres = 1/ p$nw # time resolution
+
+  tout = expand.grid( yr=p$tyears, dyear=1:p$nw, KEEP.OUT.ATTRS=FALSE )
+  tout$tiyr = tout$yr + tout$dyear/p$nw - p$tres/2 # mid-points
+  tout = tout[ order(tout$tiyr), ]
+  p$ts = tout$tiyr
+
+  p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
+  p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
+
+  p$spatial_distance_max = 25 # obsolete .. used by old inverse distance method .. to be retired shortly
+
+  p$prediction.dyear = 0.75 # used for creating timeslices .. needs to match the values in indicators.parameters()
+
+
+
+  p$spatial.domain = "SSE" 
   p = spatial_parameters( p )  # data are from this domain .. so far
+
 
   if (DS=="survey"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
-    p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
-    p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat", "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
-
     p$taxa =  "maxresolved"
     # p$seasons = "allseasons"
     p$data.sources = c("groundfish", "snowcrab")
     # habitat lookup parameters .. depth/temperature
-
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
-  
-
   }
 
 
@@ -33,11 +54,7 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
   if (DS=="landings"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
-    p$libs = c( p$libs, RLibrary ( "lubridate", "raster", "rgdal" ) )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.utilities", "bio.taxonomy", "bio.spacetime", "bio.habitat", "bio.indicators" ) )
     p$marfis.years=2002:current.year
-
-
   }
 
 
@@ -45,52 +62,38 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
   if (DS=="condition") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
-
-    p$libs = c( p$libs, bioLibrary ("bio.base", "bio.habitat",  "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
-
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
-    
     p$spatial.knots = 100
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is default (newton), then this as a failsafe .. see GAM options
     # p$mods = c("simple","simple.highdef", "complex", "full" )  # model types to attempt
     p$modtype = "complex"
-
-
   }
 
   # ---------------------
 
   if (DS=="metabolism") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
-
-
     p$taxa = "alltaxa"   # do not use any other category
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
     p$yearstomodel = 1970:current.year
-    p$habitat.predict.time.julian = "Sept-1" # Sept 1
     p$spatial.knots = 100
     p$interpolation.distances =  25 # for interpolation of habitat vars
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is bam, then this .. see GAM options
     p$modtype = "complex"
-
-  
   }
 
   # ---------------------
 
   if (DS=="sizespectrum") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
+
     # faster to use RAM-based data objects but this forces use only of local cpu's
     # configure SHM (shared RAM memory to be >18 GB .. in fstab .. in windows not sure how to do this?)
     p$use.bigmemory.file.backing = FALSE
@@ -124,16 +127,13 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
 
     if (p$nss.type=="mass") p$nss.bins = bins.df( "gf.mass", p$nss.base )
     if (p$nss.type=="len")  p$nss.bins = bins.df( "gf.len",  p$nss.base )
-
-  
   }
 
   # ---------------------
 
   if (DS=="speciesarea") {
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory" )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
+    p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     p$yearstomodel = 1970:current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
@@ -154,18 +154,14 @@ indicators.parameters = function( DS, p=NULL, current.year=NULL ) {
     p$modtype = "complex"
     p$spatial.knots = 100
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton, then this .. see GAM options
-
-  
   }
+
 
   # ---------------------
 
   if (DS=="speciescomposition") {
 
     p$project.outdir.root = project.datadirectory( "bio.indicators",  p$project.name ) #required for interpolations and mapping
-
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal" )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat", "bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
     p$data.sources = c("groundfish", "snowcrab")
 
@@ -269,11 +265,9 @@ formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" )
 
   # ---------------------
 
-  if (DS=="habitat") {
+  if (DS=="indicators") {
 
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "grid" , "lattice", "fields", "raster", "rgdal", "bigmemory", "arm" , "snow" )
-    p$libs = c( p$libs, bioLibrary ( "bio.base", "bio.habitat","bio.spacetime", "bio.utilities", "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "bio.taxonomy" ) )
 
     p$taxa = "maxresolved"
     p$season = "allseasons"
@@ -309,9 +303,8 @@ formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" )
     p$metabolism.taxa = "alltaxa"
     p$metabolism.season = "allseasons"
     p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
-
-  
   }
+
 
   # ---------------------
 
@@ -319,13 +312,9 @@ formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" )
 
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
 
-    p$libs = RLibrary ( "lubridate", "fields", "mgcv", "sp", "parallel", "rgdal", "INLA",
-      "raster", "rasterVis", "parallel", "maps", "mapdata", "lattice"  )
-
-    p$libs = c( p$libs,  bioLibrary(
-      "bio.base", "bio.utilities", "bio.groundfish", "bio.snowcrab", "bio.plankton", "bio.remote.sensing", "bio.habitat", "bio.taxonomy",
-      "bio.bathymetry", "bio.substrate", "bio.temperature", "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
-      "bio.coastline", "bio.indicators" ))
+    p$libs = c( p$libs, RLibrary ( "maps", "mapdata" ) )
+    p$libs = c( p$libs,  bioLibrary( "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
+      "bio.coastline" ))
 
     p$spatial.domain = "SSE.mpa"  # override the default specified at top
     p = spatial_parameters( p )  # reset as SSE.mpa is a little larger
@@ -339,7 +328,6 @@ formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" )
     p$map.palette = colorRampPalette(c("darkblue","blue3", "green", "yellow", "orange","red3", "darkred"), space = "Lab")(100)
     p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
     p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
-
   
   }
 

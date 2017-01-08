@@ -45,11 +45,17 @@
   # estimate condition
   p = bio.indicators::indicators.parameters( DS="condition" )
   bio.indicators::condition.db( DS="condition.redo", p=p ) # takes a minute
+# o = bio.indicators::condition.db( DS="condition", p=p )
+
+
 
   # -----------------------------
   # estimate metabolic demand, given size structure
   p = bio.indicators::indicators.parameters( DS="metabolism")
   bio.indicators::metabolism.db( DS="metabolism.redo", p=p )
+# o = bio.indicators::metabolism.db( DS="metabolism", p=p ) 
+
+
 
   # -----------------------------
   # analysis and spatial database of normalised size spectrum, average size
@@ -57,6 +63,9 @@
   bio.indicators::sizespectrum.db( DS="sizespectrum.by.set.redo", p=p ) #MG takes 1 minute
   bio.indicators::sizespectrum.db( DS="sizespectrum.stats.redo", p=p )  #MG took 20 minutes
   bio.indicators::sizespectrum.db( DS="sizespectrum.redo", p=p )  # all point data to be interpolated #MG took 5 minutes
+# o = bio.indicators::sizespectrum.db( DS="sizespectrum", p=p )
+
+
 
   # -----------------------------
   # count and record rarification curves from all available data --- refresh "survey.db" ~/ecomod/bio/src/bio.r
@@ -64,6 +73,8 @@
   bio.indicators::speciesarea.db( DS="speciesarea.counts.redo", p=p )  # 60 MB / process  -- can use all cpus
   bio.indicators::speciesarea.db( DS="speciesarea.stats.redo", p=p ) # ~ 1 minute
   bio.indicators::speciesarea.db( DS="speciesarea.redo", p=p ) # intermediary file for modelling and interpolation ... lookup up missing data and covariates
+# o = bio.indicators::speciesarea.db( DS="speciesarea", p=p ) 
+
 
 
  # -----------------------------
@@ -71,22 +82,21 @@
   p = bio.indicators::indicators.parameters( DS="speciescomposition" )
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
+# o = bio.indicators::speciescomposition.db( DS="speciescomposition", p=p )
+
 
 
  # -----------------------------
- # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
-  p = bio.indicators::indicators.parameters( DS="habitat" )
-  
-  # NOTE:: this is deprecated .. use method in indicators.db(DS="lbm_inputs")
+ # o = bio.indicators::biochem.db( DS="biochem", p=p )
 
-  indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
-  lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
 
-  # p$clusters = rep( "localhost", 1)  # if length(p$clusters) > 1 .. run in parallel
-  # p$clusters = rep("localhost", detectCores() )
-  # p$clusters = c( rep( "nyx", 24), rep("tartarus", 24), rep("kaos", 24 ) )
 
+
+ # -----------------------------
+ # Glue it all together
+  p = bio.indicators::indicators.parameters( DS="indicators" )
   p = make.list( list( yrs=p$yearstomodel), Y=p )
-  #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
-  indicators.db( DS="environmentals.redo", p=p )
+  
+  indicators.db( DS="baseline.redo", p=p, dyear=p$prediction.dyear) 
+
 
