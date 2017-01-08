@@ -59,7 +59,7 @@
       TM = matrix( NA, ncol=p$ny, nrow=nrow(PS) )
       for (iy in 1:p$ny){
         u = NULL
-        u = temperature.db(p=p, DS="lbm.prediction.mean", yr=p$tyears[iy] )
+        u = temperature.db(p=p, DS="seasonal", yr=p$tyears[iy] )
         if (!is.null(u)) PS[,iy] = u[,id]
       }
 
