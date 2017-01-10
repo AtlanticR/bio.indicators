@@ -29,7 +29,7 @@ indicators.lookup = function( DS, yr=NULL, p=NULL ) {
     }
     if ( DS %in% c("temperature.climatology" ) ) {
       H = bio.temperature::temperature.db( p=p, DS="complete", year=yr  )
-      H = H[, c("plon", "plat", "tmean.cl", "tamp.cl", "wmin.cl", "thp.cl", "tsd.cl" )]
+      H = H[, c("plon", "plat", "tmean.climatology", "tamplitude.climatology", "wmin.climatology", "thalfperiod.climatology", "tsd.climatology" )]
     }
     if ( DS %in% c( "temperature.annual", "temperature", "temperature.seasonal" ) ) {
       # note this is valid only for the default spatial domain .. so must regrid

@@ -31,7 +31,7 @@
 
 
     # re-grid to smaller grids
-    p$new.grids = c("SSE", "snowcrab")
+    p$spatial.domain.subareas = c("SSE", "snowcrab")
 
     #   zSSE = bathymetry.db ( p=spatial_parameters( type="SSE" ), DS="baseline" )
     #   zSSE$id.sse = 1:nrow(zSSE)

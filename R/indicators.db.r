@@ -119,7 +119,7 @@
       IN$ddZ = log( IN$ddZ)
       IN$log.substrate.grainsize = log(IN$grainsize)
       IN$tamp = log(IN$tamp)
-   #   IN$tamp.cl = log(IN$tamp.cl)
+   #   IN$tamplitude.climatology = log(IN$tamplitude.climatology)
 
       PS = indicators.db( p=p, DS="prediction.surface" ) 
       PS$z = log(PS$z)
@@ -127,7 +127,7 @@
       PS$ddZ = log( PS$ddZ)
       PS$log.substrate.grainsize = log(PS$grainsize)
       PS$tamp = log(PS$tamp)
-   #   PS$tamp.cl = log(PS$tamp.cl)
+   #   PS$tamplitude.climatology = log(PS$tamplitude.climatology)
 
       OUT = list( LOCS=PS[, c("plon","plat")], COV =as.list( PS[, p$lbm_covars]) )          
 
