@@ -97,6 +97,6 @@
   p = bio.indicators::indicators.parameters( DS="indicators" )
   p = make.list( list( yrs=p$yearstomodel), Y=p )
   
-  indicators.db( DS="baseline.redo", p=p, dyear=p$prediction.dyear) 
+  indicators.db( DS="static.redo", p=p, dyear=p$prediction.dyear) 
 
 

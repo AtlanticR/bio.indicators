@@ -34,10 +34,12 @@ indicators.parameters = function( DS="indicators", p=NULL, current.year=NULL ) {
 
   p$prediction.dyear = 0.75 # used for creating timeslices .. needs to match the values in indicators.parameters()
 
-
-
   p$spatial.domain = "SSE" 
+  p$spatial.domain.subareas = c( "snowcrab")
   p = spatial_parameters( p )  # data are from this domain .. so far
+
+  p$bstats = c("tmean", "tsd", "wmin", "wmax", "tmin", "tmax", "amplitude", "thalfperiod" ) # bottom stats from temperature
+  
 
 
   if (DS=="survey"){
@@ -203,7 +205,9 @@ indicators.parameters = function( DS="indicators", p=NULL, current.year=NULL ) {
           + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")
           + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts") )  
 
-formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" ) + s(dyear, k=3, bs="tp") + s(t, bs="tp" ) + s(tmean, bs="tp") + s(tamp, bs="tp" ) + s(wmin, bs="tp" ) + s(z, bs="tp" ) + s(dZ, bs="tp" ) + s(log.substrate.grainsize, bs="tp" ) ) 
+      formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" ) + s(dyear, k=3, bs="tp") 
+              + s(t, bs="tp" ) + s(tmean, bs="tp") + s(tamp, bs="tp" ) + s(wmin, bs="tp" ) + s(z, bs="tp" ) 
+              + s(dZ, bs="tp" ) + s(log.substrate.grainsize, bs="tp" ) ) 
 
       # more than 100 knots and it takes a very long time, 50 seems sufficient, given the large-scaled pattern outside of the prediction box
       # other possibilities:

@@ -1,11 +1,54 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, dyear=NULL ) {
+  indicators.db = function( ip=NULL, DS="static", p=NULL, year=NULL, dyear=NULL ) {
+
+    if (DS =="indicators") {
+
+      return( switch( p$project.name,
+        sizespectrum = bio.indicators::sizespectrum.db(p=p, DS=p$project.name ),
+        metabolism   = bio.indicators::metabolism.db( p=p, DS=p$project.name ), 
+        speciesarea  = bio.indicators::speciesarea.db( p=p, DS=p$project.name ),  
+-       speciescomposition = bio.indicators::speciescomposition.db( p=p, DS=p$project.name ),
+        sizespectrum = bio.indicators::sizespectrum.db( p=p, DS=p$project.name ),
+        condition =    bio.indicators::condition.db( p=p, DS=p$project.name ),
+        biochem =      bio.indicators::biochem.db( p=p, DS=p$project.name ),
+        NULL
++     ) )
+
+    }
 
 
-    if (DS %in% c("baseline", "baseline.redo") ) {
-      # form a basic prediction surface in planar coords for SS habitat 
+    # -----------------------------
 
-      outdir = file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain )
+
+    if (DS %in% c("static", "static.redo") ) {
+      #\\ static variables
+
+      outdir = file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain )
+      dir.create(outdir, recursive=T, showWarnings=F)
+
+      outfile =  file.path( outdir, paste("PS.static", dyear_index, "rdata", sep=".") )
+
+      if ( DS=="static" ) {
+        PS = NULL
+        if (file.exists(outfile)) load( outfile )
+        return (PS)
+      }
+
+      # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
+      PS = bathymetry.db( p=p, DS="baseline", varnames="all" )  # anything not NULL gives everything with bathymetry.db 
+      PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
+      PS = cbind( PS, temperature.db( p=p, DS="bottom.statistics.climatology" ) )
+      
+      save (PS, file=outfile, compress=T )
+      return( outfile )
+    }
+
+    # -----------------------
+
+    if (DS %in% c("dynamic", "dynamic.redo") ) {
+      #\\ dynamic (time-varying annually) variables
+
+      outdir = file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if (is.null(dyear)) {
@@ -21,88 +64,31 @@
         dyear_index = 1
       }    
 
-      outfile =  file.path( outdir, paste("PS.baseline", dyear_index, "rdata", sep=".") )
+      outfile =  file.path( outdir, paste("PS.dynamic", "rdata", sep=".") )
 
-      if ( DS=="baseline" ) {
+      if ( DS=="dynamic" ) {
         PS = NULL
         if (file.exists(outfile)) load( outfile )
         return (PS)
       }
 
-      gridparams = list( dims=c(p$nplons,p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) )
-
-      # depth is the primary constraint
-      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames ) # area -prefiltered for depth/bounds
-      zid = lbm::array_map( "xy->1", Z[,c("plon","plat")],  gridparams=gridparams )
-   
-      Z$dZ = log( Z$dZ )
-      Z$ddZ = log( Z$ddZ)
-
-
-
-      S =  substrate.db ( p=p, DS="complete", varnames=p$varnames )
-      sid = lbm::array_map( "xy->1", S[,c("plon","plat")],  gridparams=gridparams ) 
-   
-      u = match( sid, zid )
-      PS = cbind( Z, S[u,] )
-   
-      Z = S = sid = NULL
-
-      TM = temperature.db(p=p, DS="climatology" )
-      tid = lbm::array_map( "xy->1", TM[,c("plon","plat")], gridparams=gridparams )
-      
-       
-      u = match( tid, zid )
-      PS = cbind( PS, TM[u,])
-
-
-      TM = matrix( NA, ncol=p$ny, nrow=nrow(PS) )
-      for (iy in 1:p$ny){
-        u = NULL
-        u = temperature.db(p=p, DS="seasonal", yr=p$tyears[iy] )
-        if (!is.null(u)) PS[,iy] = u[,id]
+      PS = list()
+      PS[["timeslice"]] = temperature.db( p=p, DS="timeslice", dyear=dyear )
+      for ( ret in p$bstats ) {
+        PS[[ret]] = cbtemperature.db( p=p, DS="bottom.statistics.annual", ret=ret )
       }
-
 
       save (PS, file=outfile, compress=T )
       return( outfile )
     }
-
 
     #  -------------------------------
 
 
     if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
-      if (p$project.name == "sizespectrum")  {
-        IN = bio.indicators::sizespectrum.db( DS=p$project.name, p=p )
-                        
-      }
+      IN = bio.indicators::indicators.db( DS="indicators", p=p )
 
-      if (p$project.name == "metabolisp$project.namem") {
-        IN = bio.indicators::metabolism.db( DS=p$project.name, p=p ) 
-    
-      }   
-
-      if (p$project.name == "speciesarea") {
-        IN = bio.indicators::speciesarea.db( DS=p$project.name, p=p ) 
-
-      }  
-      
-      if (p$project.name == "speciescomposition") {
-        IN = bio.indicators::speciescomposition.db( DS=p$project.name, p=p )
-
-      } 
-
-      if (p$project.name == "condition")  {
-        IN = bio.indicators::condition.db( DS=p$project.name, p=p )
-
-      }
-
-      if (p$project.name == "biochem") {
-        IN = bio.indicators::biochem.db( DS=p$project.name, p=p )
-
-      }  
 
       # truncate quantiles of dependent vars
       dr = list()
@@ -114,20 +100,23 @@
         if ( length(iu) > 0 ) IN[iu,vm] = dr[[vm]][2]
       }
     
-      IN$z = log(IN$z)
-      IN$dZ = log( IN$dZ )
-      IN$ddZ = log( IN$ddZ)
-      IN$log.substrate.grainsize = log(IN$grainsize)
-      IN$tamp = log(IN$tamp)
-   #   IN$tamplitude.climatology = log(IN$tamplitude.climatology)
+      IN$log.z = log(IN$z)
+      IN$log.dZ = log( IN$dZ )
+      IN$log.ddZ = log( IN$ddZ)
+      IN$log.log.substrate.grainsize = log(IN$grainsize)
+      IN$log.tamplitude = log(IN$tamplitude)
+   #   IN$log.tamplitude.climatology = log(IN$tamplitude.climatology)
 
       PS = indicators.db( p=p, DS="prediction.surface" ) 
-      PS$z = log(PS$z)
-      PS$dZ = log( PS$dZ )
-      PS$ddZ = log( PS$ddZ)
-      PS$log.substrate.grainsize = log(PS$grainsize)
-      PS$tamp = log(PS$tamp)
-   #   PS$tamplitude.climatology = log(PS$tamplitude.climatology)
+      PS$log.z = log(PS$z)
+      PS$log.dZ = log( PS$dZ )
+      PS$log.ddZ = log( PS$ddZ)
+      PS$log.log.substrate.grainsize = log(PS$grainsize)
+      PS$log.tamplitude = log(PS$tamplitude)
+   #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
+
+
+      PS= PS[,p$varnames]
 
       OUT = list( LOCS=PS[, c("plon","plat")], COV =as.list( PS[, p$lbm_covars]) )          
 
@@ -136,60 +125,6 @@
     }
 
 
-
-    #  -------------------------------
-
-
-    if (DS %in%  c("prediction.surface", "prediction.surface.redo") ) {
-      fn = file.path( project.datadirectory("bio.indicators"), "analysis", "habitat", p$spatial.domain, "prediction.surface.rdata" ) 
-      PS = NULL
-      
-      if (DS=="prediction.surface") {
-        if (file.exists(fn)) load(fn)
-        return(PS)      
-      }
-
-      # default output grid
-      Z = bathymetry.db( p=p, DS="baseline", varnames=p$varnames )  
-      S = substrate.db( p=p, DS="complete", varnames=p$varnames ) 
-      
-      PS = cbind(S, Z)
-
-      # add climatology temperatures
-      TM = temperature.db( p=p, DS="climatology", varnames=p$varnames )
-     
-      # choose temps at p$prediction.dyear 
-#      v = match( sid, zid )
-      
-      PS = merge( PS, TM, by="id")
-
-      TM = temperature.db( p=p, DS="timeslice", dyear=... )
-
-
-      # print( "Interpolating missing data where possible.." )
-      #   vars = setdiff( names(PS), c("plon", "plat") )
-      #   require (gstat)
-      #   for (v in vars) {
-      #     print(v)
-
-      #     for (dists in p$interpolation.distances) {
-      #       ii = which ( !is.finite( PS[, v]) )
-      #       if (length(ii)==0) break()
-      #       print( paste("N = ", length(ii), "data points") )
-      #       gs = gstat( id=v, formula=PS[-ii,v]~1, locations=~plon+plat, data=PS[-ii,],
-      #           nmax=p$interpolation.nmax, maxdist=dists, set=list(idp=.5))
-      #       PS[ii,v] = predict( object=gs, newdata=PS[ii,] ) [,3]
-      #   }}
-
-
-      PS = PS[ order( PS$id), ]
-      save(PS, file=fn, compress=TRUE )
-      return(fn)
-  
-    }
-
-
-    #  -------------------------------
 
 
     if (DS %in% c("environmentals", "environmentals.redo") ) {

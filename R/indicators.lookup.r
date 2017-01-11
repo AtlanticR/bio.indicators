@@ -49,13 +49,13 @@ indicators.lookup = function( DS, yr=NULL, p=NULL ) {
     H = bio.indicators::indicators.db( DS="complete", p=p, year=yr )
   }
 
-  if ( DS %in% c("baseline", "time.invariant") ) {
-    H = bio.indicators::indicators.db( DS="baseline", p=p )
+  if ( DS %in% c("static") ) {
+    H = bio.indicators::indicators.db( DS="static", p=p )
   }
 
   if (is.null(H)) {
     if(DS=="temperature")stop("returned baseline data NOT TEMPERATURE")
-    H = bio.indicators::indicators.db( DS="baseline", p=p ) # default for most, including depth, substrate, etc
+    H = bio.indicators::indicators.db( DS="static", p=p ) # default for most, including depth, substrate, etc
   }
 
   return( H )
