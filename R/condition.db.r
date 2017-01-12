@@ -30,11 +30,6 @@
       if (length(oo)>0)  set = set[ -oo, ]  # a required field for spatial interpolation
 
       set = lonlat2planar( set, proj.type=p$internal.projection )
-      set$plon = grid.internal( set$plon, p$plons )
-      set$plat = grid.internal( set$plat, p$plats )
-      set = set[ which( is.finite( set$plon + set$plat) ), ]
-
-      set$platplon = paste( set$plat , set$plon, sep="_" )
 
       # match sets and other data sources
       det = survey.db( DS="det" ) # kg/km^2, no/km^2
@@ -53,11 +48,17 @@
         names(smd) = c( "id", tx )
         sm = merge( sm, smd, by="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
       }
+
+      locsmap = match( 
+        lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=sm[,"timestamp"] ))
+      sm$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=sm[,"timestamp"] )
+
       sm$yr = NULL
       set = merge( set, sm, by="id", all.x=TRUE, all.y=FALSE, sort=FALSE, suffixes=c("", ".sm") )
-
-      set = habitat.lookup( set, p=p, DS="environmentals" )
-
       save( set, file=fn, compress=T )
       return (fn)
     }

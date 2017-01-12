@@ -1,64 +1,43 @@
 
-indicators.lookup = function( DS, yr=NULL, p=NULL ) {
+      indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, varnames=NULL, DB=NULL ) {
 
-  # define and load starting indicators.db source from which to do the lookup
-  H = NULL
+        if (is.null(locsmap)){
+          gridparams = list( dims=c(p$nplons, p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) )
+          grid = lbm::array_map( "xy->1", locs, gridparams=gridparams )
+          baid = lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=gridparams )
+          locsmap = match( grid, baid )
+        }
 
-  if ( DS %in% c("speciesarea", "sizespectrum", "metabolism","speciescomposition", "condition", "biochem" ) ) {
-    p$project.name = DS
-    p$project.outdir.root = project.datadirectory( "bio.habitat", p$project.name, "analysis" )
-    H = bio.habitat::habitat.interpolate( DS=DS, p=p )
-    H = H[,  c("plon", "plat", p$varstomodel ) ]  # add variable names
-  }
+        if (DS=="spatial"){
+          if (is.null(DB)) DB = indicators.db(p=p, DS="spatial")
+          if (is.null(varnames)) varnames=names(DB)
+          out = DB[locsmap,varnames]
+          return(out)
+        }
 
-  if ( DS %in% c("depth", "depth.complete") ) {
-    H = bio.bathymetry::bathymetry.db( p=p,  DS="complete", return.format = "dataframe" )
-  }
+        if (DS=="spatial.annual"){ 
+          out = NULL
+          dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
+          if (is.null(DB)) DB = indicators.db(p=p, DS="spatial.annual")
+          if (is.null(varnames)) varnames=names(DB)
+          for (vn in varnames){
+            out = cbind( out, DB[[vn]][dindex] )
+          }
+          return(out)
+        }
 
-  if ( DS=="substrate") {
-    H = bio.substrate::substrate.db ( p=p, DS="planar")
-    H$log.substrate.grainsize = log(H$grainsize)
-    H = H[, c("plon", "plat", "log.substrate.grainsize") ]
-  }
-
-  if ( DS %in% c( "temperature.complete", "temperature.annual", "temperature", "temperature.seasonal", "temperature.climatology" ) ) {
-    if (is.null(yr)) {
-      # choose one,, any will do
-      if (exists("tyears", p)) yr = p$tyears[1]
-      if (exists("tyears.climatology", p)) yr = p$tyears.climatology[1]
-    }
-    if ( DS %in% c("temperature.climatology" ) ) {
-      H = bio.temperature::temperature.db( p=p, DS="complete", year=yr  )
-      H = H[, c("plon", "plat", "tmean.climatology", "tamplitude.climatology", "wmin.climatology", "thalfperiod.climatology", "tsd.climatology" )]
-    }
-    if ( DS %in% c( "temperature.annual", "temperature", "temperature.seasonal" ) ) {
-      # note this is valid only for the default spatial domain .. so must regrid
-      H = bio.temperature::temperature.db( p=p, DS="spacetime.prediction", yr=yr  )
-    }
-    if ( DS %in% c( "temperature.complete" ) ) {
-      H = bio.temperature::temperature.db( p=p, DS="complete", year=yr  )
-      # nothing to do ... keep all
-    }
-  }
-
-  if ( DS %in% c("default", "environmentals", "time.variant" ) ) {
-    H = bio.indicators::indicators.db( DS="environmentals", p=p, year=yr )
-  }
-
-  if ( DS %in% c("all", "all.data") ) {
-    H = bio.indicators::indicators.db( DS="complete", p=p, year=yr )
-  }
-
-  if ( DS %in% c("static") ) {
-    H = bio.indicators::indicators.db( DS="static", p=p )
-  }
-
-  if (is.null(H)) {
-    if(DS=="temperature")stop("returned baseline data NOT TEMPERATURE")
-    H = bio.indicators::indicators.db( DS="static", p=p ) # default for most, including depth, substrate, etc
-  }
-
-  return( H )
-}
+        if (DS=="spatial.annual.seasonal"){ 
+          out = NULL
+          yrs = lubridate::year(timestamp)
+          dyear = lubridate::decimal_date( timestamp ) -yrs
+          dyear_index = as.numeric( cut( dyear, breaks=p$dyears, include.lowest=T, ordered_result=TRUE ) )
+          dindex = cbind(locsmap, match( yrs, p$yrs ), dyear_index ) # check this
+          if (is.null(DB)) {
+            if (!is.null(varnames)) DB=indicators.db(p=p, DS=varnames) # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
+          }
+          out = DB[dindex] )
+          return(out)
+        }
 
 
+      }

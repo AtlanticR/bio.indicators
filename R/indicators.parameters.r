@@ -1,6 +1,6 @@
 
 
-indicators.parameters = function( DS="indicators", p=NULL, current.year=NULL ) {
+indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
@@ -38,6 +38,8 @@ indicators.parameters = function( DS="indicators", p=NULL, current.year=NULL ) {
   p$spatial.domain.subareas = c( "snowcrab")
   p = spatial_parameters( p )  # data are from this domain .. so far
 
+  p$gridparams = list( dims=c(p$nplons, p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) ) # used for fast indexing and merging
+      
   p$bstats = c("tmean", "tsd", "wmin", "wmax", "tmin", "tmax", "amplitude", "thalfperiod" ) # bottom stats from temperature
   
 

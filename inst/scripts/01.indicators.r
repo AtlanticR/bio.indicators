@@ -78,7 +78,7 @@
 
 
  # -----------------------------
-   # ordination
+ # ordination
   p = bio.indicators::indicators.parameters( DS="speciescomposition" )
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
@@ -93,10 +93,11 @@
 
 
  # -----------------------------
- # Glue it all together
+ # preform some lookup tables
   p = bio.indicators::indicators.parameters( DS="indicators" )
-  p = make.list( list( yrs=p$yearstomodel), Y=p )
-  
-  indicators.db( DS="static.redo", p=p, dyear=p$prediction.dyear) 
+  indicators.db( DS="spatial.redo", p=p ) 
+  indicators.db( DS="spatial.annual.redo", p=p ) 
+  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
+  indicators.db( DS="prediction.surface.redo", p=p ) 
 
 

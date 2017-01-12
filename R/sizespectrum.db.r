@@ -3,9 +3,7 @@
     ### dependency is only groundfish db for now. ...
 
     dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
-
     infix = paste( p$nss.taxa, p$nss.type, p$nss.base, sep="." )
-
 
     if (DS %in% c("sizespectrum.by.set", "sizespectrum.by.set.redo") ) {
 
@@ -137,13 +135,10 @@
       fn = file.path( p$project.outdir.root, paste( "sizespectrum", infix, "rdata", sep="." ) )
 
       if ( DS=="sizespectrum" ) {
-        SC = NULL
+        SS = NULL
         if (file.exists( fn) ) load( fn )
-        return ( SC )
+        return ( SS )
       }
-
-			P0 = bathymetry.db( p=p, DS="baseline" )  # prediction surface appropriate to p$spatial.domain, already in ndigits = 2
-			P0$platplon = paste(  P0$plat, P0$plon, sep="_" )
 
       sm = sizespectrum.db( DS="sizespectrum.stats", p=p )
       smg = groundfish.db( "set.base" )
@@ -154,15 +149,7 @@
       smg$temp = NULL
 
       sm = merge (sm, smg, by="id", all.x=T, all.y=F, sort= F)
-
       sm = lonlat2planar( sm, proj.type=p$internal.projection )
-      sm$plon = grid.internal( sm$plon, p$plons )
-      sm$plat = grid.internal( sm$plat, p$plats )
-
-      sm$platplon = paste( sm$plat, sm$plon, sep="_" )
-
-      sm$plon = sm$plat = NULL
-      sm$lon  = sm$lat = NULL
 
       # check for duplicates
       for ( y in p$yearstomodel ) {
@@ -176,13 +163,18 @@
         }
       }
 
-      sm = sm[ which( is.finite(sm$nss.b0) ) ,]
-			SC = merge( sm, P0, by="platplon", all.x=T, all.Y=F, sort= F, suffixes=c("", ".P0") )
-		  oo = which(!is.finite( SC$plon+SC$plat ) )
-      if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-		  rm(sm, P0); gc()
-      SC = habitat.lookup( SC, p=p, DS="environmentals" )
-      save(SC, file=fn, compress=T )
+      locsmap = match( 
+        lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=sm[,"timestamp"] ))
+      sm$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=sm[,"timestamp"] )
+
+      SS = sm[ which( is.finite(sm$nss.b0) ) ,]
+		  oo = which(!is.finite( SS$plon+SS$plat ) )
+      if (length(oo)>0) SS = SS[ -oo , ]  # a required field for spatial interpolation
+      save(SS, file=fn, compress=T )
       return ( "Done" )
     }
 

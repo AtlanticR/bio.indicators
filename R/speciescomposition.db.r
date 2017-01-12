@@ -130,33 +130,34 @@
         return ( SC )
 			}
 
-      ks = speciescomposition.db( DS="speciescomposition.ordination", p=p )
-      ks = lonlat2planar( ks, proj.type=p$internal.projection )
+      SC = speciescomposition.db( DS="speciescomposition.ordination", p=p )
+      SC = lonlat2planar( SC, proj.type=p$internal.projection )
+      SC$lon = SC$lat = NULL
 
-      # this forces resolution of p$pres=1km in SSE
-      ks$plon = grid.internal( ks$plon, p$plons )
-      ks$plat = grid.internal( ks$plat, p$plats )
-      ks$lon = ks$lat = NULL
-
-      yrs = sort( unique( ks$yr ) )
+      yrs = sort( unique( SC$yr ) )
       # check for duplicates
       for ( y in yrs ) {
-        yy = which (ks$yr == y)
-        ii = which( duplicated( ks$id[yy] ) )
+        yy = which (SC$yr == y)
+        ii = which( duplicated( SC$id[yy] ) )
 
         if (length(ii) > 0) {
           print( "The following sets have duplicated positions. The first only will be retained" )
-          print( ks[yy,] [ duplicates.toremove( ks$id[yy] ) ] )
-          ks = ks[ - ii,]
+          print( SC[yy,] [ duplicates.toremove( SC$id[yy] ) ] )
+          SC = SC[ - ii,]
         }
       }
+ 
+      locsmap = match( 
+        lbm::array_map( "xy->1", SC[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
-      # baseline is already gridded to internal resolution
-      P0 = bathymetry.db( p=p, DS="baseline" )  # prediction surface appropriate to p$spatial.domain, already in ndigits = 2
-			SC = merge( ks, P0, by=c("plat", "plon"), all.x=T, all.Y=F, sort= F, suffixes=c("", ".P0"))
-	    oo = which(!is.finite( SC$plon+SC$plat ) )
+      SC = cbind( SC, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      SC = cbind( SC, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SC[,"timestamp"] ))
+      SC$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=SC[,"timestamp"] )
+
+      oo = which(!is.finite( SC$plon+SC$plat ) )
       if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-      SC = habitat.lookup( SC, p=p, DS="environmentals" )
+
       save( SC, file=fn, compress=T )
 			return (fn)
 		}

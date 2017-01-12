@@ -240,12 +240,14 @@
       if (length(oo) > 0 ) set = set[ oo, ]
       set = lonlat2planar( set, proj.type=p$internal.projection )  # plon+plat required for lookups
 
-      set$plon = grid.internal( set$plon, p$plons )
-      set$plat = grid.internal( set$plat, p$plats )
-      set = set[ which( is.finite( set$plon + set$plat) ), ]
+      locsmap = match( 
+        lbm::array_map( "xy->1", set[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
-      set = habitat.lookup( set, DS="depth", p=p )
-      set = habitat.lookup( set, DS="temperature", p=p )
+      set = cbind( set, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      set = cbind( set, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=set[,"timestamp"] ))
+      set$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=set[,"timestamp"] )
+
       set$oxysat = compute.oxygen.saturation( t.C=set$t, sal.ppt=set$sal, oxy.ml.l=set$oxyml)
       save( set, file=fn, compress=T )
       return (fn)
