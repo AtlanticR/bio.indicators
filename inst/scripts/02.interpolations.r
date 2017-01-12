@@ -11,11 +11,10 @@
 
     # project.names = c( "speciescomposition", "speciesarea", "sizespectrum", "metabolism", "condition", "biochem", "..." )
     
-    project.names = c( "speciescomposition", "metabolism" )
-    
-    for ( pn in project.names ) {
+
+    project.name = "speciescomposition"
       p = NULL
-      p = bio.indicators::indicators.parameters( DS=project.names, current.year=current.year )
+      p = bio.indicators::indicators.parameters( DS=project.name, current.year=current.year )
       p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
       DATA = 'indicators.db( p=p, DS="lbm_inputs" )'
       for ( v in p$varstomodel) {
@@ -24,7 +23,63 @@
         parallel.run( indicators.db, p=p, DS="lbm.prediction.redo", v=v ) # reformat the interpolations/predictions
       }
       gc()
-    }
+  
+
+    project.name = "metabolism"
+      p = NULL
+      p = bio.indicators::indicators.parameters( DS=project.name, current.year=current.year )
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
+      DATA = 'indicators.db( p=p, DS="lbm_inputs" )'
+      for ( v in p$varstomodel) {
+        p = lbm( p=p, DATA=DATA, v=v ) # the interpolation
+        p = make.list( list( yrs=p$yearstomodel), Y=p ) 
+        parallel.run( indicators.db, p=p, DS="lbm.prediction.redo", v=v ) # reformat the interpolations/predictions
+      }
+      gc()
+  
+
+    project.name = "condition"
+      p = NULL
+      p = bio.indicators::indicators.parameters( DS=project.name, current.year=current.year )
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
+      DATA = 'indicators.db( p=p, DS="lbm_inputs" )'
+      for ( v in p$varstomodel) {
+        p = lbm( p=p, DATA=DATA, v=v ) # the interpolation
+        p = make.list( list( yrs=p$yearstomodel), Y=p ) 
+        parallel.run( indicators.db, p=p, DS="lbm.prediction.redo", v=v ) # reformat the interpolations/predictions
+      }
+      gc()
+  
+
+    project.name = "speciesarea"
+      p = NULL
+      p = bio.indicators::indicators.parameters( DS=project.name, current.year=current.year )
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
+      DATA = 'indicators.db( p=p, DS="lbm_inputs" )'
+      for ( v in p$varstomodel) {
+        p = lbm( p=p, DATA=DATA, v=v ) # the interpolation
+        p = make.list( list( yrs=p$yearstomodel), Y=p ) 
+        parallel.run( indicators.db, p=p, DS="lbm.prediction.redo", v=v ) # reformat the interpolations/predictions
+      }
+      gc()
+  
+
+    project.name = "sizespectrum"
+      p = NULL
+      p = bio.indicators::indicators.parameters( DS=project.name, current.year=current.year )
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm" )
+      DATA = 'indicators.db( p=p, DS="lbm_inputs" )'
+      for ( v in p$varstomodel) {
+        p = lbm( p=p, DATA=DATA, v=v ) # the interpolation
+        p = make.list( list( yrs=p$yearstomodel), Y=p ) 
+        parallel.run( indicators.db, p=p, DS="lbm.prediction.redo", v=v ) # reformat the interpolations/predictions
+      }
+      gc()
+
+
+    # etc ...
+
+    
 
     # glue everything together
     p = make.list( list( yrs=p$yearstomodel), Y=p )

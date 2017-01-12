@@ -186,14 +186,17 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
     p$variables = list( Y="t", LOCS=c("plon", "plat"), TIME="tiyr", 
       COV=c("z", "dZ", "ddZ", "log.substrate.grainsize"), 
       COVT=c("t", "tmean", "tamp", "wmin" ) )
-    p$varnames = c( p$variables$LOCS, p$variables$COV ) #
+    p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
     if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
 
     # using covariates as a first pass essentially makes it ~ kriging with external drift
     p$lbm_global_modelengine = NULL #"gam"
-    p$lbm_global_modelformula = NULL # formula( t ~ s(z, bs="ts") ) # marginally useful .. consider removing it.
+    p$lbm_global_modelformula = formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" ) + s(dyear, k=3, bs="tp") 
+              + s(t, bs="tp" ) + s(tmean, bs="tp") + s(tamp, bs="tp" ) + s(wmin, bs="tp" ) + s(z, bs="tp" ) 
+              + s(dZ, bs="tp" ) + s(log.substrate.grainsize, bs="tp" ) ) 
+
     p$lbm_global_family = gaussian()
   
     p$lbm_local_family = gaussian()
@@ -207,9 +210,6 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
           + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")
           + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts") )  
 
-      formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" ) + s(dyear, k=3, bs="tp") 
-              + s(t, bs="tp" ) + s(tmean, bs="tp") + s(tamp, bs="tp" ) + s(wmin, bs="tp" ) + s(z, bs="tp" ) 
-              + s(dZ, bs="tp" ) + s(log.substrate.grainsize, bs="tp" ) ) 
 
       # more than 100 knots and it takes a very long time, 50 seems sufficient, given the large-scaled pattern outside of the prediction box
       # other possibilities:
@@ -219,30 +219,8 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
         p$lbm_local_model_distanceweighted = TRUE
         p$lbm_gam_optimizer="perf"
         # p$lbm_gam_optimizer=c("outer", "bfgs") 
-    } else if (p$lbm_local_modelengine =="twostep") {
-      # 34 hr with 8 CPU RAM on thoth, using 48 GB RAM .. about 1/3 faster than 24 cpus systems
-      # 42 hrs on tartarus all cpus 
-      # 18 GB RAM for 24 CPU .. 
-      p$lbm_local_modelformula = formula(
-        t ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") + s(log(z), k=3, bs="ts")
-          + s(cos.w, sin.w, yr, bs="ts", k=9) )
-        # similar to GAM model but no spatial component .. space is handled via FFT
-      p$lbm_local_model_distanceweighted = TRUE
-
-      p$lbm_fft_filter = "spatial.process"
-      p$lbm_lowpass_phi = p$pres / 5 # FFT-baed methods cov range parameter .. not required for "spatial.process" ..
-      p$lbm_lowpass_nu = 0.5
-
-    } else if (p$lbm_local_modelengine =="spate") {
- 
-      # similar to the two-step but use "spate" (spde, bayesian, mcmc) instead of "fields" (GMRF, ML)
-      p$lbm_local_modelformula = formula(
-        t ~ s(yr, k=5, bs="ts") + s(cos.w, bs="ts") + s(sin.w, bs="ts") + s( log(z), k=3, bs="ts")
-          + s(cos.w, sin.w, yr, bs="ts") )
-        # similar to GAM model but no spatial component , space and time are handled via FFT but time is seeded by the averge local TS signal (to avoid missing data isses in time.)
-      p$lbm_local_model_distanceweighted = TRUE
- 
-    } else if (p$lbm_local_modelengine == "bayesx") {
+    
+    }  else if (p$lbm_local_modelengine == "bayesx") {
  
       # bayesx families are specified as characters, this forces it to pass as is and 
       # then the next does the transformation internal to the "lbm__bayesx"

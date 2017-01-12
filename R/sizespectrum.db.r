@@ -62,6 +62,9 @@
     }
 
 
+    # --------------------
+
+
     if (DS %in% c( "sizespectrum.stats", "sizespectrum.stats.redo" ) ) {
 
 
@@ -125,9 +128,9 @@
     }
 
 
-
-
     # --------------------
+
+
     if (DS %in% c("sizespectrum", "sizespectrum.redo") ) {
 
       # make the base normalised size spectral statistics summaries

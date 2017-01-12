@@ -98,8 +98,8 @@
     }
 
   
-
     #---------------------------------
+
 
     if (DS %in% c("prediction.surface", "prediction.surface.redo") ) {
 
@@ -185,38 +185,39 @@
       if (exists( "libs", p)) RLibrary( p$libs )
       if (is.null(ip)) ip = 1:p$nruns
 
+
       for (iy in ip) {
         yr = p$runs[iy, "yrs"]
-        print (yr)
-        outfile =  file.path( outdir, paste( "complete", yr, "rdata", sep= ".") )
-        PS = bathymetry.db( p=p, DS="baseline" )
+        
+        PS = matrix( ... )
 
-      # assimilate lbm results here ..
+        for  (vi %in% .. ) {
+          
+          p$variables$Y = varnames[vi]
+          PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+          
+        }
 
-        # Species-area
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        PS = cbind( PS, speciesarea.db( p=indicators.parameters( p=p, DS="speciesarea" ), DS="finalized" )
-         # Species composition
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        PS = cbind( PS, speciescomposition.db( p=indicators.parameters( p=p, DS="speciescomposition" ), DS="finalized" )
-        # size spectrum stats
-        PS = cbind( PS, sizespectrum.db( p=indicators.parameters( p=p, DS="sizespectrum" ), DS="finalized" )
-         # Condition db
-        PS = cbind( PS, condition.db( p=indicators.parameters( p=p, DS="condition" ), DS="finalized" )
-        # metabolic rates
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        PS = cbind( PS, metabolism.db( p=indicators.parameters( p=p, DS="metabolism" ), DS="finalized" )
+        outfile =  file.path( outdir, paste( "complete", year, "rdata", sep= ".") )
+
         save (PS, file=outfile, compress=T )
-        message ( "TODO: regrid to smaller grids here ..  ")
-
+        
       }
 
+      PS = bathymetry.db( p=p, DS="baseline" )
+      SS = matrix ...
+      for  (vi %in% .. ) {
+        
+        p$variables$Y = varnames[vi]
+        SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" )
+        colnames(SS) = paste("XXX", colnames(SS), sep=".")
+        
+      }
+      PS = cbind( PS, SS )
+      save (PS, file=...)
+    
       return( "Complete" )
     }
 
 
-
-
-  }
-
-
+ }
