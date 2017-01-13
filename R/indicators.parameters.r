@@ -1,6 +1,6 @@
 
 
-indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL, varname=NULL ) {
+indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
