@@ -23,7 +23,7 @@
 
     if (DS %in% c("spatial", "spatial.redo") ) {
       # spatial only == static variables
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.spatial.rdata" )
@@ -49,7 +49,7 @@
 
     if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
       # spatial and temporal (annual)
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS.spatial.annual", p$prediction.dyear, "rdata", sep=".") )
@@ -77,7 +77,7 @@
     if (DS %in% c("temperature", "temperature.redo") ) {
       #\\ spatial, temporal (annual and seasonal)
       #\\ copy in array format for domain/resolution of interest for faster lookups
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.temperature.rdata" )
@@ -103,7 +103,7 @@
 
     if (DS %in% c("prediction.surface", "prediction.surface.redo") ) {
 
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS", p$prediction.dyear, "rdata", sep=".") )
@@ -171,7 +171,7 @@
 
     if (DS %in% c("complete", "complete.redo") ) {
       # assemble data for a given project 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, p$variables$Y )
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
@@ -191,9 +191,9 @@
         
         PS = matrix( ... )
 
-        for  (vi %in% .. ) {
+        for  (vn %in% .. ) {
           
-          p$variables$Y = varnames[vi]
+          p$variables$Y = vn # need to send this to get the correct results
           PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
           
         }
@@ -206,9 +206,9 @@
 
       PS = bathymetry.db( p=p, DS="baseline" )
       SS = matrix ...
-      for  (vi %in% .. ) {
+      for  (vn %in% .. ) {
         
-        p$variables$Y = varnames[vi]
+        p$variables$Y = vn
         SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" )
         colnames(SS) = paste("XXX", colnames(SS), sep=".")
         
@@ -216,6 +216,10 @@
       PS = cbind( PS, SS )
       save (PS, file=...)
     
+
+      # spatial warp here to snowcrab grid ...
+
+
       return( "Complete" )
     }
 
@@ -223,7 +227,7 @@
 
     if (DS %in% c("baseline", "baseline.redo") ) {
 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, p$variables$Y )
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
@@ -237,5 +241,8 @@
       # pick and choose and glue all "complete" project data
 
 
+      # spatial warp here to snowcrab grid ...
+
+    }
 
  }
