@@ -159,7 +159,7 @@
    #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
       PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm
       
-      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS )          
+      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS ) )         
 
       return (list(input=INP, output=OUT))
 
@@ -191,7 +191,7 @@
         
         PS = matrix( ... )
 
-        for  (vn %in% .. ) {
+        for  (vn in ... ) {
           
           p$variables$Y = vn # need to send this to get the correct results
           PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
@@ -205,8 +205,8 @@
       }
 
       PS = bathymetry.db( p=p, DS="baseline" )
-      SS = matrix ...
-      for  (vn %in% .. ) {
+#      SS = matrix ...
+      for  (vn in ... ) {
         
         p$variables$Y = vn
         SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" )
@@ -214,7 +214,7 @@
         
       }
       PS = cbind( PS, SS )
-      save (PS, file=...)
+ #     save (PS, file=...)
     
 
       # spatial warp here to snowcrab grid ...
