@@ -7,13 +7,13 @@
         sizespectrum = bio.indicators::sizespectrum.db(p=p, DS=p$project.name ),
         metabolism   = bio.indicators::metabolism.db( p=p, DS=p$project.name ), 
         speciesarea  = bio.indicators::speciesarea.db( p=p, DS=p$project.name ),  
--       speciescomposition = bio.indicators::speciescomposition.db( p=p, DS=p$project.name ),
+        speciescomposition = bio.indicators::speciescomposition.db( p=p, DS=p$project.name ),
         sizespectrum = bio.indicators::sizespectrum.db( p=p, DS=p$project.name ),
         condition =    bio.indicators::condition.db( p=p, DS=p$project.name ),
         biochem =      bio.indicators::biochem.db( p=p, DS=p$project.name ),
         survey =       bio.indicators::survey.db( p=p, DS=p$project.name )
         NULL
-+     ) )
+      ) )
 
     }
 
