@@ -35,7 +35,7 @@
           if (is.null(DB)) {
             if (!is.null(varnames)) DB=indicators.db(p=p, DS=varnames) # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
           }
-          out = DB[dindex] )
+          out = DB[dindex] 
           return(out)
         }
 

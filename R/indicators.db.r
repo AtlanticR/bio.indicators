@@ -194,7 +194,7 @@
         for  (vn in ... ) {
           
           p$variables$Y = vn # need to send this to get the correct results
-          PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+          PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean") )
           
         }
 
@@ -209,7 +209,7 @@
       for  (vn in ... ) {
         
         p$variables$Y = vn
-        SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" )
+        SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" ) )
         colnames(SS) = paste("XXX", colnames(SS), sep=".")
         
       }
