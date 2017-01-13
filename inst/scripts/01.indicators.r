@@ -1,7 +1,22 @@
+ 
+  current.year = 2016
+
+  ## NOTE resolution is fixed at SSE
+  projectstointerpolate = c("speciescomposition", "metabolism", "condition", "speciesarea", "sizespectrum" )
+
+
+ # -----------------------------
+ # preform/prepare some lookup tables
+  p = bio.indicators::indicators.parameters( DS="indicators" )
+  indicators.db( DS="spatial.redo", p=p ) 
+  indicators.db( DS="spatial.annual.redo", p=p ) 
+  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
+  indicators.db( DS="prediction.surface.redo", p=p ) 
+
 
   # glue biological data sets together from various surveys
-
   p = bio.indicators::indicators.parameters( DS="survey" )
+
 
   # load and glue data together
   survey.db( DS="set.init.redo", p=p )
@@ -29,11 +44,23 @@
     # a = biomass.estimation (DS="saved"", p=p )
 
 
+
   # ----------------------------------------------------------
   # all landings
 
   p = bio.indicators::indicators.parameters( DS="landings" )
   bio.indicators::landings.db( DS="odbc", p=p ) # NOTE: run on MSWindows
+  if (0) {
+    # not yet ready
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
+  }
 
 
   # ----------------------------------------------------------
@@ -46,6 +73,14 @@
   p = bio.indicators::indicators.parameters( DS="condition" )
   bio.indicators::condition.db( DS="condition.redo", p=p ) # takes a minute
 # o = bio.indicators::condition.db( DS="condition", p=p )
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
 
 
@@ -54,6 +89,14 @@
   p = bio.indicators::indicators.parameters( DS="metabolism")
   bio.indicators::metabolism.db( DS="metabolism.redo", p=p )
 # o = bio.indicators::metabolism.db( DS="metabolism", p=p ) 
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
 
 
@@ -64,6 +107,14 @@
   bio.indicators::sizespectrum.db( DS="sizespectrum.stats.redo", p=p )  #MG took 20 minutes
   bio.indicators::sizespectrum.db( DS="sizespectrum.redo", p=p )  # all point data to be interpolated #MG took 5 minutes
 # o = bio.indicators::sizespectrum.db( DS="sizespectrum", p=p )
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
 
 
@@ -74,6 +125,14 @@
   bio.indicators::speciesarea.db( DS="speciesarea.stats.redo", p=p ) # ~ 1 minute
   bio.indicators::speciesarea.db( DS="speciesarea.redo", p=p ) # intermediary file for modelling and interpolation ... lookup up missing data and covariates
 # o = bio.indicators::speciesarea.db( DS="speciesarea", p=p ) 
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
 
 
@@ -83,21 +142,30 @@
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
 # o = bio.indicators::speciescomposition.db( DS="speciescomposition", p=p )
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
 
 
  # -----------------------------
  # o = bio.indicators::biochem.db( DS="biochem", p=p )
+    # for ( vn in p$varstomodel) {
+    #   print(vn)
+    #   p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+    #   p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+    #   indicators.db ( DS="complete.redo", p=p )
+    #   indicators.map( p=p  )
+    #   gc()
+    # }
 
 
 
 
- # -----------------------------
- # preform some lookup tables
-  p = bio.indicators::indicators.parameters( DS="indicators" )
-  indicators.db( DS="spatial.redo", p=p ) 
-  indicators.db( DS="spatial.annual.redo", p=p ) 
-  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
-  indicators.db( DS="prediction.surface.redo", p=p ) 
 
 

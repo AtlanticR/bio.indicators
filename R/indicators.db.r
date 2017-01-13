@@ -219,13 +219,14 @@
 
       # spatial warp here to snowcrab grid ...
 
+      indicators.db(p=p, DS="baseline.add")  # add the "complete" data tables to the current version of "baseline"
 
       return( "Complete" )
     }
 
     # -------------------
 
-    if (DS %in% c("baseline", "baseline.redo") ) {
+    if (DS %in% c("baseline", "baseline.add") ) {
 
       outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
 
