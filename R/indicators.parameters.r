@@ -1,6 +1,6 @@
 
 
-indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
+indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL, varname=NULL ) {
 
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
@@ -9,6 +9,9 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
   p$libs = c( p$libs, bioLibrary ("bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
 
   if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
+
+
+  # generic defaults, some will be overridden in project-specific calls
 
   p$clusters = rep("localhost", detectCores() )
 
@@ -39,9 +42,9 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
   p = spatial_parameters( p )  # data are from this domain .. so far
 
   p$gridparams = list( dims=c(p$nplons, p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) ) # used for fast indexing and merging
-      
-  p$bstats = c("tmean", "tsd", "wmin", "wmax", "tmin", "tmax", "amplitude", "thalfperiod" ) # bottom stats from temperature
-  
+
+
+  # ---------------------
 
 
   if (DS=="survey"){
@@ -51,6 +54,7 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
     p$data.sources = c("groundfish", "snowcrab")
     # habitat lookup parameters .. depth/temperature
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
+    p$varstomodel = c()
   }
 
 
@@ -59,6 +63,7 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
   if (DS=="landings"){
     p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
     p$marfis.years=2002:current.year
+    p$varstomodel = c()
   }
 
 
@@ -100,12 +105,9 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
     # configure SHM (shared RAM memory to be >18 GB .. in fstab .. in windows not sure how to do this?)
-    p$use.bigmemory.file.backing = FALSE
-    # p$use.bigmemory.file.backing = TRUE  # file-backing is slower but can use all cpu's in a distributed cluster
+    p$use.bigmemory.file.backing = FALSE  # for data assimilation, p$use.bigmemory.file.backing = TRUE  # file-backing is slower but can use all cpu's in a distributed cluster
 
     p$taxa = "maxresolved"
-    # p$taxa = "family.or.genera"
-    # p$taxa = "alltaxa"
     p$season = "allseasons"
     
     # for spatial interpolation of nss stats
@@ -183,68 +185,7 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
     p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton (default), then this .. see GAM options
 
 
-    p$variables = list( Y="t", LOCS=c("plon", "plat"), TIME="tiyr", 
-      COV=c("z", "dZ", "ddZ", "log.substrate.grainsize"), 
-      COVT=c("t", "tmean", "tamp", "wmin" ) )
-    p$varnames = c( p$variables$LOCS, p$variables$COV ) 
-
-    if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
-    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
-
-    # using covariates as a first pass essentially makes it ~ kriging with external drift
-    p$lbm_global_modelengine = NULL #"gam"
-    p$lbm_global_modelformula = formula( Yvar ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp" ) + s(dyear, k=3, bs="tp") 
-              + s(t, bs="tp" ) + s(tmean, bs="tp") + s(tamp, bs="tp" ) + s(wmin, bs="tp" ) + s(z, bs="tp" ) 
-              + s(dZ, bs="tp" ) + s(log.substrate.grainsize, bs="tp" ) ) 
-
-    p$lbm_global_family = gaussian()
-  
-    p$lbm_local_family = gaussian()
-
-    if (p$lbm_local_modelengine =="gam") {
-      # 32 hours on nyx all cpus; 
-      # XX hrs on thoth all cpus
-      
-      p$lbm_local_modelformula = formula(
-        t ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") + s( log(z), k=3, bs="ts")
-          + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")
-          + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts") )  
-
-
-      # more than 100 knots and it takes a very long time, 50 seems sufficient, given the large-scaled pattern outside of the prediction box
-      # other possibilities:
-        #     seasonal.basic = ' s(yr) + s(dyear, bs="cc") ',
-        #     seasonal.smoothed = ' s(yr, dyear) + s(yr) + s(dyear, bs="cc")  ',
-        #     seasonal.smoothed.depth.lonlat = ' s(yr, dyear) + s(yr, k=3) + s(dyear, bs="cc") +s(z) +s(plon) +s(plat) + s(plon, plat, by=yr), s(plon, plat, k=10, by=dyear ) ',
-        p$lbm_local_model_distanceweighted = TRUE
-        p$lbm_gam_optimizer="perf"
-        # p$lbm_gam_optimizer=c("outer", "bfgs") 
-    
-    }  else if (p$lbm_local_modelengine == "bayesx") {
  
-      # bayesx families are specified as characters, this forces it to pass as is and 
-      # then the next does the transformation internal to the "lbm__bayesx"
-      p$lbm_local_family_bayesx = "gaussian" 
-
-      # alternative models .. testing .. problem is that SE of fit is not accessible?
-      p$lbm_local_modelformula = formula(
-        t ~ sx(yr,   bs="ps") + sx(cos.w, bs="ps") + s(sin.w, bs="ps") +s(z, bs="ps")
-          + sx(plon, bs="ps") + sx(plat,  bs="ps")
-          + sx(plon, plat, cos.w, sin.w, yr, bs="te")  # te is tensor spline
-      )
-      p$lbm_local_model_bayesxmethod="MCMC"
-      p$lbm_local_model_distanceweighted = FALSE
-    
-    } else {
-    
-      message( "The specified lbm_local_modelengine is not tested/supported ... you are on your own ;) ..." )
-
-    }
-   
-
-
-
-  
   }
 
   # ---------------------
@@ -312,8 +253,11 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
     p$map.palette = colorRampPalette(c("darkblue","blue3", "green", "yellow", "orange","red3", "darkred"), space = "Lab")(100)
     p$map.depthcontours = c( 200, 400, 600 ) # to plot on maps
     p$map.depthcontours.colours = c( "gray90", "gray85", "gray80", "gray74", "gray72", "gray70" )
-  
+
+    p$varstomodel = c()
   }
+
+  # ----------------------
 
 
   if (DS=="lbm") {
@@ -335,10 +279,64 @@ indicators.parameters = function( p=NULL, DS=NULL, p=NULL, current.year=NULL ) {
     p$lbm_distance_max = 50 
 
   
-    p$n.min = 200 # n.min/n.max changes with resolution must be more than the number of knots/edf
+    p$n.min = 30 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
-    p$n.max = 2000 # numerical time/memory constraint -- anything larger takes too much time
+    p$n.max = 200 # numerical time/memory constraint -- anything larger takes too much time
     p$sampling = c( 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.5, 1.75, 2 )  # 
+
+    p$variables = list( 
+      Y = varname, 
+      LOCS = c("plon", "plat"), 
+      TIME = "tiyr", 
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamp", "wmin" ) )
+    p$varnames = c( p$variables$LOCS, p$variables$COV ) 
+
+    if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
+    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
+
+    # using covariates as a first pass essentially makes it ~ kriging with external drift
+    p$lbm_global_modelengine = NULL #"gam"
+    p$lbm_global_modelformula = formula( paste( 
+      varname, ' ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp") + s(dyear, k=3, bs="tp")', 
+      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamp, bs="tp") + s(wmin, bs="tp") + s(z, bs="tp")',
+      ' + s(dZ, bs="tp") + s(log.substrate.grainsize, bs="tp") ' )) 
+
+    p$lbm_global_family = gaussian()
+  
+    p$lbm_local_family = gaussian()
+
+    if (p$lbm_local_modelengine =="gam") {
+      # 32 hours on nyx all cpus; 
+      # XX hrs on thoth all cpus
+      
+      p$lbm_local_modelformula = formula( paste( 
+        varname, ' ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") + s( log(z), k=3, bs="ts")', 
+        '  + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")', 
+        '  + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts")' ))  
+      p$lbm_local_model_distanceweighted = TRUE
+      p$lbm_gam_optimizer="perf"
+      # p$lbm_gam_optimizer=c("outer", "bfgs") 
+    
+    }  else if (p$lbm_local_modelengine == "bayesx") {
+ 
+      # bayesx families are specified as characters, this forces it to pass as is and 
+      # then the next does the transformation internal to the "lbm__bayesx"
+      p$lbm_local_family_bayesx = "gaussian" 
+
+      # alternative models .. testing .. problem is that SE of fit is not accessible?
+      p$lbm_local_modelformula = formula( paste( 
+        varname, ' ~ sx(yr,   bs="ps") + sx(cos.w, bs="ps") + s(sin.w, bs="ps") +s(z, bs="ps") + sx(plon, bs="ps") + sx(plat,  bs="ps")', 
+          ' + sx(plon, plat, cos.w, sin.w, yr, bs="te") ' )
+          # te is tensor spline
+      )
+      p$lbm_local_model_bayesxmethod="MCMC"
+      p$lbm_local_model_distanceweighted = FALSE
+    
+    } else {
+    
+      message( "The specified lbm_local_modelengine is not tested/supported ... you are on your own ;) ..." )
+
+    }
 
   }
 

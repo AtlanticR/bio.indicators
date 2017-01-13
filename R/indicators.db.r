@@ -1,5 +1,5 @@
 
-  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL ) {
+  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL, varname=NULL ) {
 
     if (DS =="indicators") {
 
@@ -23,7 +23,7 @@
 
     if (DS %in% c("spatial", "spatial.redo") ) {
       # spatial only == static variables
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.spatial.rdata" )
@@ -49,7 +49,7 @@
 
     if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
       # spatial and temporal (annual)
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS.spatial.annual", p$prediction.dyear, "rdata", sep=".") )
@@ -77,7 +77,7 @@
     if (DS %in% c("temperature", "temperature.redo") ) {
       #\\ spatial, temporal (annual and seasonal)
       #\\ copy in array format for domain/resolution of interest for faster lookups
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.temperature.rdata" )
@@ -103,7 +103,7 @@
 
     if (DS %in% c("prediction.surface", "prediction.surface.redo") ) {
 
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, p$variables$Y )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS", p$prediction.dyear, "rdata", sep=".") )
@@ -116,8 +116,11 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = indicators.db(p=p, DS="spatial")
+      nPS = nrow( PS )
       PS = as.list(PS)
       PS = c( PS, indicators.db(p=p, DS="spatial.annual") )
+      PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=nPS ) # need to make this 2D for lbm .. a limitation of using bigmemory
+
       save (PS, file=outfile, compress=T )
       return( outfile )
     }
@@ -132,13 +135,11 @@
 
       # cap quantiles of dependent vars
       dr = list()
-      for ( vm in p$varstomodel ) {
-        dr[[vm]] = quantile( INP[,vm], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
-        il = which( INP[,vm] < dr[[vm]][1] )
-        if ( length(il) > 0 ) INP[il,vm] = dr[[vm]][1]
-        iu = which( INP[,vm] > dr[[vm]][2] )
-        if ( length(iu) > 0 ) INP[iu,vm] = dr[[vm]][2]
-      }
+      dr[[vm]] = quantile( INP[,vm], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
+      il = which( INP[,vm] < dr[[vm]][1] )
+      if ( length(il) > 0 ) INP[il,vm] = dr[[vm]][1]
+      iu = which( INP[,vm] > dr[[vm]][2] )
+      if ( length(iu) > 0 ) INP[iu,vm] = dr[[vm]][2]
 
       INP$log.z = log(INP$z)
       INP$log.dZ = log( INP$dZ )
@@ -157,8 +158,7 @@
       PS$log.tamplitude = log(PS$tamplitude)
    #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
       PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm
-      PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=npredlocs ) # need to make this 2D for lbm .. a limitation of using bigmemory
-
+      
       OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS )          
 
       return (list(input=INP, output=OUT))
@@ -170,8 +170,8 @@
 
 
     if (DS %in% c("complete", "complete.redo") ) {
-
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain )
+      # assemble data for a given project 
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, p$variables$Y )
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
@@ -218,6 +218,24 @@
     
       return( "Complete" )
     }
+
+    # -------------------
+
+    if (DS %in% c("baseline", "baseline.redo") ) {
+
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, p$variables$Y )
+
+      dir.create(outdir, recursive=T, showWarnings=F)
+
+      if ( DS=="baseline" ) {
+        outfile =  file.path( outdir, paste( "baseline", year, "rdata", sep= ".") )
+        PS = NULL
+        if ( file.exists( outfile ) ) load( outfile )
+        return (PS)
+      }
+
+      # pick and choose and glue all "complete" project data
+
 
 
  }
