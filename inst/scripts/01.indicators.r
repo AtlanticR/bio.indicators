@@ -1,12 +1,12 @@
+
  
   current.year = 2016
 
   ## NOTE resolution is fixed at SSE
-  projectstointerpolate = c("speciescomposition", "metabolism", "condition", "speciesarea", "sizespectrum" )
-
+  
 
  # -----------------------------
- # preform/prepare some lookup tables
+ # preform/prepare some lookup tables for faster lbm processing and generic lookups
   p = bio.indicators::indicators.parameters( DS="indicators" )
   indicators.db( DS="spatial.redo", p=p ) 
   indicators.db( DS="spatial.annual.redo", p=p ) 
@@ -14,35 +14,38 @@
   indicators.db( DS="prediction.surface.redo", p=p ) 
 
 
+
+  # ----------------------------------------------------------
   # glue biological data sets together from various surveys
   p = bio.indicators::indicators.parameters( DS="survey" )
-
-
-  # load and glue data together
-  survey.db( DS="set.init.redo", p=p )
-  survey.db( DS="cat.init.redo", p=p )
-  survey.db( DS="det.init.redo", p=p )
-
-  survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-
-  # TODO:: parallelize me ...
-  lengthweight.db( DS="update", p=p  )  # update the lcoal tables (not necessary)
-
-  survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
-  survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
-  survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
-
-  # generic plots
-  figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control
+    # load and glue data together
+    survey.db( DS="set.init.redo", p=p )
+    survey.db( DS="cat.init.redo", p=p )
+    survey.db( DS="det.init.redo", p=p )
+    survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+    lengthweight.db( DS="update", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
+    survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
+    survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
+    survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
+    figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control
+   
+    if (0) {
+      # not yet ready
+      for ( vn in p$varstomodel) {
+        print(vn)
+        p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+        p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+        indicators.db ( DS="complete.redo", p=p )
+        indicators.map( p=p  )
+        gc()
+      }
+    }
 
     #  --- look in metabolism functions and complexity/condition
-
     # to obtain stats from l-w relationships used to impute mass/leng and estimate condition
     # a = length.weight.regression ( DS="parameters", p=p )
-
     # to obtain biomass estimates after correction for tow, etc.
     # a = biomass.estimation (DS="saved"", p=p )
-
 
 
   # ----------------------------------------------------------
@@ -67,6 +70,21 @@
   # survey data assimilation complete.
   # now, generate indicators of interest from survey data
 
+
+  # -----------------------------
+  # ordination
+  p = bio.indicators::indicators.parameters( DS="speciescomposition" )
+  bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
+  bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
+# o = bio.indicators::speciescomposition.db( DS="speciescomposition", p=p )
+    for ( vn in p$varstomodel) {
+      print(vn)
+      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+      indicators.db ( DS="complete.redo", p=p )
+      indicators.map( p=p  )
+      gc()
+    }
 
   # ----------------------------------------------------------
   # estimate condition
@@ -136,20 +154,6 @@
 
 
 
- # -----------------------------
- # ordination
-  p = bio.indicators::indicators.parameters( DS="speciescomposition" )
-  bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
-  bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
-# o = bio.indicators::speciescomposition.db( DS="speciescomposition", p=p )
-    for ( vn in p$varstomodel) {
-      print(vn)
-      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
-      indicators.db ( DS="complete.redo", p=p )
-      indicators.map( p=p  )
-      gc()
-    }
 
 
 

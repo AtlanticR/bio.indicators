@@ -30,8 +30,6 @@
         return ( ca.out )
       }
 
-      p$project.outdir.root = project.datadirectory( "bio.indicators", "survey" )
-
       sc = survey.db( DS="cat" ,p=p)  # species catch
       sc = sc[ which(is.finite( sc$zn ) ), ]
       sc = sc[ , c("id", "spec_bio", "zn" ) ]  # zscore-transformed into 0,1
@@ -41,8 +39,6 @@
       set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z" ) ]
       set = na.omit( set ) # all are required fields
       
-      p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
-
       # filter area
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]
               &  set$lat >= p$corners$lat[1] & set$lat <= p$corners$lat[2] )

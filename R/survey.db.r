@@ -1,12 +1,14 @@
 
   survey.db = function( DS, p=NULL ) {
     #\\ assimilation of all survey data into a coherent form
-    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
+    surveydir = project.datadirectory( "bio.indicators", "survey" )
+
+    dir.create( surveydir, showWarnings=FALSE, recursive=TRUE )
 
     if (DS %in% c("set.init", "set.init.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.init.rdata"  )
+      fn = file.path( surveydir, "set.init.rdata"  )
       if (DS=="set.init") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -65,7 +67,7 @@
     if (DS %in% c("cat.init","cat.init.redo") ) {
       # all species caught
       cat = NULL # trip/cat loc information
-      fn = file.path( p$project.outdir.root, "cat.init.rdata"  )
+      fn = file.path( surveydir, "cat.init.rdata"  )
       if (DS=="cat.init") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -142,7 +144,7 @@
     if (DS %in% c("det.init","det.init.redo") ) {
       # all species caught
       det = NULL # biologicals
-      fn = file.path( p$project.outdir.root, "det.init.rdata"  )
+      fn = file.path( surveydir, "det.init.rdata"  )
       if (DS=="det.init") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -229,7 +231,7 @@
     if (DS %in% c("set.intermediate","set.intermediate.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.intermediate.rdata"  )
+      fn = file.path( surveydir, "set.intermediate.rdata"  )
       if (DS=="set.intermediate") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -262,7 +264,7 @@
       # error checking, imputation, etc
 
       det = NULL
-      fn = file.path( p$project.outdir.root, "det.rdata"  )
+      fn = file.path( surveydir, "det.rdata"  )
       if (DS=="det") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -290,8 +292,10 @@
       # note: lwp$spec is derived from spec_bio, as above
 
       # load the residuals from lengthweight.db
-      load(file.path( project.datadirectory("bio.indicators", "data", "bio.length.weight.residuals.rdata" ) ) )
-      det = merge(det,lwr,all=T)
+      lwr = lengthweight.db( DS="residuals" )
+
+      # load(file.path( project.datadirectory("bio.indicators", "data", "bio.length.weight.residuals.rdata" ) ) )
+      det = merge(det, lwr,all=T)
       rm(lwr)
 
       ims = which( !is.finite( det$mass) )
@@ -432,7 +436,7 @@
     if (DS %in% c("cat", "cat.redo") ) {
       # all species caught
       cat = NULL # biologicals
-      fn = file.path( p$project.outdir.root, "cat.rdata"  )
+      fn = file.path( surveydir, "cat.rdata"  )
       if (DS=="cat") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -544,7 +548,7 @@
     if (DS %in% c("set","set.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.rdata"  )
+      fn = file.path( surveydir, "set.rdata"  )
       if (DS=="set") {
         if (file.exists( fn) ) load( fn)
         return ( set )

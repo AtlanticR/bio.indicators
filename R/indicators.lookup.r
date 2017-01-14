@@ -2,9 +2,8 @@
       indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, varnames=NULL, DB=NULL ) {
 
         if (is.null(locsmap)){
-          gridparams = list( dims=c(p$nplons, p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) )
-          grid = lbm::array_map( "xy->1", locs, gridparams=gridparams )
-          baid = lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=gridparams )
+          grid = lbm::array_map( "xy->1", locs, gridparams=p$gridparams )
+          baid = lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams )
           locsmap = match( grid, baid )
         }
 
@@ -36,6 +35,20 @@
             if (!is.null(varnames)) DB=indicators.db(p=p, DS=varnames) # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
           }
           out = DB[dindex] 
+          return(out)
+        }
+
+
+        if (DS=="baseline"){ 
+          # all interpolated fields
+          out = NULL
+          dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
+          DB = indicators.db(p=p, DS="baseline")
+          if (is.null(varnames)) varnames=names(DB)
+          for (vn in varnames){
+            out = cbind( out, DB[[vn]][dindex] )
+          }
+          
           return(out)
         }
 

@@ -2,6 +2,7 @@
 
 indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NULL ) {
 
+
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
 
@@ -10,10 +11,10 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
   if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
 
-
+  if (!exists("project.root", p) )  p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
   # generic defaults, some will be overridden in project-specific calls
 
-  p$clusters = rep("localhost", detectCores() )
+  if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
   p$newyear = current.year
   p$tyears = c(1950:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
@@ -22,7 +23,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   
   p$ny = length(p$yrs)
   p$nw = 10 # number of intervals in time within a year
-  p$nt = p$nw*p$ny # must specify, else assumed = 1
+  p$nt = 1 # must specify, else assumed = 1 (1= only annual)
   p$tres = 1/ p$nw # time resolution
 
   tout = expand.grid( yr=p$tyears, dyear=1:p$nw, KEEP.OUT.ATTRS=FALSE )
@@ -33,22 +34,17 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
   p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
 
-  p$spatial_distance_max = 25 # obsolete .. used by old inverse distance method .. to be retired shortly
-
-  p$prediction.dyear = 0.75 # used for creating timeslices .. needs to match the values in indicators.parameters()
+  p$prediction.dyear = 0.8 # used for creating timeslices .. needs to match the values in indicators.parameters()
 
   p$spatial.domain = "SSE" 
   p$spatial.domain.subareas = c( "snowcrab")
   p = spatial_parameters( p )  # data are from this domain .. so far
 
-  p$gridparams = list( dims=c(p$nplons, p$nplats), corner=c(p$plons[1], p$plats[1]), res=c(p$pres, p$pres) ) # used for fast indexing and merging
-
-
   # ---------------------
 
 
   if (DS=="survey"){
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
+    
     p$taxa =  "maxresolved"
     # p$seasons = "allseasons"
     p$data.sources = c("groundfish", "snowcrab")
@@ -81,6 +77,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     # p$mods = c("simple","simple.highdef", "complex", "full" )  # model types to attempt
     p$modtype = "complex"
   }
+
 
   # ---------------------
 
@@ -166,8 +163,6 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="speciescomposition") {
-
-    p$project.outdir.root = project.datadirectory( "bio.indicators",  p$project.name ) #required for interpolations and mapping
 
     p$data.sources = c("groundfish", "snowcrab")
 
@@ -264,6 +259,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
     p$libs = RLibrary( c( p$libs, "lbm" ) ) # required for parallel processing
     p$storage.backend="bigmemory.ram"
+    if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
     p$boundary = TRUE 
     p$depth.filter = 0 # depth (m) stats locations with elevation > 0 m as being on land (and so ignore)
