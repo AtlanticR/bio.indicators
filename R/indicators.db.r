@@ -23,7 +23,7 @@
 
     if (DS %in% c("spatial", "spatial.redo") ) {
       # spatial only == static variables
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.spatial.rdata" )
@@ -49,7 +49,7 @@
 
     if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
       # spatial and temporal (annual)
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS.spatial.annual", p$prediction.dyear, "rdata", sep=".") )
@@ -77,7 +77,7 @@
     if (DS %in% c("temperature", "temperature.redo") ) {
       #\\ spatial, temporal (annual and seasonal)
       #\\ copy in array format for domain/resolution of interest for faster lookups
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, "PS.temperature.rdata" )
@@ -103,7 +103,7 @@
 
     if (DS %in% c("prediction.surface", "prediction.surface.redo") ) {
 
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain, varname )
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       outfile =  file.path( outdir, paste("PS", p$prediction.dyear, "rdata", sep=".") )
@@ -135,11 +135,11 @@
 
       # cap quantiles of dependent vars
       dr = list()
-      dr[[vm]] = quantile( INP[,vm], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
-      il = which( INP[,vm] < dr[[vm]][1] )
-      if ( length(il) > 0 ) INP[il,vm] = dr[[vm]][1]
-      iu = which( INP[,vm] > dr[[vm]][2] )
-      if ( length(iu) > 0 ) INP[iu,vm] = dr[[vm]][2]
+      dr[[varname]] = quantile( INP[,varname], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
+      il = which( INP[,varname] < dr[[varname]][1] )
+      if ( length(il) > 0 ) INP[il,varname] = dr[[varname]][1]
+      iu = which( INP[,varname] > dr[[varname]][2] )
+      if ( length(iu) > 0 ) INP[iu,varname] = dr[[varname]][2]
 
       INP$log.z = log(INP$z)
       INP$log.dZ = log( INP$dZ )
