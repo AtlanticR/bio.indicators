@@ -2,7 +2,6 @@
 
 indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NULL ) {
 
-
   if ( is.null(p) ) p=list()
   if ( !exists("project.name", p) ) p$project.name=DS
 
@@ -17,24 +16,21 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
   p$newyear = current.year
-  p$tyears = c(1950:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
-
-  if ( !exists("yrs", p) )  p$yrs = p$tyears  # yr labels for output
-  
+  p$yrs = c(1970:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
   p$ny = length(p$yrs)
   p$nw = 10 # number of intervals in time within a year
   p$nt = 1 # must specify, else assumed = 1 (1= only annual)
   p$tres = 1/ p$nw # time resolution
 
-  tout = expand.grid( yr=p$tyears, dyear=1:p$nw, KEEP.OUT.ATTRS=FALSE )
-  tout$tiyr = tout$yr + tout$dyear/p$nw - p$tres/2 # mid-points
-  tout = tout[ order(tout$tiyr), ]
-  p$ts = tout$tiyr
-
   p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
   p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
 
   p$prediction.dyear = 0.8 # used for creating timeslices .. needs to match the values in indicators.parameters()
+
+  # output timeslices for predictions
+  tout = p$yrs + p$prediction.dyear - p$tres/2 # mid-points
+  tout = tout[ order(tout), ]
+  p$prediction.ts = tout
 
   p$spatial.domain = "SSE" 
   p$spatial.domain.subareas = c( "snowcrab")
@@ -57,7 +53,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="landings"){
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
+
     p$marfis.years=2002:current.year
     p$varstomodel = c()
   }
@@ -66,7 +62,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="condition") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
+
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:current.year
@@ -82,7 +78,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="metabolism") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
+
     p$taxa = "alltaxa"   # do not use any other category
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
@@ -97,7 +93,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="sizespectrum") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
+
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -135,7 +131,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="speciesarea") {
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and mapping
+
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     p$yearstomodel = 1970:current.year
@@ -187,8 +183,6 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
   if (DS=="indicators") {
 
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name ) #required for interpolations and
-
     p$taxa = "maxresolved"
     p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
@@ -229,8 +223,6 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="mpa") {
-
-    p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
 
     p$libs = c( p$libs, RLibrary ( "maps", "mapdata" ) )
     p$libs = c( p$libs,  bioLibrary( "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",

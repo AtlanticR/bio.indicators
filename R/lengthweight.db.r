@@ -3,7 +3,7 @@ lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
 
   ## TODO -- make parallel require(multicore)
 
-  ddir = file.path( project.datadirectory("bio.indicators", "data" ) )
+  ddir = file.path( project.datadirectory("bio.indicators"), "data" )
   dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
   fn = file.path( ddir, "bio.length.weight.parameters.rdata" )

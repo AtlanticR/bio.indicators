@@ -1,7 +1,7 @@
 
   speciescomposition.db = function( DS="", p=NULL, yr=NULL ) {
 
-    ddir = project.datadirectory( "bio.indicators", "speciescomposition", "data"  )
+    ddir = project.datadirectory( "bio.indicators", "speciescomposition" )
     dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
     infix = paste( p$spatial.domain,  p$taxa, p$season, sep=".")
