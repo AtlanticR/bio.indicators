@@ -29,7 +29,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
   # output timeslices for predictions
   tout = p$yrs + p$prediction.dyear - p$tres/2 # mid-points
-  tout = tout[ order(tout), ]
+  tout = tout[ order(tout) ]
   p$prediction.ts = tout
 
   p$spatial.domain = "SSE" 
