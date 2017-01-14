@@ -1,5 +1,8 @@
 
-  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL, varname=NULL ) {
+  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL, varname=NULL, voi=NULL ) {
+
+    # over-ride default dependent variable name if it exists
+    if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
 
     if (DS =="indicators") {
 
@@ -135,11 +138,11 @@
 
       # cap quantiles of dependent vars
       dr = list()
-      dr[[varname]] = quantile( INP[,varname], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
-      il = which( INP[,varname] < dr[[varname]][1] )
-      if ( length(il) > 0 ) INP[il,varname] = dr[[varname]][1]
-      iu = which( INP[,varname] > dr[[varname]][2] )
-      if ( length(iu) > 0 ) INP[iu,varname] = dr[[varname]][2]
+      dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
+      il = which( INP[,voi] < dr[[voi]][1] )
+      if ( length(il) > 0 ) INP[il,voi] = dr[[voi]][1]
+      iu = which( INP[,voi] > dr[[voi]][2] )
+      if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
 
       INP$log.z = log(INP$z)
       INP$log.dZ = log( INP$dZ )
@@ -171,7 +174,7 @@
 
     if (DS %in% c("complete", "complete.redo") ) {
       # assemble data for a given project 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
