@@ -35,12 +35,12 @@ set = set[ filter.season( set$julian, period=season, index=T ) , ]
 tp = lonlat2planar( set, proj.type=p$internal.projection )
 
 grid = spatial_grid(p, DS="lonlat.coords")
-tp$lon = grid.internal( tp$lon, grid$lons )
-tp$lat = grid.internal( tp$lat, grid$lats )
+tp$lon = grid.internal( tp$lon, grid$lon )
+tp$lat = grid.internal( tp$lat, grid$lat )
 
 pgrid = spatial_grid(p, DS="planar.coords")
-tp$plon = grid.internal( tp$plon, pgrid$plons )
-tp$plat = grid.internal( tp$plat, pgrid$plats )
+tp$plon = grid.internal( tp$plon, pgrid$plon )
+tp$plat = grid.internal( tp$plat, pgrid$plat )
 
 tp = tp[which(tp$strat %in% 440:495),]
 tp = tp[which(is.finite(tp$plon) & is.finite(tp$plat)),]
