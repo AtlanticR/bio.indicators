@@ -3,11 +3,17 @@
   current.year = 2016
 
   ## NOTE resolution is fixed at SSE
+
+ # preform/prepare some lookup tables for faster lbm processing and generic lookups
+  p = bio.indicators::indicators.parameters( DS="indicators" )
+  indicators.db( DS="spatial.redo", p=p ) 
+  indicators.db( DS="spatial.annual.redo", p=p ) 
+  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
+
   
   # ----------------------------------------------------------
   # glue biological data sets together from various surveys
-  p = bio.indicators::indicators.parameters( DS="survey" )
-    # load and glue data together
+   # load and glue data together
     if (redo.source.data) {
       # these are here to show the dependencies of survey.db()
       bio.groundfish::groundfish.db( "set.base.redo" )
@@ -18,25 +24,22 @@
       bio.snowcrab::snowcrab.db( DS ="det.georeferenced.redo" )
     }
 
+   p = bio.indicators::indicators.parameters( DS="survey" )
     survey.db( DS="set.init.redo", p=p )
     survey.db( DS="cat.init.redo", p=p )
     survey.db( DS="det.init.redo", p=p )
-    survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-    lengthweight.db( DS="update", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
+
+    # the following requires the preformed indicators.db() (above) for lookups to complete the data
     survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
+    survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+    survey.db( DS="length.weight.redo", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
     survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
     survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
     figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control
    
 
  # -----------------------------
- # preform/prepare some lookup tables for faster lbm processing and generic lookups
-  p = bio.indicators::indicators.parameters( DS="indicators" )
-  indicators.db( DS="spatial.redo", p=p ) 
-  indicators.db( DS="spatial.annual.redo", p=p ) 
-  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
   indicators.db( DS="prediction.surface.redo", p=p ) 
-
 
     if (0) {
       # not yet ready
