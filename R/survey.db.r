@@ -280,23 +280,13 @@
         #  mature = 1
         #  mat.unknown = 2
 
-      det = survey.db( DS="det.init", p=p )
-      det = det[ which( is.finite( det$spec_bio)), ]
-      det$sex[ which( !is.finite(det$sex)) ] = 2 # set all uncertain sexes to one code sex code
-      det$mat[ which( !is.finite(det$mat)) ] = 2 # set all uncertain sexes to one code sex code
+      det = lengthweight.db( DS="residuals", p=p )
 
       # fix mass, length estimates where possible using model parameters
       # try finest match first: by spec:mat, spec:sex, spec
 
-      lwp = lengthweight.db( DS="parameters" )
+      lwp = lengthweight.db( DS="parameters", p=p )
       # note: lwp$spec is derived from spec_bio, as above
-
-      # load the residuals from lengthweight.db
-      lwr = lengthweight.db( DS="residuals" )
-
-      # load(file.path( project.datadirectory("bio.indicators", "data", "bio.length.weight.residuals.rdata" ) ) )
-      det = merge(det, lwr,all=T)
-      rm(lwr)
 
       ims = which( !is.finite( det$mass) )
       sps = sort( unique( det$spec_bio[ ims ] ) )
@@ -488,7 +478,7 @@
           spi = which( cat$spec_bio == sp )
           ii = intersect( si, spi )
           if (length( ii) > 0 ) {
-						cat$qn[ii] = quantile.estimate( cat$totno[ii]  )  # convert to quantiles, by species and survey
+						cat$qn[ii] = quantile_estimate( cat$totno[ii]  )  # convert to quantiles, by species and survey
 					}
       }}
 
@@ -502,14 +492,14 @@
           spi = which( cat$spec_bio == sp )
           ii = intersect( si, spi )
           if (length( ii) > 0 ) {
-						cat$qm[ii] = quantile.estimate( cat$totmass[ii]  )  # convert to quantiles, by species and survey
+						cat$qm[ii] = quantile_estimate( cat$totmass[ii]  )  # convert to quantiles, by species and survey
 					}
       }}
 
      # convert from quantile to z-score
 
-      cat$zm = quantile.to.normal( cat$qm )
-      cat$zn = quantile.to.normal( cat$qn )
+      cat$zm = quantile_to_normal( cat$qm )
+      cat$zn = quantile_to_normal( cat$qn )
 
 
 			over.write.missing.data = TRUE
@@ -596,7 +586,7 @@
       for ( s in surveys ) {
         ii = which( set$data.source==s & set$totno > 0 )
         if (length( ii) > 0 ) {
-  				set$qn[ii] = quantile.estimate( set$totno[ii]  )  # convert to quantiles, by survey
+  				set$qn[ii] = quantile_estimate( set$totno[ii]  )  # convert to quantiles, by survey
 				}
       }
 
@@ -607,14 +597,14 @@
       for ( s in surveys ) {
         ii = which( set$data.source==s & set$totmass > 0 )
           if (length( ii) > 0 ) {
-						set$qm[ii] = quantile.estimate( set$totmass[ii]  )  # convert to quantiles, by survey
+						set$qm[ii] = quantile_estimate( set$totmass[ii]  )  # convert to quantiles, by survey
 					}
       }
 
      # convert from quantile to z-score
 
-      set$zm = quantile.to.normal( set$qm )
-      set$zn = quantile.to.normal( set$qn )
+      set$zm = quantile_to_normal( set$qm )
+      set$zn = quantile_to_normal( set$qn )
 
 
 			over.write.missing.data = TRUE

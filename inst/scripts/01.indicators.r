@@ -4,21 +4,20 @@
 
   ## NOTE resolution is fixed at SSE
   
-
- # -----------------------------
- # preform/prepare some lookup tables for faster lbm processing and generic lookups
-  p = bio.indicators::indicators.parameters( DS="indicators" )
-  indicators.db( DS="spatial.redo", p=p ) 
-  indicators.db( DS="spatial.annual.redo", p=p ) 
-  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
-  indicators.db( DS="prediction.surface.redo", p=p ) 
-
-
-
   # ----------------------------------------------------------
   # glue biological data sets together from various surveys
   p = bio.indicators::indicators.parameters( DS="survey" )
     # load and glue data together
+    if (redo.source.data) {
+      # these are here to show the dependencies of survey.db()
+      bio.groundfish::groundfish.db( "set.base.redo" )
+      bio.groundfish::groundfish.db( "cat.base.redo" ) 
+      bio.groundfish::groundfish.db( "det.redo" )
+      bio.snowcrab::snowcrab.db( DS ="set.clean.redo" )
+      bio.snowcrab::snowcrab.db( DS ="cat.georeferenced.redo" ) 
+      bio.snowcrab::snowcrab.db( DS ="det.georeferenced.redo" )
+    }
+
     survey.db( DS="set.init.redo", p=p )
     survey.db( DS="cat.init.redo", p=p )
     survey.db( DS="det.init.redo", p=p )
@@ -29,6 +28,16 @@
     survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
     figure.bio.map.survey.locations()  # see mpa/src/_Rfunctions/figure.trawl.density for more control
    
+
+ # -----------------------------
+ # preform/prepare some lookup tables for faster lbm processing and generic lookups
+  p = bio.indicators::indicators.parameters( DS="indicators" )
+  indicators.db( DS="spatial.redo", p=p ) 
+  indicators.db( DS="spatial.annual.redo", p=p ) 
+  indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
+  indicators.db( DS="prediction.surface.redo", p=p ) 
+
+
     if (0) {
       # not yet ready
       for ( vn in p$varstomodel) {

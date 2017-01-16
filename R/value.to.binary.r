@@ -18,8 +18,8 @@
 				spi = intersect( si, which( bc$spec == sp ) )
 				if (length( spi) > 0 ) {
 					# convert to quantiles, by species and survey
-					bc$qn[spi] = quantile.estimate( bc$totno[spi] )
-					bc$qm[spi] = quantile.estimate( bc$totmass[spi] )  
+					bc$qn[spi] = quantile_estimate( bc$totno[spi] )
+					bc$qm[spi] = quantile_estimate( bc$totmass[spi] )  
 				}
 		}}
 	

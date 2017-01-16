@@ -15,7 +15,7 @@ lengthweight.db = function( DS="update", x=NULL, p=NULL  ) {
     return( res )
   }
 
-  if (DS=="residuls") {
+  if (DS=="residuals") {
     lwr = NULL
     if (file.exists( fn2 ) ) load( fn2 )
     return( lwr )
