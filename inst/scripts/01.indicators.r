@@ -53,6 +53,17 @@
       }
     }
 
+
+  # to view progress in terminal:
+  # watch -n 120 cat /home/jae/bio.data/bio.indicators/XXX/modelled/XXX/SSE/lbm_current_status
+
+  # to view maps from an external R session:
+  # lbm(p=p, tasks="debug_pred_static_map", vindex=1)
+  # lbm(p=p, tasks="debug_pred_static_log_map", vindex=1)
+  # lbm(p=p, tasks="debug_pred_dynamic_map", vindex=1)
+  # lbm(p=p, tasks="debug_stats_map", vindex=1)
+
+
     #  --- look in metabolism functions and complexity/condition
     # to obtain stats from l-w relationships used to impute mass/leng and estimate condition
     # a = length.weight.regression ( DS="parameters", p=p )

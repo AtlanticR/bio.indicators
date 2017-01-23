@@ -25,7 +25,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
   p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
 
-  p$prediction.dyear = 0.8 # used for creating timeslices .. needs to match the values in indicators.parameters()
+  p$prediction.dyear = lubridate::decimal_date( lubridate::ymd("0000/Sep/01")) # used for creating timeslices and predictions  .. needs to match the values in indicators.parameters()
 
   # output timeslices for predictions
   tout = p$yrs + p$prediction.dyear - p$tres/2 # mid-points
@@ -276,7 +276,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamp", "wmin" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamp" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
@@ -286,7 +286,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$lbm_global_modelengine = NULL #"gam"
     p$lbm_global_modelformula = formula( paste( 
       varname, ' ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp") + s(dyear, k=3, bs="tp")', 
-      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamp, bs="tp") + s(wmin, bs="tp") + s(z, bs="tp")',
+      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamp, bs="tp") + s(z, bs="tp")',
       ' + s(dZ, bs="tp") + s(log.substrate.grainsize, bs="tp") ' )) 
 
     p$lbm_global_family = gaussian()
