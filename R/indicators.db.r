@@ -63,7 +63,7 @@
         return (PS)
       }
 
-      PS = as.list()
+      PS = list()
       PS[["t"]] = temperature.db( p=p, DS="timeslice" )
       for ( ret in p$bstats ) {
         PS[[ret]] = temperature.db( p=p, DS="bottom.statistics.annual", ret=ret )
@@ -80,24 +80,7 @@
     if (DS %in% c("temperature", "temperature.redo") ) {
       #\\ spatial, temporal (annual and seasonal)
       #\\ copy in array format for domain/resolution of interest for faster lookups
-      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
-      dir.create(outdir, recursive=T, showWarnings=F)
-
-      outfile =  file.path( outdir, "PS.temperature.rdata" )
-
-      if ( DS=="temperature" ) {
-        PS = NULL
-        if (file.exists(outfile)) load( outfile )
-        return (PS)
-      }
-      nlocs = nrow( bathymetry.db(p=p, DS="baseline"))
-      PS = array( NA, dim=c(nlocs, p$ny, p$nw ) )
-      for ( y in 1:p$ny ) {
-        PS[,y,w] = temperature.db( p=p, DS="predictions", yr=p$yrs[y], ret="mean" )
-      }
-
-      save (PS, file=outfile, compress=T )
-      return( outfile )
+      return( temperature.db(p=p, DS="spatial.annual.seasonal" ) )
     }
 
   

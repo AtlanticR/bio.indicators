@@ -228,31 +228,38 @@
     # -------------
 
 
-    if (DS %in% c("set.intermediate","set.intermediate.redo") ) {
-      # survet sets
+    if (DS %in% c("set.intermediate", "set.intermediate.redo") ) {
+      # lookup missing information
+      
       set = NULL # trip/set loc information
       fn = file.path( surveydir, "set.intermediate.rdata"  )
       if (DS=="set.intermediate") {
         if (file.exists( fn) ) load( fn)
         return ( set )
       }
+
       set = survey.db( DS="set.init", p=p )
       set = set[ which(is.finite(set$lon + set$lat + set$yr ) ) , ]  #  fields are required
       oo =  which( !duplicated(set$id) )
       if (length(oo) > 0 ) set = set[ oo, ]
       set = lonlat2planar( set, proj.type=p$internal.projection )  # plon+plat required for lookups
 
-      locsmap = match( 
-        lbm::array_map( "xy->1", set[,c("plon","plat")], gridparams=p$gridparams ), 
-        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+      # merge depth
+      iz = which( !is.finite(set$z) )
+      if (length(iz) > 0) {
+        set$z[iz] = bio.bathymetry::bathymetry.lookup( p=p, locs=set[iz, c("plon","plat")], vnames="z" )
+      }
+      set = set[ which(is.finite(set$z)), ] # depth is a required field
 
-      sp = indicators.lookup( p=p, DS="spatial", locsmap=locsmap )
-
-      set = cbind( set,  )
-      set = cbind( set, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=set[,"timestamp"] ))
-      set$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=set[,"timestamp"] )
+      # merge temperature
+      it = which( !is.finite(set$t) )
+      if (length(it) > 0) {
+        set$t[it] = bio.temperature::temperature.lookup( p=p, locs=set[it, c("plon","plat")], timestamp=set$timestamp[it] )
+      }
+      set = set[ which(is.finite(set$t)), ] # temp is required
 
       set$oxysat = compute.oxygen.saturation( t.C=set$t, sal.ppt=set$sal, oxy.ml.l=set$oxyml)
+     
       save( set, file=fn, compress=T )
       return (fn)
     }
@@ -354,9 +361,6 @@
       return( fn )
  
     }
-
-
-
 
 
     # --------------------
@@ -565,7 +569,6 @@
       if (length(oo) > 0 ) {
         cat$mass[oo] = cat$totmass[oo] / cat$totno[oo]
       }
-
 
     	surveys = sort( unique( cat$data.source ) )
       species = sort( unique( cat$spec_bio ) )

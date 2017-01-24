@@ -253,24 +253,24 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$storage.backend="bigmemory.ram"
     if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
-    p$boundary = TRUE 
+    p$boundary = FALSE 
     p$depth.filter = 0 # depth (m) stats locations with elevation > 0 m as being on land (and so ignore)
     p$lbm_nonconvexhull_alpha = 20  # radius in distance units (km) to use for determining boundaries
     p$lbm_noise = 0.001  # distance units for eps noise to permit mesh gen for boundaries
     p$lbm_quantile_bounds = c(0.01, 0.99) # remove these extremes in interpolations
     
-    p$lbm_rsquared_threshold = 0.25 # lower threshold
-    p$lbm_distance_prediction = 7.5 # this is a half window km
-    p$lbm_distance_statsgrid = 5 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
-    p$lbm_distance_scale = 25 # km ... approx guess of 95% AC range 
+    p$lbm_rsquared_threshold = 0.2 # lower threshold
+    p$lbm_distance_prediction = 10 # this is a half window km
+    p$lbm_distance_statsgrid = 10 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
+    p$lbm_distance_scale = 50 # km ... approx guess of 95% AC range 
     p$lbm_distance_min = p$lbm_distance_statsgrid 
-    p$lbm_distance_max = 50 
+    p$lbm_distance_max = 75 
 
   
-    p$n.min = 30 # n.min/n.max changes with resolution must be more than the number of knots/edf
+    p$n.min = 50 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
-    p$n.max = 200 # numerical time/memory constraint -- anything larger takes too much time
-    p$sampling = c( 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.5, 1.75, 2 )  # 
+    p$n.max = 5000 # no real upper bound
+    p$sampling = c( 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.5 )  # 
 
     p$variables = list( 
       Y = varname, 
