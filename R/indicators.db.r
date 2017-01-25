@@ -55,7 +55,10 @@
       outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
-      outfile =  file.path( outdir, paste("PS.spatial.annual", p$prediction.dyear, "rdata", sep=".") )
+      dyear_index = 1
+      if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
+
+      outfile =  file.path( outdir, paste("PS.spatial.annual", dyear_index, "rdata", sep=".") )
 
       if ( DS=="spatial.annual" ) {
         PS = NULL
@@ -91,8 +94,11 @@
 
       outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
+    
+      dyear_index = 1
+      if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
 
-      outfile =  file.path( outdir, paste("PS", p$prediction.dyear, "rdata", sep=".") )
+      outfile =  file.path( outdir, paste("PS", dyear_index, "rdata", sep=".") )
 
       if ( DS=="prediction.surface" ) {
         PS = NULL
