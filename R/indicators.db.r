@@ -66,9 +66,12 @@
         return (PS)
       }
 
+      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+
       PS = list()
-      PS[["t"]] = temperature.db( p=p, DS="timeslice" )
-      for ( ret in p$bstats ) {
+      PS[["t"]] = temperature.db( p=p, DS="timeslice", ret="mean" )
+      for ( ret in p0$bstats ) {
         PS[[ret]] = temperature.db( p=p, DS="bottom.statistics.annual", ret=ret )
       }
 
@@ -80,9 +83,14 @@
     #---------------------------------
 
 
-    if (DS %in% c("temperature", "temperature.redo") ) {
+    if (DS %in% c("spatial.annual.seasonal", "spatial.annual.seasonal.redo") ) {
       #\\ spatial, temporal (annual and seasonal)
+      # at present only temperatute varies at this scale
       #\\ copy in array format for domain/resolution of interest for faster lookups
+      if ( DS=="spatial.annual.seasonal.redo" ){
+        message( "At present only temperatute varies at this scale .. nothing else needs to be done." )
+      }
+
       return( temperature.db(p=p, DS="spatial.annual.seasonal" ) )
     }
 
