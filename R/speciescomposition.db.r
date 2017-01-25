@@ -36,7 +36,7 @@
       sc = sc[ , c("id", "zn","spec_bio" ) ]  # zscore-transformed into 0,1
 
       set = survey.db( DS="set" ,p=p) # trip/set loc information
-      set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z" ) ]
+      set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z", "timestamp" ) ]
       set = na.omit( set ) # all are required fields
       
       # filter area
