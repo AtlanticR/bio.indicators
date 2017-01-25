@@ -24,7 +24,7 @@
 
   # 3. choose years and vars if different from default
     # p$yearstomodel = 2000:lubridate::year(lubridate::now())
-    p$yearstomodel = 2010:2015
+    p$yearstomodel = 2015
 
 
   # 4. choose clusters

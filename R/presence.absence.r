@@ -7,7 +7,7 @@
       si = which( X[,vname] > 0)  # positive values
       
       X$q = NA
-      X$q[si] = quantile.estimate ( X[si,vname]  )
+      X$q[si] = quantile_estimate ( X[si,vname]  )
       
       s01 = which( X$q < px )  # buffer zone
       s0 = unique( c(s01, sz ) )

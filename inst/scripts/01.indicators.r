@@ -28,6 +28,10 @@
     # to obtain biomass estimates after correction for tow, etc.
     # a = biomass.estimation (DS="saved"", p=p )
 
+  p = make.list( list( yrs=p$yearstomodel), Y=p )
+  #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
+  indicators.db( DS="environmentals.redo", p=p )
+
 
   # ----------------------------------------------------------
   # all landings
@@ -82,8 +86,4 @@
   # p$clusters = rep( "localhost", 1)  # if length(p$clusters) > 1 .. run in parallel
   # p$clusters = rep("localhost", detectCores() )
   # p$clusters = c( rep( "nyx", 24), rep("tartarus", 24), rep("kaos", 24 ) )
-
-  p = make.list( list( yrs=p$yearstomodel), Y=p )
-  #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
-  indicators.db( DS="environmentals.redo", p=p )
 
