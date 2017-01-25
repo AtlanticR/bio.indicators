@@ -53,6 +53,14 @@
         sm = merge( sm, smd, by="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
       }
 
+    # merge temperature
+#      sm$t = ... 
+      it = which( !is.finite(sm$t) )
+      if (length(it) > 0) {
+        sm$t[it] = bio.temperature::temperature.lookup( p=p, locs=sm[it, c("plon","plat")], timestamp=sm$timestamp[it] )
+      }
+      sm = sm[ which(is.finite(sm$t)), ] # temp is required
+      
       locsmap = match( 
         lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )

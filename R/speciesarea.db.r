@@ -165,14 +165,20 @@
           SA = SA[ - ii,]
         }
       }
-   
+
+       # merge temperature
+      it = which( !is.finite(SA$t) )
+      if (length(it) > 0) {
+        SA$t[it] = bio.temperature::temperature.lookup( p=p, locs=SA[it, c("plon","plat")], timestamp=SA$timestamp[it] )
+      }
+      SA = SA[ which(is.finite(SA$t)), ] # temp is required
+
       locsmap = match( 
         lbm::array_map( "xy->1", SA[,c("plon","plat")], gridparams=p$gridparams ), 
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
       SA = cbind( SA, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
       SA = cbind( SA, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SA[,"timestamp"] ))
-      SA$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=SA[,"timestamp"] )
 
       oo = which(!is.finite( SA$plon+SA$plat ) )
       if (length(oo)>0) SA = SA[ -oo , ]  # a required field for spatial interpolation
