@@ -244,6 +244,9 @@
       if (length(oo) > 0 ) set = set[ oo, ]
       set = lonlat2planar( set, proj.type=p$internal.projection )  # plon+plat required for lookups
 
+      set$dyear = lubridate::decimal_date( set$timestamp ) - set$yr
+
+
       # merge depth
       iz = which( !is.finite(set$z) )
       if (length(iz) > 0) {
