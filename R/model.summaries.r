@@ -9,7 +9,7 @@ model.summaries = function( DS, yr=NULL, p=NULL ) {
   vars = c("condition")
 
   p$season = "allseasons"
-  p = spatial.parameters( p, "SSE" )  # data are from this domain .. so far
+  p = spatial_parameters( p, "SSE" )  # data are from this domain .. so far
   p$modtype = "complex"
 
 

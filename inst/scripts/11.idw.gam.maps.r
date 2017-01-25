@@ -34,17 +34,19 @@ set = set[ filter.season( set$julian, period=season, index=T ) , ]
 
 tp = lonlat2planar( set, proj.type=p$internal.projection )
 
-tp$lon = grid.internal( tp$lon, p$lons )
-tp$lat = grid.internal( tp$lat, p$lats )
+grid = spatial_grid(p, DS="lonlat.coords")
+tp$lon = grid.internal( tp$lon, grid$lon )
+tp$lat = grid.internal( tp$lat, grid$lat )
 
-tp$plon = grid.internal( tp$plon, p$plons )
-tp$plat = grid.internal( tp$plat, p$plats )
+pgrid = spatial_grid(p, DS="planar.coords")
+tp$plon = grid.internal( tp$plon, pgrid$plon )
+tp$plat = grid.internal( tp$plat, pgrid$plat )
 
 tp = tp[which(tp$strat %in% 440:495),]
 tp = tp[which(is.finite(tp$plon) & is.finite(tp$plat)),]
 
 
-Z = bio.bathymetry::bathymetry.db( p=p, DS="baseline" )  # SS to a depth of 500 m  the default used for all planar SS grids
+Z = bio.bathymetry::bathymetry.db( p=p, DS="baseline", varnames=c("plon", "plat", "z") )  # SS to a depth of 500 m  the default used for all planar SS grids
 Z = Z[which(Z$z>30),]
 
 fn = file.path( bio.datadirectory("bio.polygons"), "data", "Science", "scotia.fundy.dat" )

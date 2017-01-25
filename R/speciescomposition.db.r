@@ -1,7 +1,7 @@
 
   speciescomposition.db = function( DS="", p=NULL, yr=NULL ) {
 
-    ddir = project.datadirectory( "bio.indicators", "speciescomposition", "data"  )
+    ddir = project.datadirectory( "bio.indicators", "speciescomposition" )
     dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
     infix = paste( p$spatial.domain,  p$taxa, p$season, sep=".")
@@ -30,19 +30,15 @@
         return ( ca.out )
       }
 
-      p$project.outdir.root = project.datadirectory( "bio.indicators", "survey" )
-
       sc = survey.db( DS="cat" ,p=p)  # species catch
       sc = sc[ which(is.finite( sc$zn ) ), ]
       sc = sc[ , c("id", "spec_bio", "zn" ) ]  # zscore-transformed into 0,1
       sc = sc[ , c("id", "zn","spec_bio" ) ]  # zscore-transformed into 0,1
 
       set = survey.db( DS="set" ,p=p) # trip/set loc information
-      set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z" ) ]
+      set = set[ ,  c("id", "yr", "dyear", "sa", "lon", "lat", "t", "z", "timestamp" ) ]
       set = na.omit( set ) # all are required fields
       
-      p$project.outdir.root = project.datadirectory( "bio.indicators", p$project.name )
-
       # filter area
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]
               &  set$lat >= p$corners$lat[1] & set$lat <= p$corners$lat[2] )
@@ -130,33 +126,44 @@
         return ( SC )
 			}
 
-      ks = speciescomposition.db( DS="speciescomposition.ordination", p=p )
-      ks = lonlat2planar( ks, proj.type=p$internal.projection )
+      SC = speciescomposition.db( DS="speciescomposition.ordination", p=p )
+      SC = lonlat2planar( SC, proj.type=p$internal.projection )
+      SC$lon = SC$lat = NULL
 
-      # this forces resolution of p$pres=1km in SSE
-      ks$plon = grid.internal( ks$plon, p$plons )
-      ks$plat = grid.internal( ks$plat, p$plats )
-      ks$lon = ks$lat = NULL
-
-      yrs = sort( unique( ks$yr ) )
+      yrs = sort( unique( SC$yr ) )
       # check for duplicates
       for ( y in yrs ) {
-        yy = which (ks$yr == y)
-        ii = which( duplicated( ks$id[yy] ) )
+        yy = which (SC$yr == y)
+        ii = which( duplicated( SC$id[yy] ) )
 
         if (length(ii) > 0) {
           print( "The following sets have duplicated positions. The first only will be retained" )
-          print( ks[yy,] [ duplicates.toremove( ks$id[yy] ) ] )
-          ks = ks[ - ii,]
+          print( SC[yy,] [ duplicates.toremove( SC$id[yy] ) ] )
+          SC = SC[ - ii,]
         }
       }
+ 
+    # merge temperature
+      it = which( !is.finite(SC$t) )
+      if (length(it) > 0) {
+        SC$t[it] = bio.temperature::temperature.lookup( p=p, locs=SC[it, c("plon","plat")], timestamp=SC$timestamp[it] )
+      }
+      SC = SC[ which(is.finite(SC$t)), ] # temp is required
+      
+      locsmap = match( 
+        lbm::array_map( "xy->1", SC[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
-      # baseline is already gridded to internal resolution
-      P0 = bathymetry.db( p=p, DS="baseline" )  # prediction surface appropriate to p$spatial.domain, already in ndigits = 2
-			SC = merge( ks, P0, by=c("plat", "plon"), all.x=T, all.Y=F, sort= F, suffixes=c("", ".P0"))
-	    oo = which(!is.finite( SC$plon+SC$plat ) )
+      SC = cbind( SC, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      SC = cbind( SC, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SC[,"timestamp"] ))
+
+ 
+
+
+
+      oo = which(!is.finite( SC$plon+SC$plat ) )
       if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-      SC = habitat.lookup( SC, p=p, DS="environmentals" )
+
       save( SC, file=fn, compress=T )
 			return (fn)
 		}

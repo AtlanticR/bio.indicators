@@ -1,22 +1,24 @@
 
   speciesarea.db = function( DS="", p=NULL, yr=NULL ) {
 
-    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
+    outdir = file.path( project.datadirectory("bio.indicators"), "speciesarea" )
+
+    dir.create( outdir, showWarnings=FALSE, recursive=TRUE )
     infix = paste( p$spatial.domain, p$taxa, p$season, paste(p$data.sources, collapse="."), p$speciesarea.method, sep="." )
 
 
     if (DS %in% c("speciesarea.counts", "speciesarea.counts.ny", "speciesarea.counts.redo") ) {
 
-      fn = file.path( p$project.outdir.root, paste( "speciesarea.counts", infix, "rdata", sep=".") )
-      fn.ny = file.path( p$project.outdir.root, paste( "speciesarea.counts.ny", infix, "rdata", sep=".") )
+      fn = file.path( outdir, paste( "speciesarea.counts", infix, "rdata", sep=".") )
+      fn.ny = file.path( outdir, paste( "speciesarea.counts.ny", infix, "rdata", sep=".") )
 
       if (DS=="speciesarea.counts") {
         load( fn)
-        return (SC)
+        return (SA)
       }
       if (DS=="speciesarea.counts.ny") {
         load( fn.ny)
-        return (SC.ny)
+        return (SA.ny)
       }
 
       set = survey.db (DS="set", p=p)
@@ -56,11 +58,11 @@
       sar <- attach.big.matrix( p$bigmem.desc )
       sar.ny <- attach.big.matrix( p$bigmem.ny.desc )
 
-      SC = array( data=sar[], dim=c( p$nsets, p$ntimescale, p$nlengthscale) )
-      SC.ny = array( data=sar.ny[], dim=c( p$nsets, p$ntimescale, p$nlengthscale) )
+      SA = array( data=sar[], dim=c( p$nsets, p$ntimescale, p$nlengthscale) )
+      SA.ny = array( data=sar.ny[], dim=c( p$nsets, p$ntimescale, p$nlengthscale) )
 
-      save( SC, file=fn, compress=T )
-      save( SC.ny, file=fn.ny, compress=T )
+      save( SA, file=fn, compress=T )
+      save( SA.ny, file=fn.ny, compress=T )
 
       if (p$use.bigmemory.file.backing) {
         file.remove( p$fn.tmp )
@@ -75,19 +77,19 @@
 
     if (DS %in% c("speciesarea.stats","speciesarea.stats.redo") ) {
 
-      fn = file.path( p$project.outdir.root, paste("speciesarea.stats", infix, "rdata", sep=".") )
+      fn = file.path( outdir, paste("speciesarea.stats", infix, "rdata", sep=".") )
 
       if (DS=="speciesarea.stats") {
         load( fn)
         return ( sa )
       }
 
-      SC = speciesarea.db( DS="speciesarea.counts", p=p )
+      SA = speciesarea.db( DS="speciesarea.counts", p=p )
 
       p$nvars = 9
 
-      p$nsets = nrow(SC)
-      rm(SC); gc()
+      p$nsets = nrow(SA)
+      rm(SA); gc()
 
       if (p$use.bigmemory.file.backing) {
         p$fn.tmp = file.path( make.random.string("speciesarea.stats.bigmemory.tmp") )
@@ -133,44 +135,55 @@
 
     # --------------------
 
+
     if (DS %in% c( "speciesarea", "speciesarea.redo" ) ) {
 
-      fn = file.path( p$project.outdir.root, paste( "set.speciesarea.merged", infix, "rdata", sep="." ) )
+      fn = file.path( outdir, paste( "set.speciesarea.merged", infix, "rdata", sep="." ) )
 
       if (DS=="speciesarea") {
-        SC = NULL
+        SA = NULL
         if (file.exists( fn) ) load( fn )
-        return ( SC )
+        return ( SA )
       }
 
-      ks = speciesarea.db( DS="speciesarea.stats", p=p )
-      ks = lonlat2planar( ks, proj.type=p$internal.projection )
+      SA = speciesarea.db( DS="speciesarea.stats", p=p )
+      SA = lonlat2planar( SA, proj.type=p$internal.projection )
 
       # this forces resolution of p$pres=1km in SSE
-      ks$plon = grid.internal( ks$plon, p$plons )
-      ks$plat = grid.internal( ks$plat, p$plats )
-      ks$lon = ks$lat = NULL
+      SA$lon = SA$lat = NULL
 
-      yrs = sort( unique( ks$yr ) )
+      yrs = sort( unique( SA$yr ) )
 
       # check for duplicates
       for ( y in p$yearstomodel ) {
-        yy = which (ks$yr == y)
-        ii = which( duplicated( ks$id[yy] ) )
+        yy = which (SA$yr == y)
+        ii = which( duplicated( SA$id[yy] ) )
 
         if (length(ii) > 0) {
           print( "The following sets have duplicated positions. The first only will be retained" )
-          print( ks[yy,] [ duplicates.toremove( ks$id[yy] ) ] )
-          ks = ks[ - ii,]
+          print( SA[yy,] [ duplicates.toremove( SA$id[yy] ) ] )
+          SA = SA[ - ii,]
         }
       }
 
-      P0 = bathymetry.db( p=p, DS="baseline" )  # prediction surface appropriate to p$spatial.domain, already in ndigits = 2
-      SC = merge( ks, P0, by=c("plat", "plon"), all.x=T, all.Y=F, sort= F, , suffixes=c("", ".P0") )
-      oo = which(!is.finite( SC$plon+SC$plat ) )
-      if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-      SC = habitat.lookup( SC, p=p, DS="environmentals" )
-      save( SC, file=fn, compress=T )
+       # merge temperature
+      it = which( !is.finite(SA$t) )
+      if (length(it) > 0) {
+        SA$t[it] = bio.temperature::temperature.lookup( p=p, locs=SA[it, c("plon","plat")], timestamp=SA$timestamp[it] )
+      }
+      SA = SA[ which(is.finite(SA$t)), ] # temp is required
+
+      locsmap = match( 
+        lbm::array_map( "xy->1", SA[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+
+      SA = cbind( SA, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      SA = cbind( SA, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SA[,"timestamp"] ))
+
+      oo = which(!is.finite( SA$plon+SA$plat ) )
+      if (length(oo)>0) SA = SA[ -oo , ]  # a required field for spatial interpolation
+
+      save( SA, file=fn, compress=T )
       return (fn)
     }
 

@@ -1,12 +1,14 @@
 
   survey.db = function( DS, p=NULL ) {
     #\\ assimilation of all survey data into a coherent form
-    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
+    surveydir = project.datadirectory( "bio.indicators", "survey" )
+
+    dir.create( surveydir, showWarnings=FALSE, recursive=TRUE )
 
     if (DS %in% c("set.init", "set.init.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.init.rdata"  )
+      fn = file.path( surveydir, "set.init.rdata"  )
       if (DS=="set.init") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -65,7 +67,7 @@
     if (DS %in% c("cat.init","cat.init.redo") ) {
       # all species caught
       cat = NULL # trip/cat loc information
-      fn = file.path( p$project.outdir.root, "cat.init.rdata"  )
+      fn = file.path( surveydir, "cat.init.rdata"  )
       if (DS=="cat.init") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -142,7 +144,7 @@
     if (DS %in% c("det.init","det.init.redo") ) {
       # all species caught
       det = NULL # biologicals
-      fn = file.path( p$project.outdir.root, "det.init.rdata"  )
+      fn = file.path( surveydir, "det.init.rdata"  )
       if (DS=="det.init") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -226,29 +228,141 @@
     # -------------
 
 
-    if (DS %in% c("set.intermediate","set.intermediate.redo") ) {
-      # survet sets
+    if (DS %in% c("set.intermediate", "set.intermediate.redo") ) {
+      # lookup missing information
+      
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.intermediate.rdata"  )
+      fn = file.path( surveydir, "set.intermediate.rdata"  )
       if (DS=="set.intermediate") {
         if (file.exists( fn) ) load( fn)
         return ( set )
       }
+
       set = survey.db( DS="set.init", p=p )
       set = set[ which(is.finite(set$lon + set$lat + set$yr ) ) , ]  #  fields are required
       oo =  which( !duplicated(set$id) )
       if (length(oo) > 0 ) set = set[ oo, ]
       set = lonlat2planar( set, proj.type=p$internal.projection )  # plon+plat required for lookups
 
-      set$plon = grid.internal( set$plon, p$plons )
-      set$plat = grid.internal( set$plat, p$plats )
-      set = set[ which( is.finite( set$plon + set$plat) ), ]
+      set$dyear = lubridate::decimal_date( set$timestamp ) - set$yr
 
-      set = habitat.lookup( set, DS="depth", p=p )
-      set = habitat.lookup( set, DS="temperature", p=p )
+
+      # merge depth
+      iz = which( !is.finite(set$z) )
+      if (length(iz) > 0) {
+        set$z[iz] = bio.bathymetry::bathymetry.lookup( p=p, locs=set[iz, c("plon","plat")], vnames="z" )
+      }
+      set = set[ which(is.finite(set$z)), ] # depth is a required field
+
+      # merge temperature
+      it = which( !is.finite(set$t) )
+      if (length(it) > 0) {
+        set$t[it] = bio.temperature::temperature.lookup( p=p, locs=set[it, c("plon","plat")], timestamp=set$timestamp[it] )
+      }
+      set = set[ which(is.finite(set$t)), ] # temp is required
+
       set$oxysat = compute.oxygen.saturation( t.C=set$t, sal.ppt=set$sal, oxy.ml.l=set$oxyml)
+     
       save( set, file=fn, compress=T )
       return (fn)
+    }
+
+
+    # ---------------------
+
+    if (DS %in% c("lengthweight.redo", "lengthweight.parameters", "lengthweight.residuals") ) {
+
+      ## TODO -- make parallel require(multicore)
+
+      ddir = file.path( project.datadirectory("bio.indicators"), "data" )
+      dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
+
+      fn = file.path( ddir, "bio.length.weight.parameters.rdata" )
+      fn2 = file.path( ddir, "bio.length.weight.residuals.rdata" )
+
+      if (DS=="lengthweight.parameters") {
+        res = NULL
+        if (file.exists( fn ) ) load( fn )
+        return( res )
+      }
+
+      if (DS=="lengthweight.residuals") {
+        lwr = NULL
+        if (file.exists( fn2 ) ) load( fn2 )
+        return( lwr )
+      }
+
+      # this mirrors the relevent changes/recoding in indicators.db("det")
+      x = survey.db( DS="det.init", p=p )
+      x$spec = x$spec_bio
+      x = x[ which( is.finite( x$spec)), ]
+      x$sex[ which( !is.finite(x$sex)) ] = 2 # set all uncertain sexes to one code sex code
+      x$mat[ which( !is.finite(x$mat)) ] = 2 # set all uncertain sexes to one code sex code
+
+      res = expand.grid(
+        spec = sort( unique( x$spec )),
+        sex = sort( unique( x$sex )),
+        mat = sort( unique( x$mat ))
+      )
+      # sex codes (snowcrab standard)
+      #  male = 0
+      #  female = 1
+      #  sex.unknown = 2
+
+      # mat codes (snowcrab standard)
+      #  imm = 0
+      #  mat = 1
+      #  mat.unknown = 2
+
+      unknown = 2
+      x$residual = NA
+
+      # initialise new variables
+      res$rsq = NA
+      res$sigma = NA
+      res$df = NA
+      res$b0 = NA
+      res$b1 = NA
+      res$b0.se = NA
+      res$b1.se = NA
+      res$pvalue = NA
+      for (i in 1:nrow(res)) {
+        wsp = which( x$spec == res$spec[i] )
+        if (length( wsp) < 10 ) next()
+        # remove extremes for each species from the data to generate regressions
+        ql = quantile( x$len[wsp], probs=c(0.005, 0.995), na.rm=T )
+        qm = quantile( x$mass[wsp], probs=c(0.005, 0.995), na.rm=T )
+        wqn =  which( x$len> ql[1] & x$len< ql[2] & x$mass> qm[1] & x$mass< qm[2] )
+        wsx = which( x$sex==res$sex[i] )
+        if (res$sex[i]==unknown) wsx = wsp  # use all possible data (not just unknowns) for this class (hermaphrodite/unsexed/unknown)
+        wmt = which( x$mat==res$mat[i] )
+        if (res$sex[i]==unknown) wsx = wsp  # use all possible data (not just unknowns) for this class (mat unkown)
+        w = intersect( intersect( intersect( wsp, wqn ), wsx ), wmt )
+        nw = length(w)
+        if ( nw > 5 ) {
+          q = x[w ,]
+          q.lm = try( lm( log10(mass) ~ log10(len), data=q ) )
+          if (class( q.lm) %in% "error" ) next()
+          s = summary( q.lm )
+          res$rsq[i] = s$r.squared
+          res$sigma[i] = s$sigma
+          res$df[i] = s$df[2]
+          res$b0[i] = s$coefficients[1]
+          res$b1[i] = s$coefficients[2]
+          res$b0.se[i] = s$coefficients[3]
+          res$b1.se[i] = s$coefficients[4]
+          res$pvalue[i] = pf(s$fstatistic[1],s$fstatistic[2],s$fstatistic[3],lower.tail=FALSE)
+          x$residual[w] = rstandard(q.lm)
+          print( res[i,] )
+        }
+      }
+      ooo = which( abs( x$residual ) > 4 )
+      if (length(ooo) > 0 ) x$residual [ooo] = NA
+      lwr = x
+      save( lwr, file=fn2, compress=TRUE )
+      save( res, file=fn, compress=TRUE )
+      return( fn )
+ 
     }
 
 
@@ -260,7 +374,7 @@
       # error checking, imputation, etc
 
       det = NULL
-      fn = file.path( p$project.outdir.root, "det.rdata"  )
+      fn = file.path( surveydir, "det.rdata"  )
       if (DS=="det") {
         if (file.exists( fn) ) load( fn)
         return ( det )
@@ -276,21 +390,13 @@
         #  mature = 1
         #  mat.unknown = 2
 
-      det = survey.db( DS="det.init", p=p )
-      det = det[ which( is.finite( det$spec_bio)), ]
-      det$sex[ which( !is.finite(det$sex)) ] = 2 # set all uncertain sexes to one code sex code
-      det$mat[ which( !is.finite(det$mat)) ] = 2 # set all uncertain sexes to one code sex code
+      det = survey.db( DS="lengthweight.residuals", p=p )
 
       # fix mass, length estimates where possible using model parameters
       # try finest match first: by spec:mat, spec:sex, spec
 
-      lwp = lengthweight.db( DS="parameters" )
+      lwp = survey.db( DS="lengthweight.parameters", p=p )
       # note: lwp$spec is derived from spec_bio, as above
-
-      # load the residuals from lengthweight.db
-      load(file.path( project.datadirectory("bio.indicators", "data", "bio.length.weight.residuals.rdata" ) ) )
-      det = merge(det,lwr,all=T)
-      rm(lwr)
 
       ims = which( !is.finite( det$mass) )
       sps = sort( unique( det$spec_bio[ ims ] ) )
@@ -430,7 +536,7 @@
     if (DS %in% c("cat", "cat.redo") ) {
       # all species caught
       cat = NULL # biologicals
-      fn = file.path( p$project.outdir.root, "cat.rdata"  )
+      fn = file.path( surveydir, "cat.rdata"  )
       if (DS=="cat") {
         if (file.exists( fn) ) load( fn)
         return ( cat )
@@ -467,7 +573,6 @@
         cat$mass[oo] = cat$totmass[oo] / cat$totno[oo]
       }
 
-
     	surveys = sort( unique( cat$data.source ) )
       species = sort( unique( cat$spec_bio ) )
 
@@ -482,7 +587,7 @@
           spi = which( cat$spec_bio == sp )
           ii = intersect( si, spi )
           if (length( ii) > 0 ) {
-						cat$qn[ii] = quantile.estimate( cat$totno[ii]  )  # convert to quantiles, by species and survey
+						cat$qn[ii] = quantile_estimate( cat$totno[ii]  )  # convert to quantiles, by species and survey
 					}
       }}
 
@@ -496,14 +601,14 @@
           spi = which( cat$spec_bio == sp )
           ii = intersect( si, spi )
           if (length( ii) > 0 ) {
-						cat$qm[ii] = quantile.estimate( cat$totmass[ii]  )  # convert to quantiles, by species and survey
+						cat$qm[ii] = quantile_estimate( cat$totmass[ii]  )  # convert to quantiles, by species and survey
 					}
       }}
 
      # convert from quantile to z-score
 
-      cat$zm = quantile.to.normal( cat$qm )
-      cat$zn = quantile.to.normal( cat$qn )
+      cat$zm = quantile_to_normal( cat$qm )
+      cat$zn = quantile_to_normal( cat$qn )
 
 
 			over.write.missing.data = TRUE
@@ -542,7 +647,7 @@
     if (DS %in% c("set","set.redo") ) {
       # survet sets
       set = NULL # trip/set loc information
-      fn = file.path( p$project.outdir.root, "set.rdata"  )
+      fn = file.path( surveydir, "set.rdata"  )
       if (DS=="set") {
         if (file.exists( fn) ) load( fn)
         return ( set )
@@ -590,7 +695,7 @@
       for ( s in surveys ) {
         ii = which( set$data.source==s & set$totno > 0 )
         if (length( ii) > 0 ) {
-  				set$qn[ii] = quantile.estimate( set$totno[ii]  )  # convert to quantiles, by survey
+  				set$qn[ii] = quantile_estimate( set$totno[ii]  )  # convert to quantiles, by survey
 				}
       }
 
@@ -601,14 +706,14 @@
       for ( s in surveys ) {
         ii = which( set$data.source==s & set$totmass > 0 )
           if (length( ii) > 0 ) {
-						set$qm[ii] = quantile.estimate( set$totmass[ii]  )  # convert to quantiles, by survey
+						set$qm[ii] = quantile_estimate( set$totmass[ii]  )  # convert to quantiles, by survey
 					}
       }
 
      # convert from quantile to z-score
 
-      set$zm = quantile.to.normal( set$qm )
-      set$zn = quantile.to.normal( set$qn )
+      set$zm = quantile_to_normal( set$qm )
+      set$zn = quantile_to_normal( set$qn )
 
 
 			over.write.missing.data = TRUE

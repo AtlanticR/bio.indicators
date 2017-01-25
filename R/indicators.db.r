@@ -1,68 +1,131 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL ) {
+  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL, varname=NULL, voi=NULL ) {
 
-    # simple wrappers to load relevant, uninterpolated point data
-    if (DS == "sizespectrum")  return( bio.indicators::sizespectrum.db( DS=DS, p=p ) )
-    if (DS == "metabolism")    return( bio.indicators::metabolism.db( DS=DS, p=p ) )
-    if (DS == "speciesarea")   return( bio.indicators::speciesarea.db( DS=DS, p=p ) )
-    if (DS == "speciescomposition")  return( bio.indicators::speciescomposition.db( DS=DS, p=p ) )
-    if (DS == "condition")  return( bio.indicators::condition.db( DS=DS, p=p ) )
-    if (DS == "biochem")  return( bio.indicators::biochem.db( DS=DS, p=p ) )
+    # over-ride default dependent variable name if it exists
+    if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
+
+    if (DS =="indicators") {
+
+      return( switch( p$project.name,
+        sizespectrum = bio.indicators::sizespectrum.db(p=p, DS=p$project.name ),
+        metabolism   = bio.indicators::metabolism.db( p=p, DS=p$project.name ), 
+        speciesarea  = bio.indicators::speciesarea.db( p=p, DS=p$project.name ),  
+        speciescomposition = bio.indicators::speciescomposition.db( p=p, DS=p$project.name ),
+        sizespectrum = bio.indicators::sizespectrum.db( p=p, DS=p$project.name ),
+        condition =    bio.indicators::condition.db( p=p, DS=p$project.name ),
+        biochem =      bio.indicators::biochem.db( p=p, DS=p$project.name ),
+        survey =       bio.indicators::survey.db( p=p, DS=p$project.name ),
+        NULL
+      ) )
+
+    }
 
 
-    if (DS %in% c("baseline", "baseline.redo") ) {
+    # -----------------------------
 
-      # form a basic prediction surface in planar coords for SS habitat for
-      # factors that do not "change" rapidly and
 
-      outdir = file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "baseline" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "habitat"), "SSE", "baseline" )
-
+    if (DS %in% c("spatial", "spatial.redo") ) {
+      # spatial only == static variables
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
-      outfile =  file.path( outdir, "PS.baseline.rdata" )
 
-      if ( DS=="baseline" ) {
+      outfile =  file.path( outdir, "PS.spatial.rdata" )
+
+      if ( DS=="spatial" ) {
+        PS = NULL
         if (file.exists(outfile)) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
         return (PS)
       }
 
-			# depth is the primary constraint
-      Zbase = bathymetry.db( p=p, DS="baseline" ) # area -prefiltered for depth/bounds
-      Zbase$z = NULL
-      Z = bathymetry.db( p=p, DS="complete" )  # SS to a depth of 500 m  the default used for all planar SS grids
-      Z$id = 1:nrow(Z)
-      Z$dZ = log( Z$dZ )
-      Z$ddZ = log( Z$ddZ)
-      Z = Z[, c("plon", "plat", "id", "z", "dZ", "ddZ" )]
-      Z = merge(Zbase, Z, by=c("plon", "plat"), all.x=TRUE, all.y=FALSE, sort=FALSE )
+      # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
+      PS = bathymetry.db( p=p, DS="baseline", varnames="all" )  # anything not NULL gives everything with bathymetry.db 
+      PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
+      PS = cbind( PS, temperature.db( p=p, DS="bottom.statistics.climatology" ) )
 
-      S =  substrate.db ( p=p, DS="planar")
-      S$substrate.mean = log(S$grainsize)
-      S$grainsize = NULL
+      save (PS, file=outfile, compress=T )
+      return( outfile )
+    }
 
-      PS = merge( Z, S, by  =c("plon", "plat"), all.x=T, all.y=F, sort=F )
 
-      print( "Interpolating missing data where possible.." )
-        vars = setdiff( names(PS), c("plon", "plat") )
-        require (gstat)
-        for (v in vars) {
-          print(v)
+    # -----------------------------
 
-          for (dists in p$interpolation.distances) {
-            ii = which ( !is.finite( PS[, v]) )
-            if (length(ii)==0) break()
-            print( paste("N = ", length(ii), "data points") )
-            gs = gstat( id=v, formula=PS[-ii,v]~1, locations=~plon+plat, data=PS[-ii,],
-                nmax=p$interpolation.nmax, maxdist=dists, set=list(idp=.5))
-            PS[ii,v] = predict( object=gs, newdata=PS[ii,] ) [,3]
-        }}
 
-      PS = PS[ order( PS$id), ]
-      PS$id = NULL
+    if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
+      # spatial and temporal (annual)
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      dir.create(outdir, recursive=T, showWarnings=F)
+
+      dyear_index = 1
+      if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
+
+<<<<<<< HEAD
+      outdir =  file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "environmentals" )
+      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators",  "habitat"), "SSE","environmentals" )
+      dir.create(outdir, recursive=T, showWarnings=F)
+=======
+      outfile =  file.path( outdir, paste("PS.spatial.annual", dyear_index, "rdata", sep=".") )
+>>>>>>> 82aaa3b29a5e9c33a30eae5ea47659ba3f438dcf
+
+      if ( DS=="spatial.annual" ) {
+        PS = NULL
+        if (file.exists(outfile)) load( outfile )
+        return (PS)
+      }
+
+      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+
+      PS = list()
+      PS[["t"]] = temperature.db( p=p, DS="timeslice", ret="mean" )
+      for ( ret in p0$bstats ) {
+        PS[[ret]] = temperature.db( p=p, DS="bottom.statistics.annual", ret=ret )
+      }
+
+      save (PS, file=outfile, compress=T )
+      return( outfile )
+    }
+
+
+    #---------------------------------
+
+
+    if (DS %in% c("spatial.annual.seasonal", "spatial.annual.seasonal.redo") ) {
+      #\\ spatial, temporal (annual and seasonal)
+      # at present only temperatute varies at this scale
+      #\\ copy in array format for domain/resolution of interest for faster lookups
+      if ( DS=="spatial.annual.seasonal.redo" ){
+        message( "At present only temperatute varies at this scale .. nothing else needs to be done." )
+      }
+
+      return( temperature.db(p=p, DS="spatial.annual.seasonal" ) )
+    }
+
+  
+    #---------------------------------
+
+
+    if (DS %in% c("prediction.surface", "prediction.surface.redo") ) {
+
+      outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
+      dir.create(outdir, recursive=T, showWarnings=F)
+    
+      dyear_index = 1
+      if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
+
+      outfile =  file.path( outdir, paste("PS", dyear_index, "rdata", sep=".") )
+
+      if ( DS=="prediction.surface" ) {
+        PS = NULL
+        if (file.exists(outfile)) load( outfile )
+        return (PS)
+      }
+
+      # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
+      PS = indicators.db(p=p, DS="spatial")
+      nPS = nrow( PS )
+      PS = as.list(PS)
+      PS = c( PS, indicators.db(p=p, DS="spatial.annual") )
+      PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=nPS ) # need to make this 2D for lbm .. a limitation of using bigmemory
 
       save (PS, file=outfile, compress=T )
       return( outfile )
@@ -72,219 +135,121 @@
     #  -------------------------------
 
 
-    if (DS %in% c("environmentals", "environmentals.redo") ) {
+    if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
-### NOTE -- "complete", "complete.redo" here as a temporay measure to skip other indicators for 2015/2016
+      INP = bio.indicators::indicators.db( DS="indicators", p=p ) # dependent vars
 
-      outdir =  file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "environmentals" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators",  "habitat"), "SSE","environmentals" )
-      dir.create(outdir, recursive=T, showWarnings=F)
+      # cap quantiles of dependent vars
+      dr = list()
+      dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
+      il = which( INP[,voi] < dr[[voi]][1] )
+      if ( length(il) > 0 ) INP[il,voi] = dr[[voi]][1]
+      iu = which( INP[,voi] > dr[[voi]][2] )
+      if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
 
-      if ( DS %in% c( "environmentals")  ) {
-        outfile =  file.path( outdir, paste( "PS", year, "rdata", sep= ".") )
-        PS = NULL
-        if ( file.exists( outfile ) ) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
-        return (PS)
-      }
+      INP$log.z = log(INP$z)
+      INP$log.dZ = log( INP$dZ )
+      INP$log.ddZ = log( INP$ddZ)
+      INP$log.substrate.grainsize = log(INP$grainsize)
+      INP$log.tamplitude = log(INP$tamplitude)
+      #   INP$log.tamplitude.climatology = log(INP$tamplitude.climatology)
+      INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
 
-      if (exists( "libs", p)) RLibrary( p$libs )
-      if (!exists("ip")) ip = 1:p$nruns
 
-      for (iy in ip) {
-        yr = p$runs[iy, "yrs"]
-        print(yr)
-        outfile =  file.path( outdir, paste( "PS", yr, "rdata", sep= ".") )
-        PS = NULL
-        PS = indicators.db( DS="baseline", p=p )
-        PS$id = 1:nrow(PS)
-        E = temperature.db( DS="complete", p=p, year=yr  )
-        E$z = NULL
-        PS = merge( PS, E,  by =c("plon", "plat"), all.x=T, all.y=F, sort=F)
-        PS = PS[ order( PS$id ) ,]
-        PS$id = NULL
-        save (PS, file=outfile, compress=T )
-        print( outfile)
-      }
+      PS = indicators.db( p=p, DS="prediction.surface" ) # a list object
+      PS$log.z = log(PS$z)
+      PS$log.dZ = log( PS$dZ )
+      PS$log.ddZ = log( PS$ddZ)
+      PS$log.substrate.grainsize = log(PS$grainsize)
+      PS$log.tamplitude = log(PS$tamplitude)
+   #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
+      PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm
+      
+      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS ) )         
+
+      return (list(input=INP, output=OUT))
+
     }
 
 
     #  -------------------------------
 
 
-
     if (DS %in% c("complete", "complete.redo") ) {
+      # assemble data for a given project 
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
 
-      outdir =  file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), p$spatial.domain, "complete" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators", "analysis", "habitat"), "SSE","complete" )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS=="complete" ) {
-        outfile =  file.path( outdir, paste( "PS", year, "rdata", sep= ".") )
+        outfile =  file.path( outdir, paste( "complete", year, "rdata", sep= ".") )
         PS = NULL
         if ( file.exists( outfile ) ) load( outfile )
-        if ( p$spatial.domain =="snowcrab" ) {
-          id = bathymetry.db( DS="lookuptable.sse.snowcrab" )
-          PS = PS[ id, ]
-        }
-
         return (PS)
       }
 
       if (exists( "libs", p)) RLibrary( p$libs )
       if (is.null(ip)) ip = 1:p$nruns
 
+
       for (iy in ip) {
         yr = p$runs[iy, "yrs"]
-        print (yr)
-        outfile =  file.path( outdir, paste( "PS", yr, "rdata", sep= ".") )
+        
+        PS = matrix( ... )
 
-        PS = indicators.db( DS="environmentals", p=p, year=yr )
-        PS$id = 1:nrow(PS)
-
-        # ---------------------
-        # Species-area
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = indicators.parameters( "speciesarea", p=p )
-        SAG =  habitat.interpolate( DS="all", p=pm, yr=max(1970,yr)   )
-        # remove duplicates derived from repeated tows
-        oo = which( duplicated (SAG$platplon ) )
-        if (length( oo)> 0 ) {
-          todrop= NULL
-          for (o in oo ) {
-            i = which( SAG$platplon == SAG$platplon[o] )
-            for (w in pm$speciesarea.variables ) {
-              SAG[i[1],w] = mean(SAG[i,w], na.rm=TRUE)
-              todrop = c(todrop, i[-1])
-            }
-          }
-          SAG = SAG[ -todrop, ]
+        for  (vn in ... ) {
+          
+          p$variables$Y = vn # need to send this to get the correct results
+          PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean") )
+          
         }
-        SAG = SAG[ , c("plon", "plat", pm$speciesarea.variables ) ]
-        PS = merge( PS, SAG, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".sag" ) )
-        rm (SAG)
 
-
-        # ---------------------
-        # Species composition
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = indicators.parameters( "speciescomposition", p=p )
-        SC = habitat.interpolate( DS="all", p=pm, yr=max(1970,yr) )
-
-        # remove duplicates derived from repeated tows --- slow ...
-        oo = which( duplicated (SC$platplon ) )
-        if (length( oo)> 0 ) {
-          todrop= NULL
-          for (o in oo ) {
-            i = which( SC$platplon == SC$platplon[o] )
-            for (w in pm$speciescomposition.variables ) {
-              SC[i[1],w] = mean(SC[i,w], na.rm=TRUE)
-              todrop = c(todrop, i[-1])
-            }
-          }
-          SC = SC[ -todrop, ]
-        }
-        SC = SC[ , c("plon", "plat", pm$speciescomposition.variables ) ]
-        PS = merge( PS, SC, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".sc" ) )
-        rm (SC)
-
-
-        # ---------------------
-        # size spectrum stats
-        pm = indicators.parameters( "sizespectrum", p=p )
-        SS = habitat.interpolate ( DS="all", p=pm, yr=max(1970,yr) )
-
-        # remove duplicates derived from repeated tows --- slow ...
-        oo = which( duplicated (SS$platplon ) )
-        if (length( oo)> 0 ) {
-          todrop= NULL
-          for (o in oo ) {
-            i = which( SS$platplon == SS$platplon[o] )
-            for (w in pm$sizespectrum.variables) {
-              SS[i[1],w] = mean(SS[i,w], na.rm=TRUE)
-              todrop = c(todrop, i[-1])
-            }
-          }
-          SS = SS[ -todrop, ]
-        }
-        SS = SS[ , c("plon", "plat", pm$sizespectrum.variables ) ]
-        PS = merge( PS, SS, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".ss" ) )
-        rm(SS)
-
-
-       # ---------------
-       # Condition db
-       pm = indicators.parameters( "condition", p=p )
-       CD = habitat.interpolate ( DS="all", p=pm,  yr=max(1970,yr) )
-       # remove duplicates derived from repeated tows --- slow ...
-       oo = which( duplicated (CD$platplon ) )
-       if (length( oo)> 0 ) {
-         todrop= NULL
-         for (o in oo ) {
-           i = which( CD$platplon == CD$platplon[o] )
-           for (w in pm$condition.variables) {
-             CD[i[1],w] = mean(CD[i,w], na.rm=TRUE)
-             todrop = c(todrop, i[-1])
-           }
-         }
-         CD = CD[ -todrop, ]
-       }
-       CD = CD[ , c("plon", "plat", pm$condition.variables ) ]
-       PS = merge( PS, CD, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".CD" ) )
-       rm(CD)
-
-        # ---------------
-        # metabolic rates
-        # no biological data prior to 1970 .. fill with data from 1970 until another solution is found
-        pm = indicators.parameters( "metabolism", p=p )
-        MR = habitat.interpolate ( DS="all", p=pm, yr=max(1970,yr) )
-        # remove duplicates derived from repeated tows --- slow ...
-        oo = which( duplicated (MR$platplon ) )
-        if (length( oo)> 0 ) {
-          todrop= NULL
-          for (o in oo ) {
-            i = which( MR$platplon == MR$platplon[o] )
-            for (w in pm$metabolism.variables) {
-              MR[i[1],w] = mean(MR[i,w], na.rm=TRUE)
-              todrop = c(todrop, i[-1])
-            }
-          }
-          MR = MR[ -todrop, ]
-        }
-        MR = MR[ , c("plon", "plat", pm$metabolism.variables ) ]
-        PS = merge( PS, MR, by =c("plon", "plat"), all.x=T, all.y=F, sort=F, suffixes=c("", ".mr" ) )
-        rm(MR)
-
-        vars = setdiff( names(PS), c("plon", "plat") )
-        require (gstat)
-        for (v in vars) {
-          for (dists in p$interpolation.distances) {
-            ii = which ( !is.finite( PS[, v]) )
-            if (length(ii)==0 | length(ii)==nrow(PS) ) break()
-            print( paste( "Interpolating missing data with inverse-distance weighted means", v, ":", length(ii) ) )
-            gs = gstat( id=v, formula=PS[-ii,v]~1, locations=~plon+plat, data=PS[-ii,],
-                nmax=p$interpolation.nmax, maxdist=dists, set=list(idp=.5))
-            PS[ii,v] = predict( object=gs, newdata=PS[ii,] ) [,3]
-        }}
-
-        PS = PS[ order( PS$id ) ,]
-        PS$id =NULL
-        PS$Y = 1 # required to run "model.matrix"
-        if (yr < min( p$yearstomodel ) ) PS$yr = max( p$yearstomodel )  # most recent year as reference
-
-        for (o in 1:ncol(PS) ) attributes( PS[,o]) <- NULL  # remove rownames, etc .. reduces size of data object
+        outfile =  file.path( outdir, paste( "complete", year, "rdata", sep= ".") )
 
         save (PS, file=outfile, compress=T )
+        
       }
+
+      PS = bathymetry.db( p=p, DS="baseline" )
+#      SS = matrix ...
+      for  (vn in ... ) {
+        
+        p$variables$Y = vn
+        SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" ) )
+        colnames(SS) = paste("XXX", colnames(SS), sep=".")
+        
+      }
+      PS = cbind( PS, SS )
+ #     save (PS, file=...)
+    
+
+      # spatial warp here to snowcrab grid ...
+
+      indicators.db(p=p, DS="baseline.add")  # add the "complete" data tables to the current version of "baseline"
+
       return( "Complete" )
     }
 
+    # -------------------
+
+    if (DS %in% c("baseline", "baseline.add") ) {
+
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
+
+      dir.create(outdir, recursive=T, showWarnings=F)
+
+      if ( DS=="baseline" ) {
+        outfile =  file.path( outdir, paste( "baseline", year, "rdata", sep= ".") )
+        PS = NULL
+        if ( file.exists( outfile ) ) load( outfile )
+        return (PS)
+      }
+
+      # pick and choose and glue all "complete" project data
 
 
+      # spatial warp here to snowcrab grid ...
 
-  }
+    }
 
-
+ }

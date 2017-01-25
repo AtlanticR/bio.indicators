@@ -2,17 +2,17 @@
   sizespectrum.db = function( DS="", p=NULL ) {
     ### dependency is only groundfish db for now. ...
 
-    dir.create( p$project.outdir.root, showWarnings=FALSE, recursive=TRUE )
+    outdir = file.path( project.datadirectory("bio.indicators"), "sizespectrum" )
 
+    dir.create( outdir, showWarnings=FALSE, recursive=TRUE )
     infix = paste( p$nss.taxa, p$nss.type, p$nss.base, sep="." )
-
 
     if (DS %in% c("sizespectrum.by.set", "sizespectrum.by.set.redo") ) {
 
       # make the base normalised size spectral statistics summaries
 
       if (DS == "sizespectrum.by.set" ) {
-        fn = file.path( p$project.outdir.root, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
+        fn = file.path( outdir, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
         load( fn )
         return (ss )
       }
@@ -48,7 +48,7 @@
           # midpoints = (l.bound [2:n.size] + l.bound [1:(n.size-1)] ) /2
          infix = paste( tx, vname, p$nss.base, sep="." )
 
-          fn = file.path( p$project.outdir.root, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
+          fn = file.path( outdir, paste(  "sizespectrum.by.set", infix, "rdata", sep="." ) )
 
           ss = NULL
           tt = XX$cfdet*XX[,vname]
@@ -64,10 +64,13 @@
     }
 
 
+    # --------------------
+
+
     if (DS %in% c( "sizespectrum.stats", "sizespectrum.stats.redo" ) ) {
 
 
-      fn = file.path( p$project.outdir.root, paste( "set.sizespectrum.stats", infix, "rdata", sep=".")  )
+      fn = file.path( outdir, paste( "set.sizespectrum.stats", infix, "rdata", sep=".")  )
 
       if (DS=="sizespectrum.stats") {
         nss = NULL
@@ -127,23 +130,20 @@
     }
 
 
-
-
     # --------------------
+
+
     if (DS %in% c("sizespectrum", "sizespectrum.redo") ) {
 
       # make the base normalised size spectral statistics summaries
 
-      fn = file.path( p$project.outdir.root, paste( "sizespectrum", infix, "rdata", sep="." ) )
+      fn = file.path( outdir, paste( "sizespectrum", infix, "rdata", sep="." ) )
 
       if ( DS=="sizespectrum" ) {
-        SC = NULL
+        SS = NULL
         if (file.exists( fn) ) load( fn )
-        return ( SC )
+        return ( SS )
       }
-
-			P0 = bathymetry.db( p=p, DS="baseline" )  # prediction surface appropriate to p$spatial.domain, already in ndigits = 2
-			P0$platplon = paste(  P0$plat, P0$plon, sep="_" )
 
       sm = sizespectrum.db( DS="sizespectrum.stats", p=p )
       smg = groundfish.db( "set.base" )
@@ -154,15 +154,7 @@
       smg$temp = NULL
 
       sm = merge (sm, smg, by="id", all.x=T, all.y=F, sort= F)
-
       sm = lonlat2planar( sm, proj.type=p$internal.projection )
-      sm$plon = grid.internal( sm$plon, p$plons )
-      sm$plat = grid.internal( sm$plat, p$plats )
-
-      sm$platplon = paste( sm$plat, sm$plon, sep="_" )
-
-      sm$plon = sm$plat = NULL
-      sm$lon  = sm$lat = NULL
 
       # check for duplicates
       for ( y in p$yearstomodel ) {
@@ -176,13 +168,26 @@
         }
       }
 
-      sm = sm[ which( is.finite(sm$nss.b0) ) ,]
-			SC = merge( sm, P0, by="platplon", all.x=T, all.Y=F, sort= F, suffixes=c("", ".P0") )
-		  oo = which(!is.finite( SC$plon+SC$plat ) )
-      if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-		  rm(sm, P0); gc()
-      SC = habitat.lookup( SC, p=p, DS="environmentals" )
-      save(SC, file=fn, compress=T )
+
+    # merge temperature
+      it = which( !is.finite(sm$t) )
+      if (length(it) > 0) {
+        sm$t[it] = bio.temperature::temperature.lookup( p=p, locs=sm[it, c("plon","plat")], timestamp=sm$timestamp[it] )
+      }
+      sm = sm[ which(is.finite(sm$t)), ] # temp is required
+      
+
+      locsmap = match( 
+        lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      sm = cbind( sm, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=sm[,"timestamp"] ))
+
+      SS = sm[ which( is.finite(sm$nss.b0) ) ,]
+		  oo = which(!is.finite( SS$plon+SS$plat ) )
+      if (length(oo)>0) SS = SS[ -oo , ]  # a required field for spatial interpolation
+      save(SS, file=fn, compress=T )
       return ( "Done" )
     }
 
