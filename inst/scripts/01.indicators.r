@@ -70,6 +70,10 @@
     # to obtain biomass estimates after correction for tow, etc.
     # a = biomass.estimation (DS="saved"", p=p )
 
+  p = make.list( list( yrs=p$yearstomodel), Y=p )
+  #parallel.run( indicators.db, DS="environmentals.redo", p=p ) #MG parallel isn't running properly at the moment
+  indicators.db( DS="environmentals.redo", p=p )
+
 
   # ----------------------------------------------------------
   # all landings
@@ -195,4 +199,12 @@
 
 
 
+ # Used for merging back into survey.db as the 'higher level indicators have not yet been created/updated
+  p = bio.indicators::indicators.parameters( DS="habitat" )
+  indicators.db( DS="baseline.redo", p=p ) ## Time-invariant data (depth, substate, etc)
+  lut = habitat.xyz.to.grid ( p, redo=TRUE ) # redo lookup table to convert xyz data to matrix/grid format
+
+  # p$clusters = rep( "localhost", 1)  # if length(p$clusters) > 1 .. run in parallel
+  # p$clusters = rep("localhost", detectCores() )
+  # p$clusters = c( rep( "nyx", 24), rep("tartarus", 24), rep("kaos", 24 ) )
 
