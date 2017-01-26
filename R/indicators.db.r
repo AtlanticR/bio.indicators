@@ -147,7 +147,7 @@
     if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
       INP = bio.indicators::indicators.db( DS="indicators", p=p ) # dependent vars
-      INP$tiyr = INP$yr + INP$dyear/p$nw - p$tres/2 # mid-points
+      INP$tiyr = lubridate::decimal_date( INP$timestamp ) 
 
       locsmap = match( 
         lbm::array_map( "xy->1", INP[,c("plon","plat")], gridparams=p$gridparams ), 
