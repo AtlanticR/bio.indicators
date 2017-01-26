@@ -207,7 +207,7 @@
 
       PS = PS[ which(names(PS) %in% ps_varnames ) ] # time vars, if they are part of the model will be created within lbm
 
-      oo = setdiff(p$varnames, names(PS))
+      oo = setdiff(p$varnames, ps_varnames )
       if (length(oo) > 0 ) {
         message("Some variables are missing in the prediction surface, PS")
         print(oo )
