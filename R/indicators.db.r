@@ -203,7 +203,9 @@
       PS = indicators.db( p=p, DS="prediction.surface" ) # a list object with static and annually varying variables  
       names(PS)[ names(PS)=="amplitude"] ="tamplitude" 
 
-      PS = PS[ which(names(PS) %in% p$varnames) ] # time vars, if they are part of the model will be created within lbm
+      ps_varnames = setdiff( p$varnames, p$variables$LOCS )
+
+      PS = PS[ which(names(PS) %in% ps_varnames ) ] # time vars, if they are part of the model will be created within lbm
 
       oo = setdiff(p$varnames, names(PS))
       if (length(oo) > 0 ) {
@@ -212,8 +214,7 @@
         stop()
       }
 
-
-      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS ) )         
+      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline"), COV=PS ) )         
 
       return (list(input=INP, output=OUT))
 
