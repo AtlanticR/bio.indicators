@@ -83,12 +83,10 @@
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
  
-      yr_index = match( p$yrs, p0$tyears ) 
-      
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
       for ( ret in p0$bstats ) {
-        PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )[,yr_index]
+        PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
       }
 
       save (PS, file=outfile, compress=T )
@@ -142,9 +140,17 @@
       
       nPS = nrow( PS )
       PS = as.list(PS)
-      PS = c( PS, indicators.db(p=p, DS="spatial.annual") )
-      # PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=nPS ) # need to make this 2D for lbm .. a limitation of using bigmemory
-
+      
+      p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
+      p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+      p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
+ 
+      yr_index = match( p$yrs, p0$tyears ) 
+      u = indicators.db(p=p, DS="spatial.annual")
+      for ( vn in names(u) ){
+        u[[vn]] = u[[vn]][,yr_index] 
+      }
+      PS = c( PS, u)
       save (PS, file=outfile, compress=T )
       return( outfile )
     }
