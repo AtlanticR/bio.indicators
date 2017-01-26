@@ -69,7 +69,7 @@
   # ----------------------------------------------------------
   # all landings
 
-  p = bio.indicators::indicators.parameters( DS="landings" )
+  p = bio.indicators::indicators.parameters( p=p, DS="landings" )
   bio.indicators::landings.db( DS="odbc", p=p ) # NOTE: run on MSWindows
   if (0) {
     # not yet ready
@@ -87,7 +87,7 @@
 
   # ----------------------------------------------------------
   # estimate condition
-  p = bio.indicators::indicators.parameters( DS="condition" )
+  p = bio.indicators::indicators.parameters( p=p, DS="condition" )
   bio.indicators::condition.db( DS="condition.redo", p=p ) # takes a minute
 # o = bio.indicators::condition.db( DS="condition", p=p )
     for ( vn in p$varstomodel) {
@@ -103,7 +103,7 @@
 
   # -----------------------------
   # estimate metabolic demand, given size structure
-  p = bio.indicators::indicators.parameters( DS="metabolism")
+  p = bio.indicators::indicators.parameters( p=p, DS="metabolism")
   bio.indicators::metabolism.db( DS="metabolism.redo", p=p )
 # o = bio.indicators::metabolism.db( DS="metabolism", p=p ) 
     for ( vn in p$varstomodel) {
@@ -119,7 +119,7 @@
 
   # -----------------------------
   # analysis and spatial database of normalised size spectrum, average size
-  p = bio.indicators::indicators.parameters( DS="sizespectrum" )
+  p = bio.indicators::indicators.parameters( p=p, DS="sizespectrum" )
   bio.indicators::sizespectrum.db( DS="sizespectrum.by.set.redo", p=p ) #MG takes 1 minute
   bio.indicators::sizespectrum.db( DS="sizespectrum.stats.redo", p=p )  #MG took 20 minutes
   bio.indicators::sizespectrum.db( DS="sizespectrum.redo", p=p )  # all point data to be interpolated #MG took 5 minutes
@@ -137,7 +137,7 @@
 
   # -----------------------------
   # count and record rarification curves from all available data --- refresh "survey.db" ~/ecomod/bio/src/bio.r
-  p = bio.indicators::indicators.parameters( DS="speciesarea" )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciesarea" )
   bio.indicators::speciesarea.db( DS="speciesarea.counts.redo", p=p )  # 60 MB / process  -- can use all cpus
   bio.indicators::speciesarea.db( DS="speciesarea.stats.redo", p=p ) # ~ 1 minute
   bio.indicators::speciesarea.db( DS="speciesarea.redo", p=p ) # intermediary file for modelling and interpolation ... lookup up missing data and covariates
