@@ -15,7 +15,7 @@
           set = cbind( set,  sn )
 
           # for space-time(year)
-          sn = indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=set[,"timestamp"], varnames=newvars ))
+          sn = indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=set[,"timestamp"], varnames=newvars )
           names( sn  ) = newvars
           set = cbind( set,  sn )
         }
@@ -38,7 +38,7 @@
 
         if (DS=="spatial.annual"){ 
           out = NULL
-          dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
+          dindex = cbind(locsmap, match( lubridate::year(timestamp), p$yrs ) )
           if (is.null(DB)) DB = indicators.db(p=p, DS="spatial.annual")
           if (is.null(varnames)) varnames=names(DB)
           vnames_DB = names(DB)
@@ -71,7 +71,7 @@
         if (DS=="baseline"){ 
           # all interpolated fields
           out = NULL
-          dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
+          dindex = cbind(locsmap, match( lubridate::year(timestamp), p$yrs ) )
           DB = indicators.db(p=p, DS="baseline")
           if (is.null(varnames)) varnames=names(DB)
           vnames_DB = names(DB)
