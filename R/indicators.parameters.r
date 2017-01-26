@@ -10,9 +10,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       "bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  
       "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
 
-    if (!exists("project.root", p) )  p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
-    # generic defaults, some will be overridden in project-specific calls
-
+     
     p$spatial.domain = "SSE" 
     p$spatial.domain.subareas = c( "snowcrab")
     p = spatial_parameters( p )  # data are from this domain .. so far
@@ -46,6 +44,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
   if (DS=="survey"){
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
+    
     p$taxa =  "maxresolved"
     p$data.sources = c("groundfish", "snowcrab")
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
@@ -57,6 +57,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
   if (DS=="landings"){
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$marfis.years=2002:p$current.year
     p$varstomodel = c()
   }
@@ -67,6 +68,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   if (DS=="speciescomposition") {
 
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$data.sources = c("groundfish", "snowcrab")
     p$taxa = "maxresolved"
     p$timescale = c( 0,1,2,5,10 ) # yr
@@ -84,6 +86,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   if (DS=="condition") {
 
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
@@ -98,6 +101,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   if (DS=="metabolism") {
 
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$taxa = "alltaxa"   # do not use any other category
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
@@ -111,6 +115,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   if (DS=="sizespectrum") {
 
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -147,6 +152,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   if (DS=="speciesarea") {
 
     p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
+
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     p$yearstomodel = 1970:p$current.year
