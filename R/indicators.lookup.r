@@ -1,6 +1,26 @@
 
       indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, varnames=NULL, DB=NULL ) {
 
+        if (0) { 
+          # example of how to use this:
+          set = survey.db( p=p, DS="set" )
+          newvars = c("tmean", "tmap")
+          locsmap = match( 
+            lbm::array_map( "xy->1", set[,c("plon","plat")], gridparams=p$gridparams ), 
+            lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+          
+          # for spatial-only 
+          sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
+          names( sn ) = newvars
+          set = cbind( set,  sn )
+
+          # for space-time(year)
+          sn = indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=set[,"timestamp"], varnames=newvars ))
+          names( sn  ) = newvars
+          set = cbind( set,  sn )
+        }
+
+
         if (is.null(locsmap)){
           grid = lbm::array_map( "xy->1", locs, gridparams=p$gridparams )
           baid = lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams )

@@ -6,7 +6,7 @@
       outdir = file.path( project.datadirectory("bio.indicators"), "metabolism" )
 
       dir.create( outdir, showWarnings=FALSE, recursive=TRUE )
-      fn = file.path( outdir, paste( "set.metabolism",  p$spatial.domain, p$taxa, ".rdata", sep=".") )
+      fn = file.path( outdir, paste( "set.metabolism",  p$spatial.domain, p$taxa, "rdata", sep=".") )
 
       if (DS=="metabolism") {
         set = NULL

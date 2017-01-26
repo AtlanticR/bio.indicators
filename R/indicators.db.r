@@ -1,5 +1,5 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, varname=NULL, voi=NULL ) {
+  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL ) {
 
     # over-ride default dependent variable name if it exists
     if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
@@ -41,8 +41,17 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = bathymetry.db( p=p, DS="baseline", varnames="all" )  # anything not NULL gives everything with bathymetry.db 
+      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+      p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
       PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
-      tclim = temperature.db( p=p, DS="bottom.statistics.climatology" ) 
+      
+      # override voi (variable of interest) to obtain results
+      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+      p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
+      tclim = temperature.db( p=p0, DS="bottom.statistics.climatology" ) 
+
       names(tclim) = paste(names(tclim), "climatology", sep="." )
       PS = cbind( PS, tclim)
 
@@ -72,6 +81,7 @@
 
       p0 = bio.temperature::temperature.parameters(p=p)
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
+      p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
 
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
@@ -137,16 +147,32 @@
     if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
       INP = bio.indicators::indicators.db( DS="indicators", p=p ) # dependent vars
-   
+      INP$tiyr = INP$yr + INP$dyear/p$nw - p$tres/2 # mid-points
+
       locsmap = match( 
         lbm::array_map( "xy->1", INP[,c("plon","plat")], gridparams=p$gridparams ), 
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
-      INP = cbind( INP, indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=p$varnames ) )
-      INP = cbind( INP, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"], varnames=p$varnames ))
+      # spatial vars and climatologies 
+      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean", "tsd" )
+      sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
+      names( sn ) = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology" )
+      INP = cbind( INP,  sn )
 
+      # for space-time(year-averages) 
+      newvars = c( "tmean", "tsd", "amplitude" )
+      sn = indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"], varnames=newvars )
+      colnames( sn  ) = newvars
+      INP = cbind( INP,  sn )
 
-      # cap quantiles of dependent vars
+      INP$log.z = log(INP$z)
+      INP$log.dZ = log( INP$dZ )
+      INP$log.ddZ = log( INP$ddZ)
+      INP$tamplitude = INP$amplitude
+
+      INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
+
+    # cap quantiles of dependent vars
       dr = list()
       for (voi in p$varnames) {
         dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
@@ -156,20 +182,12 @@
         if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
       }
 
-      INP$log.z = log(INP$z)
-      INP$log.dZ = log( INP$dZ )
-      INP$log.ddZ = log( INP$ddZ)
-      INP$log.tamplitude = log(INP$tamplitude)
-      #   INP$log.tamplitude.climatology = log(INP$tamplitude.climatology)
-      INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
-
 
       PS = indicators.db( p=p, DS="prediction.surface" ) # a list object
       PS$log.z = log(PS$z)
       PS$log.dZ = log( PS$dZ )
       PS$log.ddZ = log( PS$ddZ)
-      PS$log.tamplitude = log(PS$tamplitude)
-   #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
+      PS$tamplitude = PS$amplitude
       PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm
       
       OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS ) )         
@@ -241,7 +259,7 @@
 
     if (DS %in% c("baseline", "baseline.add") ) {
 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain, varname )
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain )
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
