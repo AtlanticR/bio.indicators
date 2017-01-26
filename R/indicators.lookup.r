@@ -10,6 +10,8 @@
         if (DS=="spatial"){
           if (is.null(DB)) DB = indicators.db(p=p, DS="spatial")
           if (is.null(varnames)) varnames=names(DB)
+          vnames_DB = names(DB)
+          varnames = intersect( vnames_DB, varnames )
           out = DB[locsmap,varnames]
           return(out)
         }
@@ -19,13 +21,17 @@
           dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
           if (is.null(DB)) DB = indicators.db(p=p, DS="spatial.annual")
           if (is.null(varnames)) varnames=names(DB)
+          vnames_DB = names(DB)
+          varnames = intersect( vnames_DB, varnames )
           for (vn in varnames){
             out = cbind( out, DB[[vn]][dindex] )
           }
+          names(out) = c( vnames_DB, varnames )
           return(out)
         }
 
         if (DS=="spatial.annual.seasonal"){ 
+          # only temp for now
           out = NULL
           yrs = lubridate::year(timestamp)
           dyear = lubridate::decimal_date( timestamp ) -yrs
@@ -34,6 +40,9 @@
           if (is.null(DB)) {
             if (!is.null(varnames)) DB=indicators.db(p=p, DS=varnames) # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
           }
+          if (is.null(varnames)) varnames=names(DB)
+          vnames_DB = names(DB)
+          varnames = intersect( vnames_DB, varnames )
           out = DB[dindex] 
           return(out)
         }
@@ -45,6 +54,8 @@
           dindex = cbind(locsmap, match( lubridate::years(timestamp), p$yrs ) )
           DB = indicators.db(p=p, DS="baseline")
           if (is.null(varnames)) varnames=names(DB)
+          vnames_DB = names(DB)
+          varnames = intersect( vnames_DB, varnames )
           for (vn in varnames){
             out = cbind( out, DB[[vn]][dindex] )
           }

@@ -91,6 +91,7 @@
       #\\ spatial, temporal (annual and seasonal)
       # at present only temperatute varies at this scale
       #\\ copy in array format for domain/resolution of interest for faster lookups
+      message ("not used right now as predicting at every time-space-dyear is very expensive")
       if ( DS=="spatial.annual.seasonal.redo" ){
         message( "At present only temperature varies at this scale .. nothing else needs to be done." )
       }
@@ -141,17 +142,19 @@
         lbm::array_map( "xy->1", INP[,c("plon","plat")], gridparams=p$gridparams ), 
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
-      INP = cbind( INP, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
-      INP = cbind( INP, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"] ))
+      INP = cbind( INP, indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=p$varnames ) )
+      INP = cbind( INP, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"], varnames=p$varnames ))
 
 
       # cap quantiles of dependent vars
       dr = list()
-      dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
-      il = which( INP[,voi] < dr[[voi]][1] )
-      if ( length(il) > 0 ) INP[il,voi] = dr[[voi]][1]
-      iu = which( INP[,voi] > dr[[voi]][2] )
-      if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
+      for (voi in p$varnames) {
+        dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
+        il = which( INP[,voi] < dr[[voi]][1] )
+        if ( length(il) > 0 ) INP[il,voi] = dr[[voi]][1]
+        iu = which( INP[,voi] > dr[[voi]][2] )
+        if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
+      }
 
       INP$log.z = log(INP$z)
       INP$log.dZ = log( INP$dZ )
