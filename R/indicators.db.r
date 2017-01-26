@@ -214,7 +214,7 @@
         stop()
       }
 
-      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline"), COV=PS ) )         
+      OUT = list( LOCS=bathymetry.db(p=p, DS="baseline"), COV=PS )    
 
       return (list(input=INP, output=OUT))
 
