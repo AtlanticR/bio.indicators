@@ -131,6 +131,12 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = indicators.db(p=p, DS="spatial")
+      names(PS)[which(names(PS)=="tmean")] = "tmean.climatology"
+      names(PS)[which(names(PS)=="tsd")] = "tsd.climatology"
+      names(PS)[which(names(PS)=="tmin")] = "tmin.climatology"
+      names(PS)[which(names(PS)=="tmax")] = "tmax.climatology"
+      names(PS)[which(names(PS)=="amplitude")] = "tamplitude.climatology"
+      
       nPS = nrow( PS )
       PS = as.list(PS)
       PS = c( PS, indicators.db(p=p, DS="spatial.annual") )
@@ -164,13 +170,16 @@
       sn = indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"], varnames=newvars )
       colnames( sn  ) = newvars
       INP = cbind( INP,  sn )
-
-      INP$log.z = log(INP$z)
-      INP$log.dZ = log( INP$dZ )
-      INP$log.ddZ = log( INP$ddZ)
       INP$tamplitude = INP$amplitude
 
       INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
+      oo = setdiff(p$varnames, names(INP))
+      if (length(oo) > 0 ) {
+        message("Some variables are missing in the input data")
+        print(oo )
+        stop()
+      }
+      INP = na.omit(INP)
 
     # cap quantiles of dependent vars
       dr = list()
@@ -182,14 +191,19 @@
         if ( length(iu) > 0 ) INP[iu,voi] = dr[[voi]][2]
       }
 
+      PS = indicators.db( p=p, DS="prediction.surface" ) # a list object with static and annually varying variables  
+      names(PS)[ names(PS)=="amplitude"] ="tamplitude" 
 
-      PS = indicators.db( p=p, DS="prediction.surface" ) # a list object
-      PS$log.z = log(PS$z)
-      PS$log.dZ = log( PS$dZ )
-      PS$log.ddZ = log( PS$ddZ)
-      PS$tamplitude = PS$amplitude
-      PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm
-      
+      PS = PS[ which(names(PS) %in% p$varnames) ] # time vars, if they are part of the model will be created within lbm
+
+      oo = setdiff(p$varnames, names(PS))
+      if (length(oo) > 0 ) {
+        message("Some variables are missing in the prediction surface, PS")
+        print(oo )
+        stop()
+      }
+
+
       OUT = list( LOCS=bathymetry.db(p=p, DS="baseline", COV=PS ) )         
 
       return (list(input=INP, output=OUT))

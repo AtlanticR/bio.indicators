@@ -247,7 +247,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamp" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamplitude" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
@@ -257,7 +257,7 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$lbm_global_modelengine = "gam"
     p$lbm_global_modelformula = formula( paste( 
       varname, ' ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp") + s(dyear, k=3, bs="tp")', 
-      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamp, bs="tp") + s(z, bs="tp")',
+      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamplitude, bs="tp") + s(z, bs="tp")',
       ' + s(dZ, bs="tp") + s(log.substrate.grainsize, bs="tp") ' )) 
 
     p$lbm_global_family = gaussian()
