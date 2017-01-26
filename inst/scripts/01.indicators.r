@@ -1,11 +1,14 @@
 
  
-  current.year = 2016
-
   ## NOTE resolution is fixed at SSE
 
- # preform/prepare some lookup tables for faster lbm processing and generic lookups
-  p = bio.indicators::indicators.parameters( DS="indicators" )
+  current.year = 2016
+
+  p = bio.indicators::indicators.parameters( DS="indicators", current.year=current.year )
+
+
+  # ----------------------------------------------------------
+  # preform/prepare some lookup tables for faster lbm processing and generic lookups
   indicators.db( DS="spatial.redo", p=p ) 
   indicators.db( DS="spatial.annual.redo", p=p ) 
   indicators.db( DS="spatial.annual.seasonal.redo", p=p ) 
@@ -13,62 +16,49 @@
   
   # ----------------------------------------------------------
   # glue biological data sets together from various surveys
-   # load and glue data together
-    if (redo.source.data) {
-      # these are here to show the dependencies of survey.db()
-      bio.groundfish::groundfish.db( "set.base.redo" )
-      bio.groundfish::groundfish.db( "cat.base.redo" ) 
-      bio.groundfish::groundfish.db( "det.redo" )
-      bio.snowcrab::snowcrab.db( DS ="set.clean.redo" )
-      bio.snowcrab::snowcrab.db( DS ="cat.georeferenced.redo" ) 
-      bio.snowcrab::snowcrab.db( DS ="det.georeferenced.redo" )
-    }
+  # load and glue data together
+  if (redo.source.data) {
+    # these are here to show the dependencies of survey.db()
+    bio.groundfish::groundfish.db( "set.base.redo" )
+    bio.groundfish::groundfish.db( "cat.base.redo" ) 
+    bio.groundfish::groundfish.db( "det.redo" )
+    bio.snowcrab::snowcrab.db( DS ="set.clean.redo" )
+    bio.snowcrab::snowcrab.db( DS ="cat.georeferenced.redo" ) 
+    bio.snowcrab::snowcrab.db( DS ="det.georeferenced.redo" )
+  }
 
-    p = bio.indicators::indicators.parameters( DS="survey" )
-    survey.db( DS="set.init.redo", p=p )
-    survey.db( DS="cat.init.redo", p=p )
-    survey.db( DS="det.init.redo", p=p )
+  p = bio.indicators::indicators.parameters( DS="survey" )
+  survey.db( DS="set.init.redo", p=p )
+  survey.db( DS="cat.init.redo", p=p )
+  survey.db( DS="det.init.redo", p=p )
 
-    # the following requires the preformed indicators.db() (above) for lookups to complete the data
-    survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
-    survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
-    survey.db( DS="length.weight.redo", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
-    survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
-    survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
-    figure.bio.map.survey.locations(p=p)  # see mpa/src/_Rfunctions/figure.trawl.density for more control
-   
+  # the following requires the preformed indicators.db() (above) for lookups to complete the data
+  survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
+  survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
+  survey.db( DS="length.weight.redo", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
+  survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
+  survey.db( DS="set.redo", p=p ) # mass/length imputation and sanity checking
 
- # -----------------------------
+  figure.bio.map.survey.locations(p=p)  # see mpa/src/_Rfunctions/figure.trawl.density for more control
+ 
   indicators.db( DS="prediction.surface.redo", p=p ) 
 
-    if (0) {
-      # not yet ready
-      for ( vn in p$varstomodel) {
-        print(vn)
-        p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-        p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
-        indicators.db ( DS="complete.redo", p=p )
-        indicators.map( p=p  )
-        gc()
-      }
-    }
 
 
-  # to view progress in terminal:
-  # watch -n 120 cat /home/jae/bio.data/bio.indicators/XXX/modelled/XXX/SSE/lbm_current_status
+  # -----------------------------
+  # ordination
+  p = bio.indicators::indicators.parameters( DS="speciescomposition", current.year=current.year  )
+  bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
+  bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
+  for ( vn in p$varstomodel) {
+    print(vn)
+    p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+    p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+    indicators.db ( DS="complete.redo", p=p )
+    indicators.map( p=p  )
+    gc()
+  }
 
-  # to view maps from an external R session:
-  # lbm(p=p, tasks="debug_pred_static_map", vindex=1)
-  # lbm(p=p, tasks="debug_pred_static_log_map", vindex=1)
-  # lbm(p=p, tasks="debug_pred_dynamic_map", vindex=1)
-  # lbm(p=p, tasks="debug_stats_map", vindex=1)
-
-
-    #  --- look in metabolism functions and complexity/condition
-    # to obtain stats from l-w relationships used to impute mass/leng and estimate condition
-    # a = length.weight.regression ( DS="parameters", p=p )
-    # to obtain biomass estimates after correction for tow, etc.
-    # a = biomass.estimation (DS="saved"", p=p )
 
 
   # ----------------------------------------------------------
@@ -89,25 +79,6 @@
   }
 
 
-  # ----------------------------------------------------------
-  # survey data assimilation complete.
-  # now, generate indicators of interest from survey data
-
-
-  # -----------------------------
-  # ordination
-  p = bio.indicators::indicators.parameters( DS="speciescomposition" )
-  bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
-  bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
-# o = bio.indicators::speciescomposition.db( DS="speciescomposition", p=p )
-    for ( vn in p$varstomodel) {
-      print(vn)
-      p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-      p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
-      indicators.db ( DS="complete.redo", p=p )
-      indicators.map( p=p  )
-      gc()
-    }
 
   # ----------------------------------------------------------
   # estimate condition
@@ -174,9 +145,6 @@
       indicators.map( p=p  )
       gc()
     }
-
-
-
 
 
 

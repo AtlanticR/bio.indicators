@@ -1,13 +1,12 @@
 
-  condition.db = function( DS="", p=NULL, yr=NULL ) {
-
+  condition.db = function( DS="", p=NULL ) {
 
     if (DS %in% c( "condition", "condition.redo" ) ) {
      
       outdir = file.path( project.datadirectory("bio.indicators"), "condition" )
      
       dir.create( outdir, showWarnings=FALSE, recursive=TRUE )
-      infix = paste(p$spatial.domain, p$season, sep=".")
+      infix = paste(p$spatial.domain, sep=".")
       fn = file.path( outdir, paste("set.condition", infix, "rdata", sep=".") )
 
       if (DS=="condition") {
@@ -22,10 +21,6 @@
       igood = which( set$lon >= p$corners$lon[1] & set$lon <= p$corners$lon[2]
             &  set$lat >= p$corners$lat[1] & set$lat <= p$corners$lat[2] )
       if (length(igood)>0) set = set[igood, ]
-
-      if ( p$season != "allseasons" ) {
-        set = set[ filter.season( set$julian, period=p$season, index=T ) , ]
-      }
 
       # last filter on set:: filter years
       set = set[ which(set$yr %in% p$yearstomodel) , ]
@@ -53,23 +48,8 @@
         sm = merge( sm, smd, by="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
       }
 
-    # merge temperature
-#      sm$t = ... 
-      it = which( !is.finite(sm$t) )
-      if (length(it) > 0) {
-        sm$t[it] = bio.temperature::temperature.lookup( p=p, locs=sm[it, c("plon","plat")], timestamp=sm$timestamp[it] )
-      }
-      sm = sm[ which(is.finite(sm$t)), ] # temp is required
-      
-      locsmap = match( 
-        lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
-        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+      sm$yr = NULL # dummy var
 
-      sm = cbind( sm, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
-      sm = cbind( sm, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=sm[,"timestamp"] ))
-      sm$t = indicators.lookup( p=p, DS="temperature",   locsmap=locsmap, timestamp=sm[,"timestamp"] )
-
-      sm$yr = NULL
       set = merge( set, sm, by="id", all.x=TRUE, all.y=FALSE, sort=FALSE, suffixes=c("", ".sm") )
       save( set, file=fn, compress=T )
       return (fn)

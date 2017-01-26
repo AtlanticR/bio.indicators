@@ -1,12 +1,12 @@
 
-  indicators.db = function( ip=NULL, DS="spatial", p=NULL, year=NULL, varname=NULL, voi=NULL ) {
+  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, varname=NULL, voi=NULL ) {
 
     # over-ride default dependent variable name if it exists
     if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
 
     if (DS =="indicators") {
 
-      return( switch( p$project.name,
+      out = switch( p$project.name,
         sizespectrum = bio.indicators::sizespectrum.db(p=p, DS=p$project.name ),
         metabolism   = bio.indicators::metabolism.db( p=p, DS=p$project.name ), 
         speciesarea  = bio.indicators::speciesarea.db( p=p, DS=p$project.name ),  
@@ -16,7 +16,9 @@
         biochem =      bio.indicators::biochem.db( p=p, DS=p$project.name ),
         survey =       bio.indicators::survey.db( p=p, DS=p$project.name ),
         NULL
-      ) )
+      ) 
+
+      return(out)
 
     }
 
@@ -40,7 +42,9 @@
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = bathymetry.db( p=p, DS="baseline", varnames="all" )  # anything not NULL gives everything with bathymetry.db 
       PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
-      PS = cbind( PS, temperature.db( p=p, DS="bottom.statistics.climatology" ) )
+      tclim = temperature.db( p=p, DS="bottom.statistics.climatology" ) 
+      names(tclim) = paste(names(tclim), "climatology", sep="." )
+      PS = cbind( PS, tclim)
 
       save (PS, file=outfile, compress=T )
       return( outfile )
@@ -70,9 +74,9 @@
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
 
       PS = list()
-      PS[["t"]] = temperature.db( p=p, DS="timeslice", ret="mean" )
+      PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
       for ( ret in p0$bstats ) {
-        PS[[ret]] = temperature.db( p=p, DS="bottom.statistics.annual", ret=ret )
+        PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
       }
 
       save (PS, file=outfile, compress=T )
@@ -88,7 +92,7 @@
       # at present only temperatute varies at this scale
       #\\ copy in array format for domain/resolution of interest for faster lookups
       if ( DS=="spatial.annual.seasonal.redo" ){
-        message( "At present only temperatute varies at this scale .. nothing else needs to be done." )
+        message( "At present only temperature varies at this scale .. nothing else needs to be done." )
       }
 
       return( temperature.db(p=p, DS="spatial.annual.seasonal" ) )
@@ -119,7 +123,7 @@
       nPS = nrow( PS )
       PS = as.list(PS)
       PS = c( PS, indicators.db(p=p, DS="spatial.annual") )
-      PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=nPS ) # need to make this 2D for lbm .. a limitation of using bigmemory
+      # PS[["t"]] = matrix( indicators.db(p=p, DS="temperature"), nrow=nPS ) # need to make this 2D for lbm .. a limitation of using bigmemory
 
       save (PS, file=outfile, compress=T )
       return( outfile )
@@ -132,6 +136,14 @@
     if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
       INP = bio.indicators::indicators.db( DS="indicators", p=p ) # dependent vars
+   
+      locsmap = match( 
+        lbm::array_map( "xy->1", INP[,c("plon","plat")], gridparams=p$gridparams ), 
+        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
+
+      INP = cbind( INP, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
+      INP = cbind( INP, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=INP[,"timestamp"] ))
+
 
       # cap quantiles of dependent vars
       dr = list()
@@ -144,7 +156,6 @@
       INP$log.z = log(INP$z)
       INP$log.dZ = log( INP$dZ )
       INP$log.ddZ = log( INP$ddZ)
-      INP$log.substrate.grainsize = log(INP$grainsize)
       INP$log.tamplitude = log(INP$tamplitude)
       #   INP$log.tamplitude.climatology = log(INP$tamplitude.climatology)
       INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
@@ -154,7 +165,6 @@
       PS$log.z = log(PS$z)
       PS$log.dZ = log( PS$dZ )
       PS$log.ddZ = log( PS$ddZ)
-      PS$log.substrate.grainsize = log(PS$grainsize)
       PS$log.tamplitude = log(PS$tamplitude)
    #   PS$log.tamplitude.climatology = log(PS$tamplitude.climatology)
       PS = PS[[ which(names(PS) %in% p$varnames) ]] # time vars, if they are part of the model will be created within lbm

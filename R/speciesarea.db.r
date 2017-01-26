@@ -1,10 +1,10 @@
 
-  speciesarea.db = function( DS="", p=NULL, yr=NULL ) {
+  speciesarea.db = function( DS="", p=NULL ) {
 
     outdir = file.path( project.datadirectory("bio.indicators"), "speciesarea" )
 
     dir.create( outdir, showWarnings=FALSE, recursive=TRUE )
-    infix = paste( p$spatial.domain, p$taxa, p$season, paste(p$data.sources, collapse="."), p$speciesarea.method, sep="." )
+    infix = paste( p$spatial.domain, p$taxa, paste(p$data.sources, collapse="."), p$speciesarea.method, sep="." )
 
 
     if (DS %in% c("speciesarea.counts", "speciesarea.counts.ny", "speciesarea.counts.redo") ) {
@@ -47,7 +47,6 @@
         sar.ny = big.matrix(nrow=p$nsets, ncol=p$nlengthscale*p$ntimescale, type="double", init=NA )
 
       }
-
 
       p$bigmem.desc = bigmemory::describe(sar)
       p$bigmem.ny.desc =  bigmemory::describe(sar.ny)  # counts the # of years of data
@@ -148,6 +147,8 @@
 
       SA = speciesarea.db( DS="speciesarea.stats", p=p )
       SA = lonlat2planar( SA, proj.type=p$internal.projection )
+      oo = which(!is.finite( SA$plon+SA$plat ) )
+      if (length(oo)>0) SA = SA[ -oo , ]  # a required field for spatial interpolation
 
       # this forces resolution of p$pres=1km in SSE
       SA$lon = SA$lat = NULL
@@ -165,23 +166,6 @@
           SA = SA[ - ii,]
         }
       }
-
-       # merge temperature
-      it = which( !is.finite(SA$t) )
-      if (length(it) > 0) {
-        SA$t[it] = bio.temperature::temperature.lookup( p=p, locs=SA[it, c("plon","plat")], timestamp=SA$timestamp[it] )
-      }
-      SA = SA[ which(is.finite(SA$t)), ] # temp is required
-
-      locsmap = match( 
-        lbm::array_map( "xy->1", SA[,c("plon","plat")], gridparams=p$gridparams ), 
-        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
-
-      SA = cbind( SA, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
-      SA = cbind( SA, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SA[,"timestamp"] ))
-
-      oo = which(!is.finite( SA$plon+SA$plat ) )
-      if (length(oo)>0) SA = SA[ -oo , ]  # a required field for spatial interpolation
 
       save( SA, file=fn, compress=T )
       return (fn)
