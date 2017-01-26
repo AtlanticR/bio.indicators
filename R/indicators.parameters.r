@@ -16,9 +16,9 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   p$spatial.domain.subareas = c( "snowcrab")
   p = spatial_parameters( p )  # data are from this domain .. so far
 
-  if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
-  p$newyear = current.year
-  p$yrs = c(1970:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+  if (!exists( "current.year", p)) p$current.year = current.year
+  if (!exists("yrs", p) ) p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+  
   p$ny = length(p$yrs)
   p$nw = 10 # number of intervals in time within a year
   p$nt = 1 # must specify, else assumed = 1 (1= only annual)

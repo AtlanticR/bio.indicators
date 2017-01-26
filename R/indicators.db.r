@@ -41,13 +41,13 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = bathymetry.db( p=p, DS="baseline", varnames="all" )  # anything not NULL gives everything with bathymetry.db 
-      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
       PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
       
       # override voi (variable of interest) to obtain results
-      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
       tclim = temperature.db( p=p0, DS="bottom.statistics.climatology" ) 
@@ -79,14 +79,16 @@
         return (PS)
       }
 
-      p0 = bio.temperature::temperature.parameters(p=p)
+      p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
-
+ 
+      yr_index = match( p$yrs, p0$tyears ) 
+      
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
       for ( ret in p0$bstats ) {
-        PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
+        PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )[,yr_index]
       }
 
       save (PS, file=outfile, compress=T )
@@ -104,9 +106,10 @@
       message ("not used right now as predicting at every time-space-dyear is very expensive")
       if ( DS=="spatial.annual.seasonal.redo" ){
         message( "At present only temperature varies at this scale .. nothing else needs to be done." )
+        return(NULL)
       }
-
-      return( temperature.db(p=p, DS="spatial.annual.seasonal" ) )
+      out = temperature.db(p=p, DS="spatial.annual.seasonal" )
+      return( out )
     }
 
   
