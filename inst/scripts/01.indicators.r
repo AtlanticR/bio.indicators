@@ -4,7 +4,7 @@
 
   current.year = 2016
 
-  p = bio.indicators::indicators.parameters( DS="indicators", current.year=current.year )
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
 
 
   # ----------------------------------------------------------
@@ -47,13 +47,19 @@
 
   # -----------------------------
   # ordination
-  p = bio.indicators::indicators.parameters( DS="speciescomposition", current.year=current.year  )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
   for ( vn in p$varstomodel) {
     print(vn)
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
     p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+    #   p = lbm( p=p, tasks=c( "stage0" ) )
+#   p = lbm( p=p, tasks=c( "continue" ) )      
+    p = lbm( p=p, tasks=c( "stage1" ) ) #  24 hrs 
+    p = lbm( p=p, tasks=c( "stage2" ) ) #   3.5 hrs
+    p = lbm( p=p, tasks=c( "stage3" ) )
+    p = lbm( p=p, tasks=c( "save" ) )
     indicators.db ( DS="complete.redo", p=p )
     indicators.map( p=p  )
     gc()

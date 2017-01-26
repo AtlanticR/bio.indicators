@@ -57,7 +57,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
   if (DS=="landings"){
     p$project.name=DS    
-    p$marfis.years=2002:current.year
+    p$marfis.years=2002:p$current.year
     p$varstomodel = c()
   }
 
@@ -71,7 +71,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$taxa = "maxresolved"
     p$timescale = c( 0,1,2,5,10 ) # yr
     p$interpolation.distances =  25 # for interpolation of habitat vars
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     # p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
     p$varstomodel = c( "ca1", "ca2" )
     
@@ -85,7 +85,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     p$project.name=DS    
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
     p$spatial.knots = 100
@@ -101,7 +101,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$taxa = "alltaxa"   # do not use any other category
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$spatial.knots = 100
     p$interpolation.distances =  25 # for interpolation of habitat vars
   }
@@ -123,7 +123,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
     p$varstomodel = c( "nss.b0", "nss.b1", "nss.shannon" )
     
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$modtype =  "complex"
     p$spatial.knots = 100
 
@@ -149,7 +149,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.name=DS    
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -178,7 +178,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
   #   p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
   #   p$interpolation.nmax = 100
   #   p$nw = 10  # from temperature.r, number of intervals in a year
-  #   p$yearstomodel = 1970:current.year
+  #   p$yearstomodel = 1970:p$current.year
 
   #   p$speciesarea.modeltype = "complex"
   #   p$speciesarea.method = "glm"   ## this is chosen in speciesarea.r ... make sure it matches up
