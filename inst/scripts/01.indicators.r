@@ -27,7 +27,7 @@
     bio.snowcrab::snowcrab.db( DS ="det.georeferenced.redo" )
   }
 
-  p = bio.indicators::indicators.parameters( DS="survey" )
+  p = bio.indicators::indicators.parameters( p=p, DS="survey" )
   survey.db( DS="set.init.redo", p=p )
   survey.db( DS="cat.init.redo", p=p )
   survey.db( DS="det.init.redo", p=p )
