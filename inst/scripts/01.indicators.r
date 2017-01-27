@@ -53,7 +53,8 @@
   for ( vn in p$varstomodel) {
     print(vn)
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-    p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )' ) # the interpolation
+
+    p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )', tasks=c("initiate", "globalmodel") ) # the interpolation
     #   p = lbm( p=p, tasks=c( "stage0" ) )
 #   p = lbm( p=p, tasks=c( "continue" ) )      
     p = lbm( p=p, tasks=c( "stage1" ) ) #  24 hrs 
@@ -64,6 +65,40 @@
     indicators.map( p=p  )
     gc()
   }
+
+
+Formula:
+ca1 ~ s(yr) + s(dyear, k = 3, bs = "tp") + s(yr, dyear, k = 30, 
+    bs = "tp") + s(t, bs = "tp") + s(tmean, bs = "tp") + s(tamplitude, 
+    bs = "tp") + s(z, bs = "tp") + s(dZ, bs = "tp") + s(ddZ, 
+    bs = "tp") + s(log.substrate.grainsize, bs = "tp")
+
+Parametric coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 0.026685   0.003278   8.141 4.14e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                              edf Ref.df       F  p-value    
+s(yr)                       4.470  4.635   0.872    0.373    
+s(dyear)                    2.000  2.000 800.572  < 2e-16 ***
+s(yr,dyear)                23.581 27.000  55.034  < 2e-16 ***
+s(t)                        8.517  8.933 168.265  < 2e-16 ***
+s(tmean)                    7.706  8.578 510.319  < 2e-16 ***
+s(tamplitude)               2.475  3.086  13.918 3.48e-09 ***
+s(z)                        6.216  7.377  69.805  < 2e-16 ***
+s(dZ)                       8.146  8.800   5.349 1.08e-06 ***
+s(ddZ)                      8.426  8.904  10.101 1.70e-15 ***
+s(log.substrate.grainsize)  7.442  8.399  46.699  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.786   Deviance explained = 78.7%
+GCV = 0.22628  Scale est. = 0.22541   n = 20979
+---
+
+
 
 
   # ----------------------------------------------------------
