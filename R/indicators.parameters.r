@@ -268,7 +268,9 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
-    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "krige" # "twostep" might be interesting to follow up
+    
+    p$lbm_local_modelengine ="twostep"
+    # if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "krige" # "twostep" might be interesting to follow up
 
     # using covariates as a first pass essentially makes it ~ kriging with external drift
     p$lbm_global_modelengine = "gam"
@@ -280,7 +282,21 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$lbm_global_family = gaussian()
     p$lbm_local_family = gaussian()
 
-    if (p$lbm_local_modelengine =="gam") {
+
+
+    if (p$lbm_local_modelengine =="twostep") {
+
+      p$lbm_local_modelformula = formula(
+        ca1 ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") 
+          + s(cos.w, sin.w, yr, bs="ts", k=36) )
+        # similar to GAM model but no spatial component .. space is handled via FFT
+      p$lbm_local_model_distanceweighted = TRUE
+
+      # p$lbm_fft_filter = "spatial.process"
+      p$lbm_fft_filter = "krige"
+
+    }  else if (p$lbm_local_modelengine == "gam") {
+
       p$lbm_local_modelformula = formula( paste( 
         varname, ' ~ s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=25, bs="ts")' ))  
       p$lbm_local_model_distanceweighted = TRUE
@@ -304,6 +320,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     
     } else {
     
+
+
       message( "The specified lbm_local_modelengine is not tested/supported ... you are on your own ;) ..." )
 
     }
