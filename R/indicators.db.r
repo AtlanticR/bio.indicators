@@ -181,12 +181,11 @@
       INP = cbind( INP,  sn )
       INP$tamplitude = INP$amplitude
 
-      INP = INP[, which(names(INP) %in% p$varnames)]  # a data frame
+      INP = INP[, which(names(INP) %in% c(p$varnames, p$variables$Y, p$variables$TIME, "dyear", "yr" ) ) ]  # a data frame
       oo = setdiff(p$varnames, names(INP))
       if (length(oo) > 0 ) {
-        message("Some variables are missing in the input data")
         print(oo )
-        stop()
+        warning("Some variables are missing in the input data")
       }
       INP = na.omit(INP)
 
@@ -209,9 +208,8 @@
 
       oo = setdiff(p$varnames, ps_varnames )
       if (length(oo) > 0 ) {
-        message("Some variables are missing in the prediction surface, PS")
         print(oo )
-        stop()
+        warning("Some variables are missing in the prediction surface, PS")
       }
 
       OUT = list( LOCS=bathymetry.db(p=p, DS="baseline"), COV=PS )    

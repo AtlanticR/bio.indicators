@@ -274,9 +274,9 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # using covariates as a first pass essentially makes it ~ kriging with external drift
     p$lbm_global_modelengine = "gam"
     p$lbm_global_modelformula = formula( paste( 
-      varname, ' ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp") + s(dyear, k=3, bs="tp")', 
+      varname, ' ~ s(yr) + s(dyear, k=3, bs="tp") + s(yr, dyear, k=30, bs="tp") ', 
       ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamplitude, bs="tp") + s(z, bs="tp")',
-      ' + s(dZ, bs="tp") + s(log.substrate.grainsize, bs="tp") ' )) 
+      ' + s(dZ, bs="tp") + s(ddZ, bs="tp")  + s(log.substrate.grainsize, bs="tp") ' )) 
 
     p$lbm_global_family = gaussian()
     p$lbm_local_family = gaussian()
