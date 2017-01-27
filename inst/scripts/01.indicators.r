@@ -47,7 +47,10 @@
 
   # -----------------------------
   # ordination
+  current.year = 2016
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
   p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
   for ( vn in p$varstomodel) {

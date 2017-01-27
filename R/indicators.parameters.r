@@ -1,4 +1,5 @@
 
+
 indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varname=NULL ) {
 
   if ( is.null(p) ) p=list()
@@ -19,19 +20,17 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     if (!exists("yrs", p) ) p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
     
     p$ny = length(p$yrs)
-    p$nw = 10 # number of intervals in time within a year
-    p$nt = 1 # must specify, else assumed = 1 (1= only annual)
-    p$tres = 1/ p$nw # time resolution
+    p$nt = p$ny # must specify, else assumed = 1 (1= no time)  ## nt=ny annual time steps, nt = ny*nw is seassonal
+    p$nw = 10 # default value of 10 time steps for all temp and indicators
 
+    p$tres = 1/ p$nw # time resolution .. predictions are made with models that use seasonal components
     p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
     p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
 
     p$prediction.dyear = lubridate::decimal_date( lubridate::ymd("0000/Sep/01")) # used for creating timeslices and predictions  .. needs to match the values in indicators.parameters()
 
-    # output timeslices for predictions
-    tout = p$yrs + p$prediction.dyear - p$tres/2 # mid-points
-    tout = tout[ order(tout) ]
-    p$prediction.ts = tout
+    # output timeslices for predictions in decimla years, yes all of them here
+    p$prediction.ts = p$yrs + p$prediction.dyear 
 
     if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
@@ -269,7 +268,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
-    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
+    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "krige" # "twostep" might be interesting to follow up
 
     # using covariates as a first pass essentially makes it ~ kriging with external drift
     p$lbm_global_modelengine = "gam"
@@ -283,9 +282,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     if (p$lbm_local_modelengine =="gam") {
       p$lbm_local_modelformula = formula( paste( 
-        varname, ' ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") + s( log(z), k=3, bs="ts")', 
-        '  + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")', 
-        '  + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts")' ))  
+        varname, ' ~ s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=25, bs="ts")' ))  
       p$lbm_local_model_distanceweighted = TRUE
       p$lbm_gam_optimizer="perf"
       # p$lbm_gam_optimizer=c("outer", "bfgs") 
