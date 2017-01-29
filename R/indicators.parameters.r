@@ -287,7 +287,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     if (p$lbm_local_modelengine =="twostep") {
 
       p$lbm_local_modelformula = formula(
-        ca1 ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") 
+        ca1 ~ s(t) + s(z) + s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") 
           + s(cos.w, sin.w, yr, bs="ts", k=36) )
         # similar to GAM model but no spatial component .. space is handled via FFT
       p$lbm_local_model_distanceweighted = TRUE
