@@ -57,8 +57,8 @@
   for ( vn in p$varstomodel) {
     print(vn)
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-
-    p = lbm( p=p, DATA='indicators.db( p=p, DS="lbm_inputs" )', tasks=c("initiate", "globalmodel") ) # the interpolation
+    DATA='indicators.db( p=p, DS="lbm_inputs" )'
+    p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # the interpolation
     #   p = lbm( p=p, tasks=c( "stage0" ) )
 #   p = lbm( p=p, tasks=c( "continue" ) )      
     p = lbm( p=p, tasks=c( "stage1" ) ) #  24 hrs 
