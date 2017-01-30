@@ -248,16 +248,16 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$depth.filter = 0 # depth (m) stats locations with elevation > 0 m as being on land (and so ignore)
     p$lbm_quantile_bounds = c(0.01, 0.99) # remove these extremes in interpolations
     
-    p$lbm_rsquared_threshold = 0.25 # lower threshold
+    p$lbm_rsquared_threshold = 0.1 # lower threshold
     p$lbm_distance_prediction = 10 # this is a half window km
-    p$lbm_distance_statsgrid = 10 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
-    p$lbm_distance_scale = 50 # km ... approx guess of 95% AC range 
+    p$lbm_distance_statsgrid = 5 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
+    p$lbm_distance_scale = 25 # km ... approx guess of 95% AC range 
     p$lbm_distance_min = p$lbm_distance_statsgrid 
-    p$lbm_distance_max = 75 
+    p$lbm_distance_max = 50
   
-    p$n.min = 50 # n.min/n.max changes with resolution must be more than the number of knots/edf
+    p$n.min = 100 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
-    p$n.max = 5000 # no real upper bound
+    p$n.max = 8000 # no real upper bound
     p$sampling = c( 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.5 )  # 
 
     p$variables = list( 
@@ -275,9 +275,9 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # using covariates as a first pass essentially makes it ~ kriging with external drift
     p$lbm_global_modelengine = "gam"
     p$lbm_global_modelformula = formula( paste( 
-      varname, ' ~ s(yr) + s(dyear, k=3, bs="tp") + s(yr, dyear, k=30, bs="tp") ', 
-      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamplitude, bs="tp") + s(z, bs="tp")',
-      ' + s(dZ, bs="tp") + s(ddZ, bs="tp")  + s(log.substrate.grainsize, bs="tp") ' )) 
+      varname, ' ~ s(yr) + s(dyear, k=3, bs="ts") + s(yr, dyear, k=36, bs="ts") ', 
+      ' + s(t, bs="ts") + s(tmean, bs="ts") + s(tamplitude, bs="ts") + s(z, bs="ts")',
+      ' + s(dZ, bs="ts") + s(ddZ, bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
 
     p$lbm_global_family = gaussian()
     p$lbm_local_family = gaussian()
@@ -286,10 +286,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     if (p$lbm_local_modelengine =="twostep") {
 
-      p$lbm_local_modelformula = formula(
-        ca1 ~ s(t) + s(z) + s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") 
-          + s(cos.w, sin.w, yr, bs="ts", k=36) )
-        # similar to GAM model but no spatial component .. space is handled via FFT
+      p$lbm_local_modelformula = formula( paste(
+        varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
+          ' + s(cos.w, sin.w, yr, bs="ts", k=36) ',
+          ' + s(plon, , bs="ts") + s(plat, bs="ts") + s(plon, plat, k=36, bs="ts") ' ) )
       p$lbm_local_model_distanceweighted = TRUE
 
       # p$lbm_fft_filter = "spatial.process"
@@ -297,8 +297,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     }  else if (p$lbm_local_modelengine == "gam") {
 
-      p$lbm_local_modelformula = formula( paste( 
-        varname, ' ~ s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=25, bs="ts")' ))  
+      p$lbm_local_modelformula = formula( paste(
+        varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
+          ' + s(cos.w, sin.w, yr, bs="ts", k=36) ',
+          ' + s(plon, , bs="ts") + s(plat, bs="ts") + s(plon, plat, k=36, bs="ts") ' ) )    p$lbm_local_model_distanceweighted = TRUE
       p$lbm_local_model_distanceweighted = TRUE
       p$lbm_gam_optimizer="perf"
       # p$lbm_gam_optimizer=c("outer", "bfgs") 
