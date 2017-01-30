@@ -300,7 +300,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       p$lbm_local_modelformula = formula( paste(
         varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
           ' + s(cos.w, sin.w, yr, bs="ts", k=36) ',
-          ' + s(plon, , bs="ts") + s(plat, bs="ts") + s(plon, plat, k=36, bs="ts") ' ) )    p$lbm_local_model_distanceweighted = TRUE
+          ' + s(plon, , bs="ts") + s(plat, bs="ts") + s(plon, plat, k=36, bs="ts") ' ) )    
+
       p$lbm_local_model_distanceweighted = TRUE
       p$lbm_gam_optimizer="perf"
       # p$lbm_gam_optimizer=c("outer", "bfgs") 
