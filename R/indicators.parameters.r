@@ -251,9 +251,9 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$lbm_rsquared_threshold = 0.1 # lower threshold
     p$lbm_distance_prediction = 10 # this is a half window km
     p$lbm_distance_statsgrid = 5 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
-    p$lbm_distance_scale = 50 # km ... approx guess of 95% AC range 
+    p$lbm_distance_scale = 25 # km ... approx guess of 95% AC range 
     p$lbm_distance_min = p$lbm_distance_statsgrid 
-    p$lbm_distance_max = 75
+    p$lbm_distance_max = 50
   
     p$n.min = 100 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
@@ -292,8 +292,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
           ' + s(plon, bs="ts") + s(plat, bs="ts") + s(plon, plat, k=36, bs="ts") ' ) )
       p$lbm_local_model_distanceweighted = TRUE
 
-      # p$lbm_fft_filter = "spatial.process"
-      p$lbm_fft_filter = "krige"
+      # p$lbm_twostep_space = "spatial.process"
+      # p$lbm_twostep_space = "fft"
+      # p$lbm_twostep_space = "tps"
+      p$lbm_twostep_space = "krige"
 
     }  else if (p$lbm_local_modelengine == "gam") {
 
