@@ -45,9 +45,10 @@
 
 
 
-
+ 
   # -----------------------------
   # ordination
+  vn ="ca1"
   current.year = 2016
   p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
   p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
@@ -56,6 +57,7 @@
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
   for ( vn in p$varstomodel) {
     print(vn)
+    
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
     DATA='indicators.db( p=p, DS="lbm_inputs" )'
     p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # the interpolation
@@ -63,13 +65,16 @@
 #   p = lbm( p=p, tasks=c( "continue" ) )      
     p = lbm( p=p, tasks=c( "stage1" ) ) #  24 hrs 
     p = lbm( p=p, tasks=c( "stage2" ) ) #   3.5 hrs
-    p = lbm( p=p, tasks=c( "stage3" ) )
     p = lbm( p=p, tasks=c( "save" ) )
     indicators.db ( DS="complete.redo", p=p )
     indicators.map( p=p  )
     gc()
   }
 
+
+   global_model = lbm_db( p=p, DS="global_model") 
+   summary( global_model )
+   plot(global_model)
 
 Formula:
 ca1 ~ s(yr) + s(dyear, k = 3, bs = "tp") + s(yr, dyear, k = 30, 
