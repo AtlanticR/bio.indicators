@@ -3,7 +3,8 @@
   # -----------------------------
   # ordination
 
-  vn ="ca1"
+  # vn ="ca1"
+  
   current.year = 2016
   
   p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
@@ -16,18 +17,18 @@
     
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
     DATA='indicators.db( p=p, DS="lbm_inputs" )'
-    p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # the interpolation
-    #   p = lbm( p=p, tasks=c( "stage0" ) )
-#   p = lbm( p=p, tasks=c( "continue" ) )      
+    p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
+    #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
+#   p = lbm( p=p, tasks=c( "continue" ) )    
     p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
     p = lbm( p=p, tasks=c( "stage2" ) ) #   1 hrs
     p = lbm( p=p, tasks=c( "save" ) )
     p = make.list( list( yrs=p$yrs), Y=p )
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
     indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
-    indicators.db ( DS="complete.redo", p=p )
-    indicators.map( p=p  )
-    gc()
+    indicators.db ( p=p, DS="complete.redo" )
+    indicators.map( p=p, DS="all")
+
   }
 
 
@@ -36,6 +37,7 @@
    global_model = lbm_db( p=p, DS="global_model") 
    summary( global_model )
    plot(global_model)
+
 
 Formula:
 ca1 ~ s(yr) + s(dyear, k = 3, bs = "tp") + s(yr, dyear, k = 30, 
