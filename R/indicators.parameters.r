@@ -249,7 +249,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$lbm_quantile_bounds = c(0.01, 0.99) # remove these extremes in interpolations
     
     p$lbm_rsquared_threshold = 0.1 # lower threshold
-    p$lbm_distance_prediction = 10 # this is a half window km
+    p$lbm_distance_prediction = 7.5 # this is a half window km
     p$lbm_distance_statsgrid = 5 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
     p$lbm_distance_scale = 25 # km ... approx guess of 95% AC range 
     p$lbm_distance_min = p$lbm_distance_statsgrid 
