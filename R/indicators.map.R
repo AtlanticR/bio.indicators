@@ -12,24 +12,19 @@ indicators.map = function( ip=NULL, p=NULL, type="annual", vname=NULL, voi=NULL 
 
   require( lattice )
 
+  # -----------------------
+
   if ( type=="all" ) {
 
-    for ( gr in p$spatial.domain.subareas ) {
+    allgrids = unique(c( p$spatial.domain.subareas, p$spatial.domain) )
+
+    for ( gr in allgrids ) {
       print (gr)
       p1 = spatial_parameters(  p=p, type= gr )
       p1 = make.list( list( yrs=p1$yrs), Y=p1 )
       indicators.map( p=p1, type="lbm.stats" ) # no parallel option .. just a few
       indicators.map( p=p1, type="climatology" ) # no parallel option .. just a few
-    }
-
-    # bottom.statistics.annual
-    for ( gr in p$spatial.domain.subareas ) {
-      print (gr)
-      p1 = spatial_parameters( p=p, type= gr )
-      p1 = make.list( list( yrs=p1$yrs), Y=p1 )
-      for ( bs in p1$bstats )
-        parallel.run( indicators.map, p=p1, type="annual", vname=bs )
-      }
+      parallel.run( indicators.map, p=p1, type="annual", vname=bs )
     }
 
   }
