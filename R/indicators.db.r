@@ -3,7 +3,7 @@
 
 
     # over-ride default dependent variable name if it exists
-    if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
+    if (is.null(voi)) if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
     
 
     if (DS =="indicators") {
@@ -359,14 +359,13 @@
       }
 
       if (exists( "libs", p)) RLibrary( p$libs )
-      if (is.null(ip)) ip = 1:p$nruns
 
       grids = unique( c(p$spatial.domain.subareas , p$spatial.domain ) ) # operate upon every domain
    
       for (gr in grids ) {
         print(gr)
 
-        p1 = spatial_parameters( type=gr ) #target projection    
+        p1 = spatial_parameters( p=p, type=gr ) #target projection    
         L1 = bathymetry.db(p=p1, DS="baseline")
 
         BS = indicators.db( p=p1, DS="lbm.stats" )
@@ -376,13 +375,25 @@
         # climatology
         nL1 = nrow(L1)
         PS = PSsd = matrix( NA, nrow=nL1, ncol=p$ny )
-        p$variables$Y = voi # need to send this to get the correct results
-        for (iy in ip) {
-          yr = p$runs[iy, "yrs"]
-          PS[,vn] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
-          PSsd[,vn] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="sd")
+        p1$variables$Y = voi # need to send this to get the correct results
+        for (iy in 1:p$ny) {
+          yr = p$yrs[iy]
+          PS[,iy] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="mean")
+          PSsd[,iy] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="sd")
         }
 
+        qPS = quantile( PS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        u = which( PS < qPS[1])
+        if (length(u)>0) PS[u] = qPS[1]
+        v = which( PS > qPS[2])
+        if (length(v)>0) PS[v] = qPS[2]
+        
+        qPSsd = quantile( PSsd, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        u = which( PSsd < qPSsd[1])
+        if (length(u)>0) PSsd[u] = qPSsd[1]
+        v = which( PSsd > qPSsd[2])
+        if (length(v)>0) PSsd[v] = qPSsd[2]
+      
         CL = cbind( apply( PS, 1, mean, na.rm=TRUE ), apply( PSsd, 1, mean, na.rm=TRUE ) )
         colnames(CL) = paste( voi, c("mean", "sd"), "climatology", sep=".")
         IC = cbind( IC, CL )
@@ -395,6 +406,7 @@
         print( outfile )
 
       }
+      
       return( "Complete" )
     }
 
@@ -418,19 +430,26 @@
       if (exists( "libs", p)) RLibrary( p$libs )
       if (is.null(ip)) ip = 1:p$nruns
 
+      p$variables$Y = voi # need to send this to get the correct results
       grids = unique( c(p$spatial.domain.subareas , p$spatial.domain ) ) # operate upon every domain
    
       for (gr in grids ) {
         print(gr)
-        p1 = spatial_parameters( type=gr ) #target projection    
+        p1 = spatial_parameters( p=p, type=gr ) #target projection    
         L1 = bathymetry.db(p=p1, DS="baseline")
         nL1 = nrow(L1)
         TS = matrix( NA, nrow=nL1, ncol=p$ny )
-        p$variables$Y = voi # need to send this to get the correct results
         for (i in 1:p$ny ) {
           yr = p$yrs[i]
-          TS[,i] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+          TS[,i] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="mean")
          }
+
+        qTS = quantile( TS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        u = which( TS < qTS[1])
+        if (length(u)>0) TS[u] = qTS[1]
+        v = which( TS > qTS[2])
+        if (length(v)>0) TS[v] = qTS[2]
+  
 
         projectdir = file.path(p$project.root, "modelled", voi, p1$spatial.domain )
         dir.create( projectdir, recursive=T, showWarnings=F )
