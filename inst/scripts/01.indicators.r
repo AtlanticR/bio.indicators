@@ -66,6 +66,9 @@
     p = lbm( p=p, tasks=c( "stage1" ) ) #  24 hrs 
     p = lbm( p=p, tasks=c( "stage2" ) ) #   3.5 hrs
     p = lbm( p=p, tasks=c( "save" ) )
+    p = make.list( list( yrs=p$yrs), Y=p )
+    parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
+    indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
     indicators.db ( DS="complete.redo", p=p )
     indicators.map( p=p  )
     gc()

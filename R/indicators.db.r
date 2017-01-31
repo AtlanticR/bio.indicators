@@ -1,5 +1,5 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL ) {
+  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL, varnames=NULL ) {
 
     # over-ride default dependent variable name if it exists
     if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
@@ -219,6 +219,122 @@
     }
 
 
+    # ------------------
+
+
+    if ( DS %in% c("predictions", "predictions.redo" ) ) {
+      # NOTE: the primary interpolated data were already created by lbm. 
+      # This routine points to this data and also creates 
+      # subsets of the data where required, determined by "spatial.domain.subareas" 
+   
+      outdir = file.path(project.datadirectory("bio.temperature"), "modelled", voi, p$spatial.domain )
+      
+      if (DS %in% c("predictions")) {
+        P = V = NULL
+        fn = file.path( outdir, paste("lbm.prediction", ret,  yr, "rdata", sep=".") )
+        if (is.null(ret)) ret="mean"
+        if (file.exists(fn) ) load(fn) 
+        if (ret=="mean") return (P)
+        if (ret=="sd") return( V)
+      }
+
+      if (exists( "libs", p)) RLibrary( p$libs )
+      if ( is.null(ip) ) ip = 1:p$nruns
+
+      # downscale and warp from p(0) -> p1
+
+      for ( r in ip ) {
+        # print (r)
+        yr = p$runs[r, "yrs"]
+        # default domain
+        PP0 = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+        VV0 = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="sd")
+        p0 = spatial_parameters( p=p, type=p$spatial.domain ) # from
+        L0 = bathymetry.db( p=p0, DS="baseline" )
+        L0i = lbm::array_map( "xy->2", L0[, c("plon", "plat")], gridparams=p0$gridparams )
+        sreg = setdiff( p$spatial.domain.subareas, p$spatial.domain ) 
+
+        for ( gr in sreg ) {
+          p1 = spatial_parameters( p=p, type=gr ) # 'warping' from p -> p1
+          L1 = bathymetry.db( p=p1, DS="baseline" )
+          L1i = lbm::array_map( "xy->2", L1[, c("plon", "plat")], gridparams=p1$gridparams )
+          L1 = planar2lonlat( L1, proj.type=p1$internal.crs )
+          L1$plon_1 = L1$plon # store original coords
+          L1$plat_1 = L1$plat
+          L1 = lonlat2planar( L1, proj.type=p0$internal.crs )
+          p1$wght = fields::setup.image.smooth( nrow=p1$nplons, ncol=p1$nplats, dx=p1$pres, dy=p1$pres, theta=p1$pres, xwidth=4*p1$pres, ywidth=4*p1$pres )
+          P = spatial_warp( PP0[], L0, L1, p0, p1, "fast", L0i, L1i )
+          V = spatial_warp( VV0[], L0, L1, p0, p1, "fast", L0i, L1i )
+          outdir_p1 = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
+          dir.create( outdir_p1, recursive=T, showWarnings=F )
+          fn1_sg = file.path( outdir_p1, paste("lbm.prediction.mean",  yr, "rdata", sep=".") )
+          fn2_sg = file.path( outdir_p1, paste("lbm.prediction.sd",  yr, "rdata", sep=".") )
+          save( P, file=fn1_sg, compress=T )
+          save( V, file=fn2_sg, compress=T )
+          print (fn1_sg)
+        }
+      } 
+      return ("Completed")
+
+      if (0) {
+        aoi = which( PS$z > 5 & PS$z < 3000 & PS$z.range < 500)
+        levelplot( log(z) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+        levelplot( log(t.ar_1) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+        
+        levelplot( log(t.range) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+        levelplot( Z.rangeSD ~ plon + plat, PS[aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+      }
+    
+    }
+
+
+
+    #  -------------------------------
+
+    if (DS %in% c(  "lbm.stats", "lbm.stats.redo" )){
+
+      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
+      
+      if (DS %in% c("lbm.stats")) {
+        stats = NULL
+        fn = file.path( outdir, paste( "lbm.statistics", "rdata", sep=".") )
+        if (file.exists(fn) ) load(fn) 
+        return( stats )
+      }
+
+      # downscale and warp from p(0) -> p1
+      # default domain
+      S0 = lbm_db( p=p, DS="stats.to.prediction.grid" )
+      Snames = colnames(S0)
+      p0 = spatial_parameters( p=p, type=p$spatial.domain ) # from
+      L0 = bathymetry.db( p=p0, DS="baseline" )
+      L0i = lbm::array_map( "xy->2", L0[, c("plon", "plat")], gridparams=p0$gridparams )
+      sreg = setdiff( p$spatial.domain.subareas, p$spatial.domain ) 
+
+      for ( gr in sreg ) {
+        p1 = spatial_parameters( p=p, type=gr ) # 'warping' from p -> p1
+        L1 = bathymetry.db( p=p1, DS="baseline" )
+        L1i = lbm::array_map( "xy->2", L1[, c("plon", "plat")], gridparams=p1$gridparams )
+        L1 = planar2lonlat( L1, proj.type=p1$internal.crs )
+        L1$plon_1 = L1$plon # store original coords
+        L1$plat_1 = L1$plat
+        L1 = lonlat2planar( L1, proj.type=p0$internal.crs )
+        p1$wght = fields::setup.image.smooth( nrow=p1$nplons, ncol=p1$nplats, dx=p1$pres, dy=p1$pres, theta=p1$pres, xwidth=4*p1$pres, ywidth=4*p1$pres )
+        stats = matrix( NA, ncol=ncol(S0), nrow=nrow(L1) )
+        for ( i in 1:ncol(S0) ) {
+          stats[,i] = spatial_warp( S0[,i], L0, L1, p0, p1, "fast", L0i, L1i )
+        }
+        colnames(stats) = Snames
+        outdir_p1 = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
+        dir.create( outdir_p1, recursive=T, showWarnings=F )
+        fn1_sg = file.path( outdir_p1, paste("lbm.statistics", "rdata", sep=".") )
+        save( stats, file=fn1_sg, compress=T )
+        print (fn1_sg)
+      }
+      return ("Completed")
+    }
+
+
     #  -------------------------------
 
 
@@ -228,75 +344,102 @@
 
       dir.create(outdir, recursive=T, showWarnings=F)
 
-      if ( DS=="complete" ) {
-        outfile =  file.path( outdir, paste( "complete", year, "rdata", sep= ".") )
-        PS = NULL
+      if (DS=="complete") {
+        IC = NULL
+        outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
+        outfile =  file.path( outdir, paste( "indicators", "complete", p$spatial.domain, "rdata", sep= ".") )
         if ( file.exists( outfile ) ) load( outfile )
-        return (PS)
+        Inames = names(IC)
+        if (is.null(varnames)) varnames=Inames
+        varnames = intersect( Inames, varnames )
+        if (length(varnames) == 0) varnames=Inames  # no match .. send all
+        IC = IC[ , varnames]
+        return(IC)
       }
 
       if (exists( "libs", p)) RLibrary( p$libs )
       if (is.null(ip)) ip = 1:p$nruns
 
+      grids = unique( c(p$spatial.domain.subareas , p$spatial.domain ) ) # operate upon every domain
+   
+      for (gr in grids ) {
+        print(gr)
 
-      for (iy in ip) {
-        yr = p$runs[iy, "yrs"]
-        
-        PS = matrix( ... )
+        p1 = spatial_parameters( type=gr ) #target projection    
+        L1 = bathymetry.db(p=p1, DS="baseline")
 
-        for  (vn in ... ) {
-          
-          p$variables$Y = vn # need to send this to get the correct results
-          PS[,vn] = cbind( lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean") )
-          
+        BS = indicators.db( p=p1, DS="lbm.stats" )
+        colnames(BS) = paste("t", colnames(BS), sep=".")
+        IC = cbind( L1, BS )
+
+        # climatology
+        nL1 = nrow(L1)
+        PS = PSsd = matrix( NA, nrow=nL1, ncol=p$ny )
+        p$variables$Y = voi # need to send this to get the correct results
+        for (iy in ip) {
+          yr = p$runs[iy, "yrs"]
+          PS[,vn] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+          PSsd[,vn] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="sd")
         }
 
-        outfile =  file.path( outdir, paste( "complete", year, "rdata", sep= ".") )
+        CL = cbind( apply( PS, 1, mean, na.rm=TRUE ), apply( PSsd, 1, mean, na.rm=TRUE ) )
+        colnames(CL) = paste( voi, c("mean", "sd"), "climatology", sep=".")
+        IC = cbind( IC, CL )
+        PS = PSsd = NULL
 
-        save (PS, file=outfile, compress=T )
-        
+        outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
+        dir.create( outdir, recursive=T, showWarnings=F )
+        outfile =  file.path( outdir, paste( "indicators", "complete", p1$spatial.domain, "rdata", sep= ".") )
+        save( IC, file=outfile, compress=T )
+        print( outfile )
+
       }
-
-      PS = bathymetry.db( p=p, DS="baseline" )
-#      SS = matrix ...
-      for  (vn in ... ) {
-        
-        p$variables$Y = vn
-        SS[,vn] = cbind( lbm_db( p=p, DS="stats.to.prediction.grid" ) )
-        colnames(SS) = paste("XXX", colnames(SS), sep=".")
-        
-      }
-      PS = cbind( PS, SS )
- #     save (PS, file=...)
-    
-
-      # spatial warp here to snowcrab grid ...
-
-      indicators.db(p=p, DS="baseline.add")  # add the "complete" data tables to the current version of "baseline"
-
       return( "Complete" )
     }
 
     # -------------------
 
-    if (DS %in% c("baseline", "baseline.add") ) {
+    if (DS %in% c("baseline", "baseline.redo") ) {
 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", p$spatial.domain )
-
-      dir.create(outdir, recursive=T, showWarnings=F)
 
       if ( DS=="baseline" ) {
-        outfile =  file.path( outdir, paste( "baseline", year, "rdata", sep= ".") )
-        PS = NULL
-        if ( file.exists( outfile ) ) load( outfile )
-        return (PS)
+        BL = list()
+        for (voi in varnames ) {
+          outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain)
+          outfile =  file.path( outdir, paste( "indicators", "baseline", p1$spatial.domain, "rdata", sep= ".") )
+          TS = NULL
+          load( outfile)
+          BL[[voi]] = TS
+        }
+        return (BL)
       }
 
-      # pick and choose and glue all "complete" project data
+      if (exists( "libs", p)) RLibrary( p$libs )
+      if (is.null(ip)) ip = 1:p$nruns
 
+      grids = unique( c(p$spatial.domain.subareas , p$spatial.domain ) ) # operate upon every domain
+   
+      for (gr in grids ) {
+        print(gr)
+        p1 = spatial_parameters( type=gr ) #target projection    
+        L1 = bathymetry.db(p=p1, DS="baseline")
+        nL1 = nrow(L1)
+        TS = matrix( NA, nrow=nL1, ncol=p$ny )
+        p$variables$Y = voi # need to send this to get the correct results
+        for (i in 1:p$ny ) {
+          yr = p$yrs[i]
+          TS[,i] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
+         }
 
-      # spatial warp here to snowcrab grid ...
+        outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
+        dir.create( outdir, recursive=T, showWarnings=F )
+        outfile =  file.path( outdir, paste( "indicators", "baseline", p1$spatial.domain, "rdata", sep= ".") )
+        save( TS, file=outfile, compress=T )
+        print( outfile )
+      }
 
+      return( "Complete" )
+ 
     }
 
  }
