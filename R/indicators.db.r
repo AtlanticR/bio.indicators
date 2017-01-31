@@ -1,8 +1,10 @@
 
   indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL, varnames=NULL ) {
 
+
     # over-ride default dependent variable name if it exists
     if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
+    
 
     if (DS =="indicators") {
 
@@ -226,12 +228,12 @@
       # NOTE: the primary interpolated data were already created by lbm. 
       # This routine points to this data and also creates 
       # subsets of the data where required, determined by "spatial.domain.subareas" 
-   
-      outdir = file.path(project.datadirectory("bio.temperature"), "modelled", voi, p$spatial.domain )
+
+      projectdir = file.path(p$project.root, "modelled", voi, p$spatial.domain )
       
       if (DS %in% c("predictions")) {
         P = V = NULL
-        fn = file.path( outdir, paste("lbm.prediction", ret,  yr, "rdata", sep=".") )
+        fn = file.path( projectdir, paste("lbm.prediction", ret,  yr, "rdata", sep=".") )
         if (is.null(ret)) ret="mean"
         if (file.exists(fn) ) load(fn) 
         if (ret=="mean") return (P)
@@ -265,10 +267,10 @@
           p1$wght = fields::setup.image.smooth( nrow=p1$nplons, ncol=p1$nplats, dx=p1$pres, dy=p1$pres, theta=p1$pres, xwidth=4*p1$pres, ywidth=4*p1$pres )
           P = spatial_warp( PP0[], L0, L1, p0, p1, "fast", L0i, L1i )
           V = spatial_warp( VV0[], L0, L1, p0, p1, "fast", L0i, L1i )
-          outdir_p1 = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
-          dir.create( outdir_p1, recursive=T, showWarnings=F )
-          fn1_sg = file.path( outdir_p1, paste("lbm.prediction.mean",  yr, "rdata", sep=".") )
-          fn2_sg = file.path( outdir_p1, paste("lbm.prediction.sd",  yr, "rdata", sep=".") )
+          projectdir_p1 = file.path(p$project.root, "modelled", voi, p1$spatial.domain ) 
+          dir.create( projectdir_p1, recursive=T, showWarnings=F )
+          fn1_sg = file.path( projectdir_p1, paste("lbm.prediction.mean",  yr, "rdata", sep=".") )
+          fn2_sg = file.path( projectdir_p1, paste("lbm.prediction.sd",  yr, "rdata", sep=".") )
           save( P, file=fn1_sg, compress=T )
           save( V, file=fn2_sg, compress=T )
           print (fn1_sg)
@@ -277,12 +279,7 @@
       return ("Completed")
 
       if (0) {
-        aoi = which( PS$z > 5 & PS$z < 3000 & PS$z.range < 500)
-        levelplot( log(z) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
-        levelplot( log(t.ar_1) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
-        
-        levelplot( log(t.range) ~ plon + plat, PS[ aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
-        levelplot( Z.rangeSD ~ plon + plat, PS[aoi,], aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+        levelplot( P ~ plon_1 + plat_1, L1, aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
       }
     
     }
@@ -293,11 +290,11 @@
 
     if (DS %in% c(  "lbm.stats", "lbm.stats.redo" )){
 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
       
       if (DS %in% c("lbm.stats")) {
         stats = NULL
-        fn = file.path( outdir, paste( "lbm.statistics", "rdata", sep=".") )
+        projectdir = file.path(p$project.root, "modelled", voi, p$spatial.domain )
+        fn = file.path( projectdir, paste( "lbm.statistics", "rdata", sep=".") )
         if (file.exists(fn) ) load(fn) 
         return( stats )
       }
@@ -325,13 +322,19 @@
           stats[,i] = spatial_warp( S0[,i], L0, L1, p0, p1, "fast", L0i, L1i )
         }
         colnames(stats) = Snames
-        outdir_p1 = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
-        dir.create( outdir_p1, recursive=T, showWarnings=F )
-        fn1_sg = file.path( outdir_p1, paste("lbm.statistics", "rdata", sep=".") )
+        projectdir_p1 = file.path(p$project.root, "modelled", voi, p1$spatial.domain ) 
+        dir.create( projectdir_p1, recursive=T, showWarnings=F )
+        fn1_sg = file.path( projectdir_p1, paste("lbm.statistics", "rdata", sep=".") )
         save( stats, file=fn1_sg, compress=T )
         print (fn1_sg)
       }
       return ("Completed")
+    
+      if (0) {
+        levelplot( stats[,1] ~ plon_1 + plat_1, L1, aspect="iso", labels=FALSE, pretty=TRUE, xlab=NULL,ylab=NULL,scales=list(draw=FALSE) )
+      }
+   
+
     }
 
 
@@ -340,14 +343,12 @@
 
     if (DS %in% c("complete", "complete.redo") ) {
       # assemble data for a given project 
-      outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
-
-      dir.create(outdir, recursive=T, showWarnings=F)
-
+   
       if (DS=="complete") {
         IC = NULL
-        outdir =  file.path( project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain )
-        outfile =  file.path( outdir, paste( "indicators", "complete", p$spatial.domain, "rdata", sep= ".") )
+        projectdir = file.path(p$project.root, "modelled", voi, p$spatial.domain )
+        dir.create(projectdir, recursive=T, showWarnings=F)
+        outfile =  file.path( projectdir, paste( "indicators", "complete", p$spatial.domain, "rdata", sep= ".") )
         if ( file.exists( outfile ) ) load( outfile )
         Inames = names(IC)
         if (is.null(varnames)) varnames=Inames
@@ -387,9 +388,9 @@
         IC = cbind( IC, CL )
         PS = PSsd = NULL
 
-        outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
-        dir.create( outdir, recursive=T, showWarnings=F )
-        outfile =  file.path( outdir, paste( "indicators", "complete", p1$spatial.domain, "rdata", sep= ".") )
+        projectdir = file.path(p$project.root, "modelled", voi, p1$spatial.domain )
+        dir.create( projectdir, recursive=T, showWarnings=F )
+        outfile =  file.path( projectdir, paste( "indicators", "complete", p1$spatial.domain, "rdata", sep= ".") )
         save( IC, file=outfile, compress=T )
         print( outfile )
 
@@ -405,8 +406,8 @@
       if ( DS=="baseline" ) {
         BL = list()
         for (voi in varnames ) {
-          outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p$spatial.domain)
-          outfile =  file.path( outdir, paste( "indicators", "baseline", p1$spatial.domain, "rdata", sep= ".") )
+          projectdir = file.path(p$project.root, "modelled", voi, p$spatial.domain )
+          outfile =  file.path( projectdir, paste( "indicators", "baseline", p$spatial.domain, "rdata", sep= ".") )
           TS = NULL
           load( outfile)
           BL[[voi]] = TS
@@ -431,9 +432,9 @@
           TS[,i] = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
          }
 
-        outdir = file.path(project.datadirectory("bio.indicators"), "modelled", voi, p1$spatial.domain)
-        dir.create( outdir, recursive=T, showWarnings=F )
-        outfile =  file.path( outdir, paste( "indicators", "baseline", p1$spatial.domain, "rdata", sep= ".") )
+        projectdir = file.path(p$project.root, "modelled", voi, p1$spatial.domain )
+        dir.create( projectdir, recursive=T, showWarnings=F )
+        outfile =  file.path( projectdir, paste( "indicators", "baseline", p1$spatial.domain, "rdata", sep= ".") )
         save( TS, file=outfile, compress=T )
         print( outfile )
       }
