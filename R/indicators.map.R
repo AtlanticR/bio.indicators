@@ -41,7 +41,9 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       H = indicators.db( p=p, DS="predictions", yr=y, ret="mean" )
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
-      xyz = xyz[which( is.finite(rowSums(xyz))),]
+      uu = which( is.finite(rowSums(xyz)))
+      if (length(uu) < 10) next()
+      xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
       if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
@@ -54,7 +56,9 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       H = indicators.db( p=p, DS="predictions", yr=y, ret="sd" )
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
-      xyz = xyz[which( is.finite(rowSums(xyz))),]
+      uu = which( is.finite(rowSums(xyz)))
+      if (length(uu) < 10) next()
+      xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
       if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
@@ -81,7 +85,9 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
     
     for (vn in vnames ) {
       xyz = cbind(loc, H[,vn])
-      xyz = xyz[which( is.finite(rowSums(xyz))),]
+      uu = which( is.finite(rowSums(xyz)))
+      if (length(uu) < 10) next()
+      xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", vn) # hardcoded data ranges 
       if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
