@@ -235,8 +235,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$varstomodel = c()
   }
 
-  # ----------------------
 
+  # ----------------------
 
   if (DS=="lbm") {
 

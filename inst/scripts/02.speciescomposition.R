@@ -27,6 +27,8 @@
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
     indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
     indicators.db ( p=p, DS="complete.redo" )
+    indicators.db ( p=p, DS="baseline.redo" )
+    
     indicators.map( p=p, DS="all")
 
   }
