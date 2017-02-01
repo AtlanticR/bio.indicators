@@ -37,7 +37,6 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
   
     loc = bathymetry.db(p=p, DS="baseline" )
 
-
     for (iy in ip ) {
       y = p$runs[iy, "yrs"]
       print(y)
