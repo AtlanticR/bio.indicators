@@ -9,6 +9,8 @@
   
   p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
   p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+  
+  p = make.list( list( yrs=p$yrs), Y=p )
 
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
@@ -23,7 +25,6 @@
     p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
     p = lbm( p=p, tasks=c( "stage2" ) ) #   1 hrs
     p = lbm( p=p, tasks=c( "save" ) )
-    p = make.list( list( yrs=p$yrs), Y=p )
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
     indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
     indicators.db ( p=p, DS="complete.redo" )
