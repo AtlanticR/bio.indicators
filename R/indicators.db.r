@@ -233,7 +233,7 @@
       
       if (DS %in% c("predictions")) {
         P = V = NULL
-        fn = file.path( projectdir, paste("lbm.prediction", ret,  yr, "rdata", sep=".") )
+        fn = file.path( projectdir, paste("lbm.prediction", ret,  year, "rdata", sep=".") )
         if (is.null(ret)) ret="mean"
         if (file.exists(fn) ) load(fn) 
         if (ret=="mean") return (P)
@@ -247,10 +247,10 @@
 
       for ( r in ip ) {
         # print (r)
-        yr = p$runs[r, "yrs"]
+        year = p$runs[r, "yrs"]
         # default domain
-        PP0 = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="mean")
-        VV0 = lbm_db( p=p, DS="lbm.prediction", yr=yr, ret="sd")
+        PP0 = lbm_db( p=p, DS="lbm.prediction", yr=year, ret="mean")
+        VV0 = lbm_db( p=p, DS="lbm.prediction", yr=year, ret="sd")
         p0 = spatial_parameters( p=p, type=p$spatial.domain ) # from
         L0 = bathymetry.db( p=p0, DS="baseline" )
         L0i = lbm::array_map( "xy->2", L0[, c("plon", "plat")], gridparams=p0$gridparams )
@@ -269,8 +269,8 @@
           V = spatial_warp( VV0[], L0, L1, p0, p1, "fast", L0i, L1i )
           projectdir_p1 = file.path(p$project.root, "modelled", voi, p1$spatial.domain ) 
           dir.create( projectdir_p1, recursive=T, showWarnings=F )
-          fn1_sg = file.path( projectdir_p1, paste("lbm.prediction.mean",  yr, "rdata", sep=".") )
-          fn2_sg = file.path( projectdir_p1, paste("lbm.prediction.sd",  yr, "rdata", sep=".") )
+          fn1_sg = file.path( projectdir_p1, paste("lbm.prediction.mean",  year, "rdata", sep=".") )
+          fn2_sg = file.path( projectdir_p1, paste("lbm.prediction.sd",  year, "rdata", sep=".") )
           save( P, file=fn1_sg, compress=T )
           save( V, file=fn2_sg, compress=T )
           print (fn1_sg)
