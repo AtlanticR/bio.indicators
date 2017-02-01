@@ -43,12 +43,12 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       print(y)
       H = indicators.db( p=p, DS="predictions", year=y, ret="mean" )
       if (is.null(H)) next ()
-      xyz = cbind(loc, H[iy])
+      xyz = cbind(loc, H)
       uu = which( is.finite(rowSums(xyz)))
       if (length(uu) < 10) next()
       xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
-      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.1,0.9), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(voi), fixed=TRUE )
       outfn = paste( voi, "mean", y, sep=".")
@@ -58,12 +58,12 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
 
       H = indicators.db( p=p, DS="predictions", year=y, ret="sd" )
       if (is.null(H)) next ()
-      xyz = cbind(loc, H[iy])
+      xyz = cbind(loc, H)
       uu = which( is.finite(rowSums(xyz)))
       if (length(uu) < 10) next()
       xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
-      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.1,0.9), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(voi), fixed=TRUE )
       outfn = paste( voi, "sd", y, sep=".")
@@ -96,7 +96,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       xyz = xyz[uu,]
       datarange= NULL
       datarange = indicators.lookup.mapparams( DS="datarange", vn) # hardcoded data ranges 
-      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.1,0.90), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(vn), fixed=TRUE )
       bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
