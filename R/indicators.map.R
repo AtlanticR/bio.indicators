@@ -3,9 +3,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
 
   # ip is the first parameter passed in the parallel mode
   if (exists( "libs", p)) RLibrary( p$libs )
-  if (is.null(ip)) ip = 1:p$nruns
- # over-ride default dependent variable name if it exists
-  
+   
   if (is.null(voi)) if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
    
   require( lattice )
@@ -32,7 +30,11 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
   if ( type %in% c("annual" ) ) {
     projectdir = file.path(p$project.root, "maps", voi, p$spatial.domain, "annual" )
     dir.create( projectdir, recursive=T, showWarnings=F )
-      
+    
+    if (is.null(ip)) ip = 1:p$nruns
+   
+    # over-ride default dependent variable name if it exists
+  
     loc = bathymetry.db(p=p, DS="baseline" )
 
 
