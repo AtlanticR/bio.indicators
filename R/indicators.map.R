@@ -64,7 +64,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
         loc=projectdir, fn=outfn, annot=annot, at=datarange , col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
-      print( file.path( projectdir,outfn))
+      print( file.path( projectdir, outfn))
     } 
     
   }
@@ -89,7 +89,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
         loc=projectdir, fn=vn, annot=annot, at=datarange, col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
-      print( file.path( projectdir,outfn))
+      print( file.path( projectdir, vn))
     }
 
   }
