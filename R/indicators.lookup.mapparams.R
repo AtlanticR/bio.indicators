@@ -2,6 +2,7 @@
 indicators.lookup.mapparams = function( DS="datarange", vn ){
 
   if (DS=="datarange") {
+    datarange = NULL
     if ( grepl("ca1", vn) ) datarange = seq(-2, 2, length.out=100)
     if ( grepl("ca2", vn) ) datarange = seq(-2, 2, length.out=100)
     if ( grepl("pca1", vn) ) datarange = seq(-2, 2, length.out=100)
@@ -11,8 +12,9 @@ indicators.lookup.mapparams = function( DS="datarange", vn ){
 
   # -------------------------
 
-  if (DS==color.code) {
-    return ("blue.black")
+  if (DS=="color.code") {
+    color.code = "blue.black" 
+    return (color.code)
   }
   
 }
