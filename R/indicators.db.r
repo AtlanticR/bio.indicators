@@ -369,7 +369,7 @@
         L1 = bathymetry.db(p=p1, DS="baseline")
 
         BS = indicators.db( p=p1, DS="lbm.stats" )
-        colnames(BS) = paste("t", colnames(BS), sep=".")
+        colnames(BS) = paste(voi, colnames(BS), sep=".")
         IC = cbind( L1, BS )
 
         # climatology
