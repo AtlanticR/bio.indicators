@@ -43,7 +43,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       xyz = cbind(loc, H[,iy])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
-      if (is.null(data.range)) data.range=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(voi), fixed=TRUE )
       outfn = paste( voi, "mean", y, sep=".")
@@ -56,7 +56,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       xyz = cbind(loc, H[,iy])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
-      if (is.null(data.range)) data.range=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(voi), fixed=TRUE )
       outfn = paste( voi, "sd", y, sep=".")
@@ -83,7 +83,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       xyz = cbind(loc, H[,vn])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
       datarange = indicators.lookup.mapparams( DS="datarange", vn) # hardcoded data ranges 
-      if (is.null(data.range)) data.range=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
+      if (is.null(datarange)) datarange=quantile(xyz[,3], probs=c(0.05,0.95), na.rm=TRUE) 
       cols = color.code( "blue.black", datarange )
       annot = gsub( ".", " ", toupper(vn), fixed=TRUE )
       bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
