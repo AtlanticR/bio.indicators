@@ -1,5 +1,5 @@
 
-  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL, varnames=NULL ) {
+  indicators.db = function( ip=NULL, DS="baseline", p=NULL, year=NULL, voi=NULL, varnames=NULL, ret=NULL ) {
 
 
     # over-ride default dependent variable name if it exists

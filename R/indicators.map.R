@@ -3,7 +3,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
 
   # ip is the first parameter passed in the parallel mode
   if (exists( "libs", p)) RLibrary( p$libs )
-
+  if (is.null(ip)) ip = 1:p$nruns
  # over-ride default dependent variable name if it exists
   
   if (is.null(voi)) if (exists("variables",p)) if(exists("Y", p$variables)) voi=p$variables$Y
@@ -23,7 +23,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       p1 = spatial_parameters(  p=p, type= gr )
       p1 = make.list( list( yrs=p1$yrs), Y=p1 )
       indicators.map( p=p1, type="climatology" ) # no parallel option .. just a few
-      parallel.run( indicators.map, p=p1, type="annual" )
+      parallel.run( indicators.map, p=p1, type="annual", voi=voi )
     }
 
   }
@@ -38,7 +38,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
     for (iy in ip ) {
       y = p$runs[iy, "yrs"]
       print(y)
-      H = indicators.db( p=p, DS="predictions", yr=y, ret="mean" )
+      H = indicators.db( p=p, DS="predictions", year=y, ret="mean" )
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
       uu = which( is.finite(rowSums(xyz)))
@@ -53,7 +53,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
         loc=projectdir, fn=outfn, annot=annot, at=datarange , col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
 
-      H = indicators.db( p=p, DS="predictions", yr=y, ret="sd" )
+      H = indicators.db( p=p, DS="predictions", year=y, ret="sd" )
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
       uu = which( is.finite(rowSums(xyz)))
