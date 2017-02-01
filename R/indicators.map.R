@@ -60,6 +60,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
         corners=p$corners, spatial.domain=p$spatial.domain ) 
       print( file.path( projectdir,outfn))
     } 
+    
   }
 
 
