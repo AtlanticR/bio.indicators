@@ -29,13 +29,13 @@
     indicators.db ( p=p, DS="complete.redo" )
     indicators.db ( p=p, DS="baseline.redo" )
     
-    indicators.map( p=p, DS="all")
+    indicators.map( p=p )
 
   }
 
 
 
-   p$variable$Y="ca2"
+   p$variable$Y="ca1"
    global_model = lbm_db( p=p, DS="global_model") 
    summary( global_model )
    plot(global_model)

@@ -1,5 +1,5 @@
 
-indicators.map = function( ip=NULL, p=NULL, type="annual", voi=NULL ) {
+indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
 
   # ip is the first parameter passed in the parallel mode
   if (exists( "libs", p)) RLibrary( p$libs )
@@ -34,7 +34,9 @@ indicators.map = function( ip=NULL, p=NULL, type="annual", voi=NULL ) {
   if ( type %in% c("annual" ) ) {
     projectdir = file.path(p$project.root, "maps", voi, p$spatial.domain, "annual" )
     dir.create( projectdir, recursive=T, showWarnings=F )
-    mapparams = indicators.lookup.mapparams( voi )
+    datarange = indicators.lookup.mapparams( "datarange", voi ) # hardcoded data ranges 
+    cols = color.code( "blue.black", datarange )
+    annot = gsub( ".", " ", toupper(voi), fixed=TRUE )
     
     for (iy in ip ) {
       y = p$runs[iy, "yrs"]
@@ -43,16 +45,18 @@ indicators.map = function( ip=NULL, p=NULL, type="annual", voi=NULL ) {
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
-      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, loc=projectdir,
-        fn=mapparams$outfn, annot=mapparams$annot, at=mapparams$datarange , col.regions=mapparams$cols,
+      outfn = paste( voi, "mean", y, sep=".")
+      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
+        loc=projectdir, fn=outfn, annot=annot, at=datarange , col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
 
       H = indicators.db( p=p, DS="predictions", yr=y, ret="sd" )
       if (is.null(H)) next ()
       xyz = cbind(loc, H[,iy])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
-      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, loc=projectdir,
-        fn=mapparams$outfn, annot=mapparams$annot, at=mapparams$datarange , col.regions=mapparams$cols,
+      outfn = paste( voi, "sd", y, sep=".")
+      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
+        loc=projectdir, fn=outfn, annot=annot, at=datarange , col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
       print( file.path( projectdir,outfn))
     } 
@@ -67,18 +71,20 @@ indicators.map = function( ip=NULL, p=NULL, type="annual", voi=NULL ) {
     dir.create( projectdir, recursive=T, showWarnings=F )
     H = indicators.db( p=p, DS="complete" )
     vnames = setdiff( names(H), c("plon", "plat" ))
+    
     for (vname in vnames ) {
-      mapparams = indicators.lookup.mapparams( vnames)
+      datarange = indicators.lookup.mapparams( "datarange", vnames) # hardcoded data ranges 
+      cols = color.code( "blue.black", datarange )
+      annot = gsub( ".", " ", toupper(vname), fixed=TRUE )
       xyz = cbind(loc, H[,vname])
       xyz = xyz[which( is.finite(rowSums(xyz))),]
-      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, loc=projectdir,
-        fn=mapparams$outfn, annot=mapparams$annot, at=mapparams$datarange , col.regions=mapparams$cols,
+      bio.spacetime::map( xyz=xyz, cfa.regions=FALSE, depthcontours=TRUE, pts=NULL, 
+        loc=projectdir, fn=vname, annot=annot, at=datarange, col.regions=cols,
         corners=p$corners, spatial.domain=p$spatial.domain ) 
       print( file.path( projectdir,outfn))
     }
 
   }
-
 
   return (NULL)
 }

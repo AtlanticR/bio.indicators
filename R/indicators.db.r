@@ -375,7 +375,7 @@
         # climatology
         nL1 = nrow(L1)
         PS = PSsd = matrix( NA, nrow=nL1, ncol=p$ny )
-        p1$variables$Y = voi # need to send this to get the correct results
+        if (is.null(voi)) p1$variables$Y = voi # need to send this to get the correct results
         for (iy in 1:p$ny) {
           yr = p$yrs[iy]
           PS[,iy] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="mean")
