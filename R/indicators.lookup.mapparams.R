@@ -16,9 +16,9 @@ indicators.lookup.mapparams = function( DS="datarange", vn ){
 
   # -------------------------
 
-  if (DS=="color.code") {
-    color.code = "blue.black" 
-    return (color.code)
-  }
-  
+#  if (DS=="color.code") {
+#    color.code = "blue.black"
+#    return (color.code)
+#  }
+
 }
