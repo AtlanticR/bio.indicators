@@ -30,8 +30,6 @@ landings.db = function(DS, p) {
 
   if (DS %in% c("aggregated", "aggregated.redo") ) {
 
-
-
     test = marfissci.process.data(df, agg.minutes=2, agg.by="SPECIES_CODE", save.RDS=F)
 
     marfissci.batch.process()

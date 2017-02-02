@@ -64,7 +64,7 @@
     # --------------------
 
 
-    if (DS %in% c("cat.init","cat.init.redo") ) {
+    if (DS %in% c("cat.init", "cat.init.redo") ) {
       # all species caught
       cat = NULL # trip/cat loc information
       fn = file.path( surveydir, "cat.init.rdata"  )

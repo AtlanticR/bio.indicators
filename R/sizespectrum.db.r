@@ -145,16 +145,18 @@
         return ( SS )
       }
 
-      sm = sizespectrum.db( DS="sizespectrum.stats", p=p )
-      smg = groundfish.db( "set.base" )
-      smg$dyear = lubridate::decimal_date( smg$timestamp ) - smg$yr
-      smg$z = smg$sdepth
-      smg$t = smg$temp
-      smg$sdepth = NULL
-      smg$temp = NULL
+      sm = survey.db( "set" )
+      sm = sm[ which( sm$data.source=="groundfish") ,]
+      sm$id = as.character( sm$id )
+      smdups = which( duplicated (sm$id ) )
+      if (length(smdups) > 0) sm = sm[ -smdups, ]
 
-      sm = merge (sm, smg, by="id", all.x=T, all.y=F, sort= F)
+      sms = sizespectrum.db( DS="sizespectrum.stats", p=p )
+
+      sm = merge (sms, sm, by="id", all.x=T, all.y=F, sort= F)
       sm = lonlat2planar( sm, proj.type=p$internal.projection )
+		  oo = which(!is.finite( SS$plon+SS$plat ) )
+      if (length(oo)>0) SS = SS[ -oo , ]  # a required field for spatial interpolation
 
       # check for duplicates
       for ( y in p$yearstomodel ) {
@@ -168,25 +170,7 @@
         }
       }
 
-
-    # merge temperature
-      it = which( !is.finite(sm$t) )
-      if (length(it) > 0) {
-        sm$t[it] = bio.temperature::temperature.lookup( p=p, locs=sm[it, c("plon","plat")], timestamp=sm$timestamp[it] )
-      }
-      sm = sm[ which(is.finite(sm$t)), ] # temp is required
-      
-
-      locsmap = match( 
-        lbm::array_map( "xy->1", sm[,c("plon","plat")], gridparams=p$gridparams ), 
-        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
-
-      sm = cbind( sm, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
-      sm = cbind( sm, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=sm[,"timestamp"] ))
-
       SS = sm[ which( is.finite(sm$nss.b0) ) ,]
-		  oo = which(!is.finite( SS$plon+SS$plat ) )
-      if (length(oo)>0) SS = SS[ -oo , ]  # a required field for spatial interpolation
       save(SS, file=fn, compress=T )
       return ( "Done" )
     }

@@ -1,4 +1,8 @@
-model.summaries = function( DS, yr=NULL, p=NULL ) {
+
+model.summaries = function( DS, p=NULL ) {
+  
+  message("deprecated?")
+
   #function to make a table out of all the model summaries for components
   #"speciesarea", "sizespectrum", "metabolism","speciescomposition", "condition", "biochem"
   library("memisc")
@@ -8,7 +12,6 @@ model.summaries = function( DS, yr=NULL, p=NULL ) {
   vars = c("speciesarea", "metabolism","speciescomposition", "condition")
   vars = c("condition")
 
-  p$season = "allseasons"
   p = spatial_parameters( p, "SSE" )  # data are from this domain .. so far
   p$modtype = "complex"
 

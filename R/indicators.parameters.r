@@ -1,50 +1,52 @@
 
 
-indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NULL ) {
+indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varname=NULL ) {
 
   if ( is.null(p) ) p=list()
-  if ( !exists("project.name", p) ) p$project.name=DS
 
-  p$libs = c( p$libs, RLibrary ( "lubridate", "rgdal", "parallel", "sp", "lattice", "fields", "mgcv" ) )
-  p$libs = c( p$libs, bioLibrary ("bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
+  if ( DS=="default") {
 
-  if ( is.null(current.year)) current.year = lubridate::year(lubridate::now())
+    p$libs = c( p$libs, RLibrary ( "lubridate", "rgdal", "parallel", "sp", "lattice", "fields", "mgcv" ) )
+    p$libs = c( p$libs, bioLibrary (
+      "bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  
+      "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
 
-  if (!exists("project.root", p) )  p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
-  # generic defaults, some will be overridden in project-specific calls
+     
+    p$spatial.domain = "SSE" 
+    p$spatial.domain.subareas = c( "snowcrab")
+    p = spatial_parameters( p )  # data are from this domain .. so far
 
-  if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
+    if (!exists( "current.year", p)) p$current.year = current.year
+    if (!exists("yrs", p) ) p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+    
+    p$ny = length(p$yrs)
+    p$nt = p$ny # must specify, else assumed = 1 (1= no time)  ## nt=ny annual time steps, nt = ny*nw is seassonal
+    p$nw = 10 # default value of 10 time steps for all temp and indicators
 
-  p$newyear = current.year
-  p$yrs = c(1970:current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
-  p$ny = length(p$yrs)
-  p$nw = 10 # number of intervals in time within a year
-  p$nt = 1 # must specify, else assumed = 1 (1= only annual)
-  p$tres = 1/ p$nw # time resolution
+    p$tres = 1/ p$nw # time resolution .. predictions are made with models that use seasonal components
+    p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
+    p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
 
-  p$dyears = (c(1:p$nw)-1)  / p$nw # intervals of decimal years... fractional year breaks
-  p$dyear_centre = p$dyears[ round(p$nw/2) ] + p$tres/2
+    p$prediction.dyear = lubridate::decimal_date( lubridate::ymd("0000/Sep/01")) # used for creating timeslices and predictions  .. needs to match the values in indicators.parameters()
 
-  p$prediction.dyear = lubridate::decimal_date( lubridate::ymd("0000/Sep/01")) # used for creating timeslices and predictions  .. needs to match the values in indicators.parameters()
+    # output timeslices for predictions in decimla years, yes all of them here
+    p$prediction.ts = p$yrs + p$prediction.dyear 
 
-  # output timeslices for predictions
-  tout = p$yrs + p$prediction.dyear - p$tres/2 # mid-points
-  tout = tout[ order(tout) ]
-  p$prediction.ts = tout
+    if (!exists("clusters", p)) p$clusters = rep("localhost", detectCores() )
 
-  p$spatial.domain = "SSE" 
-  p$spatial.domain.subareas = c( "snowcrab")
-  p = spatial_parameters( p )  # data are from this domain .. so far
+  }
+
+
 
   # ---------------------
 
 
   if (DS=="survey"){
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     
     p$taxa =  "maxresolved"
-    # p$seasons = "allseasons"
     p$data.sources = c("groundfish", "snowcrab")
-    # habitat lookup parameters .. depth/temperature
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
     p$varstomodel = c()
   }
@@ -53,25 +55,43 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
   # ---------------------
 
   if (DS=="landings"){
-
-    p$marfis.years=2002:current.year
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
+    p$marfis.years=2002:p$current.year
     p$varstomodel = c()
   }
 
 
   # ---------------------
 
+  if (DS=="speciescomposition") {
+
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
+    p$data.sources = c("groundfish", "snowcrab")
+    p$taxa = "maxresolved"
+    p$timescale = c( 0,1,2,5,10 ) # yr
+    p$interpolation.distances =  25 # for interpolation of habitat vars
+    p$yearstomodel = 1970:p$current.year
+    # p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
+    p$varstomodel = c( "ca1", "ca2" )
+    
+    p$spatial.knots = 100
+
+  }
+
+  # ---------------------
+
   if (DS=="condition") {
 
-    p$season = "allseasons"
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
     p$spatial.knots = 100
-    p$optimizer.alternate = c( "outer", "nlm" )  # first choice is default (newton), then this as a failsafe .. see GAM options
-    # p$mods = c("simple","simple.highdef", "complex", "full" )  # model types to attempt
-    p$modtype = "complex"
+    
   }
 
 
@@ -79,21 +99,22 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
   if (DS=="metabolism") {
 
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$taxa = "alltaxa"   # do not use any other category
-    p$season = "allseasons"
     p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$spatial.knots = 100
     p$interpolation.distances =  25 # for interpolation of habitat vars
-    p$optimizer.alternate = c( "outer", "nlm" )  # first choice is bam, then this .. see GAM options
-    p$modtype = "complex"
   }
 
   # ---------------------
 
   if (DS=="sizespectrum") {
 
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -101,17 +122,14 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$use.bigmemory.file.backing = FALSE  # for data assimilation, p$use.bigmemory.file.backing = TRUE  # file-backing is slower but can use all cpu's in a distributed cluster
 
     p$taxa = "maxresolved"
-    p$season = "allseasons"
-    
+   
     # for spatial interpolation of nss stats
     # p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
     p$varstomodel = c( "nss.b0", "nss.b1", "nss.shannon" )
     
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$modtype =  "complex"
     p$spatial.knots = 100
-
-    p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton, then this .. see GAM options
 
     p$timescale = c( 0,1,2,5 ) # yr
     p$interpolation.distances =  25 # for interpolation of habitat vars
@@ -132,9 +150,12 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
   if (DS=="speciesarea") {
 
+    p$project.name=DS    
+    p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
+
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
-    p$yearstomodel = 1970:current.year
+    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
@@ -149,81 +170,52 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$lengthscale = c( 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120 )  # km used in counting for rarefaction curve
     p$interpolation.distances = 25  # habitat interpolation scale
     p$taxa = "maxresolved" # p$taxa = "family.or.genera", "alltaxa"
-    p$season = "allseasons"
-    p$modtype = "complex"
+    
     p$spatial.knots = 100
-    p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton, then this .. see GAM options
+
   }
 
 
   # ---------------------
 
-  if (DS=="speciescomposition") {
+  # if (DS=="indicators") {
 
-    p$data.sources = c("groundfish", "snowcrab")
+  #   p$taxa = "maxresolved"
+  #   p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
+  #   p$interpolation.nmax = 100
+  #   p$nw = 10  # from temperature.r, number of intervals in a year
+  #   p$yearstomodel = 1970:p$current.year
 
-    p$taxa = "maxresolved"
-    p$season = "allseasons"
-    p$timescale = c( 0,1,2,5,10 ) # yr
-    p$interpolation.distances =  25 # for interpolation of habitat vars
+  #   p$speciesarea.modeltype = "complex"
+  #   p$speciesarea.method = "glm"   ## this is chosen in speciesarea.r ... make sure it matches up
+  #   p$speciesarea.taxa = "maxresolved"  # use only unique taxa
+  #   p$speciesarea.data.sources = c("groundfish", "snowcrab")
+  #   p$speciesarea.variables = c( "C", "Z", "T", "Npred" )
 
-    p$yearstomodel = 1970:current.year
-    # p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
-    p$varstomodel = c( "ca1", "ca2" )
+  #   p$speciescomposition.modeltype = "complex"
+  #   p$speciescomposition.taxa = "maxresolved"
+  #   p$speciescomposition.variables = c( "ca1", "ca2" )
 
-    p$modtype = "complex"
-    p$spatial.knots = 100
-    p$optimizer.alternate = c( "outer", "nlm" )  # first choice is newton (default), then this .. see GAM options
+  #   p$sizespectrum.modeltype = "complex"
+  #   p$sizespectrum.taxa = "maxresolved"
+  #   p$sizespectrum.variables = c( "nss.b1", "nss.rsquared", "nss.shannon")
 
+  #   p$condition.modeltype = "complex"
+  #   p$condition.taxa = "maxresolved"
+  #   p$condition.variables = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
+  #                             "coSmallPelagic", "coLargePelagic", "coSmallDemersal", "coLargeDemersal")
 
- 
-  }
-
-  # ---------------------
-
-  if (DS=="indicators") {
-
-    p$taxa = "maxresolved"
-    p$season = "allseasons"
-    p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
-    p$interpolation.nmax = 100
-    p$nw = 10  # from temperature.r, number of intervals in a year
-    p$yearstomodel = 1970:current.year
-
-    p$speciesarea.modeltype = "complex"
-    p$speciesarea.method = "glm"   ## this is chosen in speciesarea.r ... make sure it matches up
-    p$speciesarea.season = "allseasons"
-    p$speciesarea.taxa = "maxresolved"  # use only unique taxa
-    p$speciesarea.data.sources = c("groundfish", "snowcrab")
-    p$speciesarea.variables = c( "C", "Z", "T", "Npred" )
-
-    p$speciescomposition.modeltype = "complex"
-    p$speciescomposition.season = "allseasons"
-    p$speciescomposition.taxa = "maxresolved"
-    p$speciescomposition.variables = c( "ca1", "ca2" )
-
-    p$sizespectrum.modeltype = "complex"
-    p$sizespectrum.taxa = "maxresolved"
-    p$sizespectrum.season = "allseasons"
-    p$sizespectrum.variables = c( "nss.b1", "nss.rsquared", "nss.shannon")
-
-    p$condition.modeltype = "complex"
-    p$condition.taxa = "maxresolved"
-    p$condition.season = "allseasons"
-    p$condition.variables = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
-                              "coSmallPelagic", "coLargePelagic", "coSmallDemersal", "coLargeDemersal")
-
-    p$metabolism.modeltype = "complex"
-    p$metabolism.taxa = "alltaxa"
-    p$metabolism.season = "allseasons"
-    p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
-  }
+  #   p$metabolism.modeltype = "complex"
+  #   p$metabolism.taxa = "alltaxa"
+  #   p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
+  # }
 
 
   # ---------------------
 
   if (DS=="mpa") {
 
+    p$project.name=DS    
     p$libs = c( p$libs, RLibrary ( "maps", "mapdata" ) )
     p$libs = c( p$libs,  bioLibrary( "bio.polygons", "netmensuration", "bio.spacetime", "bio.stomachs",
       "bio.coastline" ))
@@ -232,7 +224,6 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p = spatial_parameters( p )  # reset as SSE.mpa is a little larger
 
     p$taxa =  "maxresolved"
-    p$seasons = "allseasons"
     p$data.sources = c("groundfish", "snowcrab")  # for survey.db
 
     p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
@@ -244,8 +235,8 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     p$varstomodel = c()
   }
 
-  # ----------------------
 
+  # ----------------------
 
   if (DS=="lbm") {
 
@@ -255,52 +246,64 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
 
     p$boundary = FALSE 
     p$depth.filter = 0 # depth (m) stats locations with elevation > 0 m as being on land (and so ignore)
-    p$lbm_nonconvexhull_alpha = 20  # radius in distance units (km) to use for determining boundaries
-    p$lbm_noise = 0.001  # distance units for eps noise to permit mesh gen for boundaries
     p$lbm_quantile_bounds = c(0.01, 0.99) # remove these extremes in interpolations
     
-    p$lbm_rsquared_threshold = 0.2 # lower threshold
-    p$lbm_distance_prediction = 10 # this is a half window km
-    p$lbm_distance_statsgrid = 10 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
+    p$lbm_rsquared_threshold = 0.1 # lower threshold
+    p$lbm_distance_prediction = 7.5 # this is a half window km
+    p$lbm_distance_statsgrid = 5 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
     p$lbm_distance_scale = 50 # km ... approx guess of 95% AC range 
     p$lbm_distance_min = p$lbm_distance_statsgrid 
-    p$lbm_distance_max = 75 
-
+    p$lbm_distance_max = 75
   
-    p$n.min = 50 # n.min/n.max changes with resolution must be more than the number of knots/edf
+    p$n.min = 100 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
-    p$n.max = 5000 # no real upper bound
+    p$n.max = 8000 # no real upper bound
     p$sampling = c( 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.5 )  # 
 
     p$variables = list( 
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamp" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamplitude" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
 
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
-    if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "gam" # "twostep" might be interesting to follow up
+    
+    p$lbm_local_modelengine ="twostep"
+    # if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine = "krige" # "twostep" might be interesting to follow up
 
     # using covariates as a first pass essentially makes it ~ kriging with external drift
-    p$lbm_global_modelengine = NULL #"gam"
+    p$lbm_global_modelengine = "gam"
     p$lbm_global_modelformula = formula( paste( 
-      varname, ' ~ as.factor(yr) + s(plon, plat, by=as.factor(yr), k=100, bs="tp") + s(dyear, k=3, bs="tp")', 
-      ' + s(t, bs="tp") + s(tmean, bs="tp") + s(tamp, bs="tp") + s(z, bs="tp")',
-      ' + s(dZ, bs="tp") + s(log.substrate.grainsize, bs="tp") ' )) 
+      varname, ' ~ s(yr) + s(dyear, k=3, bs="ts") + s(yr, dyear, k=36, bs="ts") ', 
+      ' + s(t, bs="ts") + s(tmean, bs="ts") + s(tamplitude, bs="ts") + s(z, bs="ts")',
+      ' + s(dZ, bs="ts") + s(ddZ, bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
 
     p$lbm_global_family = gaussian()
-  
     p$lbm_local_family = gaussian()
 
-    if (p$lbm_local_modelengine =="gam") {
-      # 32 hours on nyx all cpus; 
-      # XX hrs on thoth all cpus
-      
-      p$lbm_local_modelformula = formula( paste( 
-        varname, ' ~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") + s( log(z), k=3, bs="ts")', 
-        '  + s(plon,k=3, bs="ts") + s(plat, k=3, bs="ts")', 
-        '  + s(plon, plat, cos.w, sin.w, yr, k=100, bs="ts")' ))  
+
+
+    if (p$lbm_local_modelengine =="twostep") {
+
+      p$lbm_local_modelformula = formula( paste(
+        varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
+          ' + s(cos.w, sin.w, yr, bs="ts", k=36) ',
+          ' + s(plon, bs="ts") + s(plat, bs="ts") + s(plon, plat, k=25, bs="ts") ' ) )
+      p$lbm_local_model_distanceweighted = TRUE
+
+      # p$lbm_twostep_space = "spatial.process"
+      # p$lbm_twostep_space = "fft"
+      # p$lbm_twostep_space = "tps"
+      p$lbm_twostep_space = "krige"
+
+    }  else if (p$lbm_local_modelengine == "gam") {
+
+      p$lbm_local_modelformula = formula( paste(
+        varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
+          ' + s(cos.w, sin.w, yr, bs="ts", k=36) ',
+          ' + s(plon, bs="ts") + s(plat, bs="ts") + s(plon, plat, k=25, bs="ts") ' ) )    
+
       p$lbm_local_model_distanceweighted = TRUE
       p$lbm_gam_optimizer="perf"
       # p$lbm_gam_optimizer=c("outer", "bfgs") 
@@ -322,6 +325,8 @@ indicators.parameters = function( p=NULL, DS=NULL, current.year=NULL, varname=NU
     
     } else {
     
+
+
       message( "The specified lbm_local_modelengine is not tested/supported ... you are on your own ;) ..." )
 
     }
