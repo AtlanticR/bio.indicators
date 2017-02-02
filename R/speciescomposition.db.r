@@ -1,10 +1,10 @@
 
-  speciescomposition.db = function( DS="", p=NULL, yr=NULL ) {
+  speciescomposition.db = function( DS="", p=NULL ) {
 
     ddir = project.datadirectory( "bio.indicators", "speciescomposition" )
     dir.create( ddir, showWarnings=FALSE, recursive=TRUE )
 
-    infix = paste( p$spatial.domain,  p$taxa, p$season, sep=".")
+    infix = paste( p$spatial.domain,  p$taxa, sep=".")
 
     if (DS %in% c( "speciescomposition.ordination", "speciescomposition.ordination.redo", "pca", "ca") ) {
 
@@ -51,11 +51,6 @@
 
       isc = taxonomy.filter.taxa( sc$spec_bio, method=p$taxa, outtype="internalcodes" )
       set = set[ which( set$id %in% unique( sc$id[isc]) ),]
-
-      if ( p$season != "allseasons" ) {
-        set = set[ filter.season( set$julian, period=p$season, index=T ) , ]
-        sc = sc[ which( sc$id %in% unique( set$id) ), ]
-      }
 
       # .. data loss due to truncation is OK
       # ... smallest abundance adds little information to ordinations
@@ -130,6 +125,9 @@
       SC = lonlat2planar( SC, proj.type=p$internal.projection )
       SC$lon = SC$lat = NULL
 
+      oo = which(!is.finite( SC$plon+SC$plat ) )
+      if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
+
       yrs = sort( unique( SC$yr ) )
       # check for duplicates
       for ( y in yrs ) {
@@ -142,28 +140,7 @@
           SC = SC[ - ii,]
         }
       }
- 
-    # merge temperature
-      it = which( !is.finite(SC$t) )
-      if (length(it) > 0) {
-        SC$t[it] = bio.temperature::temperature.lookup( p=p, locs=SC[it, c("plon","plat")], timestamp=SC$timestamp[it] )
-      }
-      SC = SC[ which(is.finite(SC$t)), ] # temp is required
-      
-      locsmap = match( 
-        lbm::array_map( "xy->1", SC[,c("plon","plat")], gridparams=p$gridparams ), 
-        lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
-
-      SC = cbind( SC, indicators.lookup( p=p, DS="spatial", locsmap=locsmap ) )
-      SC = cbind( SC, indicators.lookup( p=p, DS="spatial.annual", locsmap=locsmap, timestamp=SC[,"timestamp"] ))
-
- 
-
-
-
-      oo = which(!is.finite( SC$plon+SC$plat ) )
-      if (length(oo)>0) SC = SC[ -oo , ]  # a required field for spatial interpolation
-
+  
       save( SC, file=fn, compress=T )
 			return (fn)
 		}
