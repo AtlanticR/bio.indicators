@@ -170,6 +170,7 @@
 
         x$spec_bio = taxonomy.recode( from="spec", to="parsimonious", tolookup=x$spec )
 
+
         # mass in kg, len in cm
 
         # convert sex codes to snow crab standard
@@ -181,6 +182,15 @@
         #      4=representative sp recorded(but only part of total catch), 5=comparative fishing experiment,
         #      6=tagging, 7=mesh/gear studies, 8=explorartory fishing, 9=hydrography
         # --------- codes ----------------
+  
+        u = which(det$spec==2526)
+        if ( mean(det$len[u]) > 20 ) {
+          # 200 mm or 20 cm is really the upper limit of what is possible for snow crab (in 2016, it was 50)
+          # if the mean is above this then there is an issue, assume it is recorded as mm
+          # and convert to cm as that is the expectation in groundfish.db and indicators.db 
+          message( "groundfish gsdet seems to have stored snowcrab lengths in mm ? -- please check")
+          det$len[u] = det$len[u] / 10
+        }
 
         sx = x$sex
         x$sex = NA
