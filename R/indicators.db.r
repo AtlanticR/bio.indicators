@@ -73,13 +73,7 @@
       dyear_index = 1
       if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
 
-<<<<<<< HEAD
-      outdir =  file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "environmentals" )
-      if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators",  "habitat"), "SSE","environmentals" )
-      dir.create(outdir, recursive=T, showWarnings=F)
-=======
       outfile =  file.path( outdir, paste("PS.spatial.annual", dyear_index, "rdata", sep=".") )
->>>>>>> 82aaa3b29a5e9c33a30eae5ea47659ba3f438dcf
 
       if ( DS=="spatial.annual" ) {
         PS = NULL
