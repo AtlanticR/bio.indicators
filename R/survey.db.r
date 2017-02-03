@@ -184,7 +184,7 @@
         # --------- codes ----------------
   
         u = which(det$spec==2526)
-        if ( mean(det$len[u]) > 20 ) {
+        if ( mean(det$len[u], na.rm=TRUE) > 20 ) {
           # 200 mm or 20 cm is really the upper limit of what is possible for snow crab (in 2016, it was 50)
           # if the mean is above this then there is an issue, assume it is recorded as mm
           # and convert to cm as that is the expectation in groundfish.db and indicators.db 
