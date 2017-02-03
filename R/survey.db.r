@@ -786,8 +786,6 @@
       set$totno[ which(!is.finite(set$totno))] = 0
       set$totmass[ which(!is.finite(set$totmass))] = 0
 
-browser()
-
       if (exists("drop.groundfish.data", selection)) {
         # unreliable zero's for snowcrab in the groundfish data
         todrop = which( set$data.source=="groundfish" & set$yr < 1999 & (set$totmass ==0 | set$totno==0) )
