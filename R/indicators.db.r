@@ -46,7 +46,7 @@
       p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
-      PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
+      PS = cbind( PS, substrate.db ( p=p0, DS="complete"  ) )
       
       # override voi (variable of interest) to obtain results
       p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )

@@ -766,8 +766,6 @@
       set = survey.db( DS="set.intermediate", p=p )
       det = survey.db( DS="det", p=p  ) # size information, no, cm, kg
 
-
-
       det = det[ which( det$id %in% unique( set$id) ), ]
 
       isc = indicators_selection_criteria( det, selection=selection )
@@ -787,6 +785,8 @@
       set = merge( set, sm, by ="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
       set$totno[ which(!is.finite(set$totno))] = 0
       set$totmass[ which(!is.finite(set$totmass))] = 0
+
+browser()
 
       if (exists("drop.groundfish.data", selection)) {
         # unreliable zero's for snowcrab in the groundfish data
