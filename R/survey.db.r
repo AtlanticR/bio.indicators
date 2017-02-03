@@ -1,5 +1,5 @@
 
-  survey.db = function( DS, p=NULL ) {
+  survey.db = function( p=NULL, DS=NULL, selection=NULL ) {
     #\\ assimilation of all survey data into a coherent form
     surveydir = project.datadirectory( "bio.indicators", "survey" )
 
@@ -744,7 +744,77 @@
     }
 
 
-  }
+    # ---------------------
 
+
+    if (DS == "set.filter" ) {
+
+      # selected for a given set of species  and size and sex and maturity
+      
+      set = det = NULL # trip/set loc information
+      
+      set = survey.db( DS="set.intermediate", p=p )
+      det = survey.db( DS="det", p=p  ) # size information, no, cm, kg
+      det = det[ which( det$id %in% unique( set$id) ), ]
+
+      isc = indicators_selection_criteria( det, selection=selection )
+      det = det[isc,] 
+     
+      sm = data.frame( id=as.character( sort( unique( set$id ) )), stringsAsFactors=FALSE )
+
+      # summaries from det
+      # --- NOTE det was not always determined and so totals from det mass != totals from cat nor set for all years
+      # cfdet is the weight to make it sum up to the correct total catch (vs any subsamples) and tow length, etc
+      det$totno = 1
+      sm = merge( sm, applySum( det[ , c("id", "totno", "cfdet")] ), by="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
+  
+      det$totmass = det$mass
+      sm = merge( sm, applySum( det[ , c("id", "totmass", "cfdet")] ), by="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
+
+      set = merge( set, sm, by ="id", all.x=TRUE, all.y=FALSE, sort=FALSE )
+      set$totno[ which(!is.finite(set$totno))] = 0
+      set$totmass[ which(!is.finite(set$totmass))] = 0
+
+      if (exists("drop.groundfish.data", selection)) {
+        # unreliable zero's for snowcrab in the groundfish data
+        todrop = which( set$data.source=="groundfish" & set$yr < 1999 & (set$totmass ==0 | set$totno==0) )
+        if (length(todrop)>0) set = set[-todrop,]
+      }
+
+      surveys = sort( unique( set$data.source ) )
+
+      # in the following: quantiles are computed,
+      set$qn = NA  # default when no data
+      oo = which( set$totno == 0 )  # retain as zero values
+      if (length(oo)>0 ) set$qn[oo] = 0
+
+      for ( s in surveys ) {
+        ii = which( set$data.source==s & set$totno > 0 )
+        if (length( ii) > 0 ) {
+          set$qn[ii] = quantile_estimate( set$totno[ii]  )  # convert to quantiles, by survey
+        }
+      }
+
+      set$qm = NA   # default when no data
+      oo = which( set$totmass == 0 )  # retain as zero values
+      if (length(oo)>0 ) set$qm[oo] = 0
+
+      for ( s in surveys ) {
+        ii = which( set$data.source==s & set$totmass > 0 )
+          if (length( ii) > 0 ) {
+            set$qm[ii] = quantile_estimate( set$totmass[ii]  )  # convert to quantiles, by survey
+          }
+      }
+
+     # convert from quantile to z-score
+      set$zm = quantile_to_normal( set$qm )
+      set$zn = quantile_to_normal( set$qn )
+
+      return (set)
+    }
+
+
+
+  }
 
 
