@@ -1,3 +1,4 @@
+  
   indicators_selection_criteria = function( dat, selection=NULL ) {
     
     out = 1:nrow(dat)
@@ -17,7 +18,7 @@
     }
 
     if (exists("sex", selection)) {
-      out =  intersect( out, which( dat$set==selection$set ) ) 
+      out =  intersect( out, which( dat$sex==selection$sex ) ) 
     }
 
     if (exists("len", selection)) {
