@@ -765,6 +765,9 @@
       
       set = survey.db( DS="set.intermediate", p=p )
       det = survey.db( DS="det", p=p  ) # size information, no, cm, kg
+
+
+
       det = det[ which( det$id %in% unique( set$id) ), ]
 
       isc = indicators_selection_criteria( det, selection=selection )
