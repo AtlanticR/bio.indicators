@@ -17,7 +17,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p = spatial_parameters( p )  # data are from this domain .. so far
 
     if (!exists( "current.year", p)) p$current.year = current.year
-    if (!exists("yrs", p) ) p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+    
+    p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
     
     p$ny = length(p$yrs)
     p$nt = p$ny # must specify, else assumed = 1 (1= no time)  ## nt=ny annual time steps, nt = ny*nw is seassonal
