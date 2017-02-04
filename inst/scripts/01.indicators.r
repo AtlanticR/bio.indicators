@@ -46,5 +46,5 @@
 
   figure.bio.map.survey.locations(p=p)  # see mpa/src/_Rfunctions/figure.trawl.density for more control
  
-  indicators.db( DS="prediction.surface.redo", p=p ) 
+  indicators.db( DS="prediction.surface.redo", p=p ) # used by all 02.*.r lbm processes
 
