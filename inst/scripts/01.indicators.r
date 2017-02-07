@@ -38,7 +38,7 @@
   survey.db( DS="det.init.redo", p=p )
 
   # the following requires the preformed indicators.db() (above) for lookups to complete the data
-  survey.db( DS="length.weight.redo", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
+  survey.db( DS="lengthweight.redo", p=p  )  # # TODO:: parallelize me ... update the lcoal tables (not necessary)
   survey.db( DS="set.intermediate.redo", p=p ) # adds temperature required for metabolism lookup in "det.redo"
   survey.db( DS="det.redo", p=p ) # mass/length imputation and sanity checking
   survey.db( DS="cat.redo", p=p ) # sanity checking and fixing mass estimates from det etc ...
