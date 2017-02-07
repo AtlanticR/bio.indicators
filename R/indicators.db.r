@@ -207,8 +207,8 @@
       ps_varnames = setdiff( p$varnames, p$variables$LOCS )
 
       PS = PS[ which(names(PS) %in% ps_varnames ) ] # time vars, if they are part of the model will be created within lbm
-
-      oo = setdiff(p$varnames, ps_varnames )
+ 
+      oo = setdiff(p$varnames, c(ps_varnames, p$variables$LOCS) )
       if (length(oo) > 0 ) {
         print(oo )
         warning("Some variables are missing in the prediction surface, PS")
