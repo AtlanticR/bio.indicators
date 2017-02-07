@@ -1,5 +1,5 @@
 
-  survey.db = function( p=NULL, DS=NULL, selection=NULL ) {
+  survey.db = function( p=NULL, DS=NULL ) {
     #\\ assimilation of all survey data into a coherent form
     surveydir = project.datadirectory( "bio.indicators", "survey" )
 
@@ -768,7 +768,7 @@
 
       det = det[ which( det$id %in% unique( set$id) ), ]
 
-      isc = indicators_selection_criteria( det, selection=selection )
+      isc = indicators_selection_criteria( det, selection=p$selection )
       det = det[isc,] 
      
       sm = data.frame( id=as.character( sort( unique( set$id ) )), stringsAsFactors=FALSE )
@@ -786,7 +786,7 @@
       set$totno[ which(!is.finite(set$totno))] = 0
       set$totmass[ which(!is.finite(set$totmass))] = 0
 
-      if (exists("drop.groundfish.data", selection)) {
+      if (exists("drop.groundfish.data", p$selection)) {
         # unreliable zero's for snowcrab in the groundfish data
         todrop = which( set$data.source=="groundfish" & set$yr < 1999 & (set$totmass ==0 | set$totno==0) )
         if (length(todrop)>0) set = set[-todrop,]
