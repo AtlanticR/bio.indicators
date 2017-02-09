@@ -3,87 +3,99 @@
   # -----------------------------
   # ordination
 
-  # vn ="ca1"
-  
   current.year = 2016
+
   
   p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
   p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
-  
-  p = make.list( list( yrs=p$yrs), Y=p )
-  p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
- 
   bio.indicators::speciescomposition.db( DS="speciescomposition.ordination.redo", p=p )
   bio.indicators::speciescomposition.db( DS="speciescomposition.redo", p=p )
-  
-  p0 = p # lbm overwrites p .. store the parent copy
-  for ( vn in p$varstomodel) {
-    print(vn)
-    
-    p = bio.indicators::indicators.parameters( p=p0, DS="lbm", varname=vn )
-    DATA='indicators.db( p=p, DS="lbm_inputs" )'
-    p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
-    #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
-#   p = lbm( p=p, tasks=c( "continue" ) )    
-    p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
-    p = lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
-    p = lbm( p=p, tasks=c( "save" ) )
-    
-    p = make.list( list( yrs=p$yrs), Y=p )
-    parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
-    indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
-    indicators.db ( p=p, DS="complete.redo" )
-    indicators.db ( p=p, DS="baseline.redo" )
-    indicators.map( p=p )
-  }
 
 
-   vn = "ca1"
-   p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-   global_model = lbm_db( p=p, DS="global_model") 
-   summary( global_model )
-   plot(global_model)
+  # -----------------------------
+  # lbm -- ca1
+  vn ="ca1"
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+  p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+  DATA='indicators.db( p=p, DS="lbm_inputs" )'
+  p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
+  #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
+  #   p = lbm( p=p, tasks=c( "continue" ) )    
+  p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
+  p = lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
+  p = lbm( p=p, tasks=c( "save" ) )
+  p = make.list( list( yrs=p$yrs), Y=p )
+  parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
+  indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
+  indicators.db ( p=p, DS="complete.redo" )
+  indicators.db ( p=p, DS="baseline.redo" )
+  indicators.map( p=p )
+
+  global_model = lbm_db( p=p, DS="global_model") 
+  summary( global_model )
+  plot(global_model)
+
 
 Family: gaussian 
 Link function: identity 
 
 Formula:
-ca1 ~ s(t, bs = "ts") + s(tmean, bs = "ts") + s(tamplitude, bs = "ts") + 
-    s(z, bs = "ts") + s(dZ, bs = "ts") + s(ddZ, bs = "ts") + 
-    s(log.substrate.grainsize, bs = "ts")
+ca1 ~ s(t, bs = "ts") + s(tsd.climatology, bs = "ts") + s(tmean.climatology, 
+    bs = "ts") + s(log(t.range), bs = "ts") + s(log(b.range), 
+    bs = "ts") + s(log(s.range), bs = "ts") + s(log(z), bs = "ts") + 
+    s(log(dZ), bs = "ts") + s(log(ddZ), bs = "ts") + s(log.substrate.grainsize, 
+    bs = "ts")
 
 Parametric coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 0.026685   0.004749   5.619 1.94e-08 ***
+(Intercept) 0.104507   0.005456   19.16   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Approximate significance of smooth terms:
                              edf Ref.df       F  p-value    
-s(t)                       8.595      9 124.208  < 2e-16 ***
-s(tmean)                   8.473      9 573.784  < 2e-16 ***
-s(tamplitude)              3.058      9  20.523  < 2e-16 ***
-s(z)                       7.738      9  81.616  < 2e-16 ***
-s(dZ)                      7.466      9   5.525 4.92e-09 ***
-s(ddZ)                     8.616      9  20.360  < 2e-16 ***
-s(log.substrate.grainsize) 7.759      9  81.360  < 2e-16 ***
+s(t)                       7.511      9  70.352  < 2e-16 ***
+s(tsd.climatology)         7.102      9   4.182 9.33e-07 ***
+s(tmean.climatology)       6.270      9 679.206  < 2e-16 ***
+s(log(t.range))            5.772      9  11.599  < 2e-16 ***
+s(log(b.range))            6.752      9   2.072 0.004846 ** 
+s(log(s.range))            6.414      9   2.832 0.000149 ***
+s(log(z))                  8.787      9  58.253  < 2e-16 ***
+s(log(dZ))                 8.438      9   3.902 2.05e-05 ***
+s(log(ddZ))                2.645      9   4.714 5.81e-11 ***
+s(log.substrate.grainsize) 8.393      9   7.882 1.22e-12 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-R-sq.(adj) =  0.551   Deviance explained = 55.3%
-GCV = 0.47429  Scale est. = 0.4731    n = 20979
+R-sq.(adj) =  0.582   Deviance explained = 58.4%
+GCV = 0.37548  Scale est. = 0.37341   n = 12545
 ---
-
 
 
 
 # -------------------
+  vn ="ca2"
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+  p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+  DATA='indicators.db( p=p, DS="lbm_inputs" )'
+  p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
+  #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
+  #   p = lbm( p=p, tasks=c( "continue" ) )    
+  p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
+  p = lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
+  p = lbm( p=p, tasks=c( "save" ) )
+  p = make.list( list( yrs=p$yrs), Y=p )
+  parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
+  indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
+  indicators.db ( p=p, DS="complete.redo" )
+  indicators.db ( p=p, DS="baseline.redo" )
+  indicators.map( p=p )
 
-   vn = "ca2"
-   p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-   global_model = lbm_db( p=p, DS="global_model") 
-   summary( global_model )
-   plot(global_model)
+  global_model = lbm_db( p=p, DS="global_model") 
+  summary( global_model )
+  plot(global_model)
 
 
 Family: gaussian 
@@ -125,12 +137,27 @@ GCV = 0.18785  Scale est. = 0.18707   n = 20979
 
 
 # -------------------
+  vn ="pca1"
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+  p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+  DATA='indicators.db( p=p, DS="lbm_inputs" )'
+  p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
+  #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
+  #   p = lbm( p=p, tasks=c( "continue" ) )    
+  p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
+  p = lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
+  p = lbm( p=p, tasks=c( "save" ) )
+  p = make.list( list( yrs=p$yrs), Y=p )
+  parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
+  indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
+  indicators.db ( p=p, DS="complete.redo" )
+  indicators.db ( p=p, DS="baseline.redo" )
+  indicators.map( p=p )
 
-   vn = "pca1"
-   p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-   global_model = lbm_db( p=p, DS="global_model") 
-   summary( global_model )
-   plot(global_model)
+  global_model = lbm_db( p=p, DS="global_model") 
+  summary( global_model )
+  plot(global_model)
 
 
 Family: gaussian 
@@ -166,3 +193,28 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 R-sq.(adj) =  0.767   Deviance explained = 76.8%
 GCV = 0.0079537  Scale est. = 0.0079206  n = 20979
 ---
+
+
+# -------------------
+  vn ="pca2"
+  p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
+  p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+  p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+  DATA='indicators.db( p=p, DS="lbm_inputs" )'
+  p = lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
+  #   p = lbm( p=p, tasks=c( "stage0" ) ) # serial mode
+  #   p = lbm( p=p, tasks=c( "continue" ) )    
+  p = lbm( p=p, tasks=c( "stage1" ) ) #  8 hrs 
+  p = lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
+  p = lbm( p=p, tasks=c( "save" ) )
+  p = make.list( list( yrs=p$yrs), Y=p )
+  parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
+  indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
+  indicators.db ( p=p, DS="complete.redo" )
+  indicators.db ( p=p, DS="baseline.redo" )
+  indicators.map( p=p )
+
+  global_model = lbm_db( p=p, DS="global_model") 
+  summary( global_model )
+  plot(global_model)
+

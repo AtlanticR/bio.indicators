@@ -266,8 +266,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tsd.climatology", , "tmean.climatology",
-              "b.range", "s.range", "t.range" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tsd.climatology", "tmean.climatology",
+              "b.range","t.range" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
     
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
@@ -278,7 +278,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # .. no space or time here .. only in the local model
     if (!exists("lbm_global_modelformula", p))  p$lbm_global_modelformula = formula( paste( 
       varname, '~ s(t, bs="ts") + s(tsd.climatology, bs="ts") + s(tmean.climatology, bs="ts") ',
-      ' + s(log(t.range), bs="ts") + s( log(b.range), bs="ts") + s( log(s.range), bs="ts")', 
+      ' + s(log(t.range), bs="ts") + s( log(b.range), bs="ts") ', 
       ' + s(log(z), bs="ts") + s( log(dZ), bs="ts") + s( log(ddZ), bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
 
     if (!exists("lbm_global_family", p)) p$lbm_global_family = gaussian()
