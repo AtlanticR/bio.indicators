@@ -54,7 +54,7 @@
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
       tclim = temperature.db( p=p0, DS="bottom.statistics.climatology" ) 
 
-      names(tclim) = paste(names(tclim), "climatology", sep="." )
+      colnames(tclim) = paste(colnames(tclim), "climatology", sep="." )
       PS = cbind( PS, tclim)
 
       save (PS, file=outfile, compress=T )
@@ -171,9 +171,8 @@
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
       # spatial vars and climatologies 
-      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean", "tsd" )
+      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology" )
       sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
-      names( sn ) = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology" )
       INP = cbind( INP,  sn )
 
       # for space-time(year-averages) 
