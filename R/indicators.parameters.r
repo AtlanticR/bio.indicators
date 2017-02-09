@@ -266,7 +266,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tsd" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tsd", "b.range", "s.range", "t.range" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
     
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
