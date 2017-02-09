@@ -87,7 +87,7 @@
  
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
-      for ( ret in p0$bstats ) {
+      for ( ret in p0$bstats ) { # ] "tmean"     "tsd"       "tmin"      "tmax"      "amplitude"
         PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
       }
 
