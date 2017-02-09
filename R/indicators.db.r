@@ -52,9 +52,8 @@
       p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
-      tclim = temperature.db( p=p0, DS="bottom.statistics.climatology" ) 
-
-      colnames(tclim) = paste(colnames(tclim), "climatology", sep="." )
+      tclim = temperature.db( p=p0, DS="complete" ) 
+      names(PS)[which(names(PS)=="amplitude.climatology")] = "tamplitude.climatology"
       PS = cbind( PS, tclim)
 
       save (PS, file=outfile, compress=T )
@@ -66,7 +65,8 @@
 
 
     if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
-      # spatial and temporal (annual)
+      # spatial and temporal (annual) .. only temperature at this point
+
       outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
@@ -134,12 +134,6 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = indicators.db(p=p, DS="spatial")
-      names(PS)[which(names(PS)=="tmean")] = "tmean.climatology"
-      names(PS)[which(names(PS)=="tsd")] = "tsd.climatology"
-      names(PS)[which(names(PS)=="tmin")] = "tmin.climatology"
-      names(PS)[which(names(PS)=="tmax")] = "tmax.climatology"
-      names(PS)[which(names(PS)=="amplitude")] = "tamplitude.climatology"
-      
       nPS = nrow( PS )
       PS = as.list(PS)
       
@@ -171,7 +165,7 @@
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
       # spatial vars and climatologies 
-      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology" )
+      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology",  "b.range", "s.range", "t.range.climatology" )
       sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
       INP = cbind( INP,  sn )
 
