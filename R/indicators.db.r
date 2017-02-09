@@ -165,7 +165,7 @@
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
       # spatial vars and climatologies 
-      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology",  "b.range", "s.range", "t.range.climatology" )
+      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology",  "b.range", "s.range", "t.range" )
       sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
       INP = cbind( INP,  sn )
 
@@ -196,6 +196,7 @@
 
       PS = indicators.db( p=p, DS="prediction.surface" ) # a list object with static and annually varying variables  
       names(PS)[ names(PS)=="amplitude"] ="tamplitude" 
+      names(PS)[ names(PS)=="amplitude.climatology"] ="tamplitude.climatology" 
 
       ps_varnames = setdiff( p$varnames, p$variables$LOCS )
 

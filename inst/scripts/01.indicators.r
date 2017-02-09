@@ -14,7 +14,8 @@
     p1 = spatial_parameters(p=p, type=gr )
     indicators.db( DS="spatial.redo", p=p1 ) 
     indicators.db( DS="spatial.annual.redo", p=p1 ) 
-   # indicators.db( DS="spatial.annual.seasonal.redo", p=p1 ) 
+    # indicators.db( DS="spatial.annual.seasonal.redo", p=p1 ) 
+    indicators.db( DS="prediction.surface.redo", p=p1 ) # used by all 02.*.r lbm processes
   }
 
   
@@ -46,5 +47,3 @@
 
   figure.bio.map.survey.locations(p=p)  # see mpa/src/_Rfunctions/figure.trawl.density for more control
  
-  indicators.db( DS="prediction.surface.redo", p=p ) # used by all 02.*.r lbm processes
-
