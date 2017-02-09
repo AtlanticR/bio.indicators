@@ -266,7 +266,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       Y = varname, 
       LOCS = c("plon", "plat"), 
       TIME = "tiyr", 
-      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tmean", "tamplitude" ) )
+      COV = c("z", "dZ", "ddZ", "log.substrate.grainsize", "t", "tsd" ) )
     p$varnames = c( p$variables$LOCS, p$variables$COV ) 
     
     if (!exists("lbm_variogram_method", p)) p$lbm_variogram_method = "fast"
@@ -276,12 +276,12 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # using covariates as a first pass essentially makes it ~ kriging with external drift 
     # .. no space or time here .. only in the local model
     if (!exists("lbm_global_modelformula", p))  p$lbm_global_modelformula = formula( paste( 
-      varname, '~ s(t, bs="ts") + s(tmean, bs="ts") + s(tamplitude, bs="ts") + s(z, bs="ts")',
-      ' + s(dZ, bs="ts") + s(ddZ, bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
+      varname, '~ s(t, bs="ts") + s(tsd, bs="ts") ',
+      ' + s(t.range, bs="ts") + s(b.range, bs="ts") + s(s.range, bs="ts")', 
+      ' + s(z, bs="ts") + s(dZ, bs="ts") + s(ddZ, bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
 
     if (!exists("lbm_global_family", p)) p$lbm_global_family = gaussian()
     if (!exists("lbm_local_family", p)) p$lbm_local_family = gaussian()
-
 
     if (p$lbm_local_modelengine =="twostep") {
 

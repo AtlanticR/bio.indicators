@@ -44,36 +44,34 @@
    summary( global_model )
    plot(global_model)
 
+Family: gaussian 
+Link function: identity 
 
 Formula:
-ca1 ~ s(yr) + s(dyear, k = 3, bs = "tp") + s(yr, dyear, k = 30, 
-    bs = "tp") + s(t, bs = "tp") + s(tmean, bs = "tp") + s(tamplitude, 
-    bs = "tp") + s(z, bs = "tp") + s(dZ, bs = "tp") + s(ddZ, 
-    bs = "tp") + s(log.substrate.grainsize, bs = "tp")
+ca1 ~ s(t, bs = "ts") + s(tmean, bs = "ts") + s(tamplitude, bs = "ts") + 
+    s(z, bs = "ts") + s(dZ, bs = "ts") + s(ddZ, bs = "ts") + 
+    s(log.substrate.grainsize, bs = "ts")
 
 Parametric coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 0.026685   0.003278   8.141 4.14e-16 ***
+(Intercept) 0.026685   0.004749   5.619 1.94e-08 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Approximate significance of smooth terms:
-                              edf Ref.df       F  p-value    
-s(yr)                       4.470  4.635   0.872    0.373    
-s(dyear)                    2.000  2.000 800.572  < 2e-16 ***
-s(yr,dyear)                23.581 27.000  55.034  < 2e-16 ***
-s(t)                        8.517  8.933 168.265  < 2e-16 ***
-s(tmean)                    7.706  8.578 510.319  < 2e-16 ***
-s(tamplitude)               2.475  3.086  13.918 3.48e-09 ***
-s(z)                        6.216  7.377  69.805  < 2e-16 ***
-s(dZ)                       8.146  8.800   5.349 1.08e-06 ***
-s(ddZ)                      8.426  8.904  10.101 1.70e-15 ***
-s(log.substrate.grainsize)  7.442  8.399  46.699  < 2e-16 ***
+                             edf Ref.df       F  p-value    
+s(t)                       8.595      9 124.208  < 2e-16 ***
+s(tmean)                   8.473      9 573.784  < 2e-16 ***
+s(tamplitude)              3.058      9  20.523  < 2e-16 ***
+s(z)                       7.738      9  81.616  < 2e-16 ***
+s(dZ)                      7.466      9   5.525 4.92e-09 ***
+s(ddZ)                     8.616      9  20.360  < 2e-16 ***
+s(log.substrate.grainsize) 7.759      9  81.360  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-R-sq.(adj) =  0.786   Deviance explained = 78.7%
-GCV = 0.22628  Scale est. = 0.22541   n = 20979
+R-sq.(adj) =  0.551   Deviance explained = 55.3%
+GCV = 0.47429  Scale est. = 0.4731    n = 20979
 ---
 
 
