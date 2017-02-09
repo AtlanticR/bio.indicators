@@ -273,10 +273,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     if (!exists("lbm_local_modelengine", p)) p$lbm_local_modelengine ="twostep"
     if (!exists("lbm_global_modelengine", p)) p$lbm_global_modelengine ="gam"
 
-    # using covariates as a first pass essentially makes it ~ kriging with external drift
+    # using covariates as a first pass essentially makes it ~ kriging with external drift 
+    # .. no psace or time here .. only in the local model
     if (!exists("lbm_global_modelformula", p))  p$lbm_global_modelformula = formula( paste( 
-      varname, ' ~ s(yr) + s(dyear, k=3, bs="ts") + s(yr, dyear, k=36, bs="ts") ', 
-      ' + s(t, bs="ts") + s(tmean, bs="ts") + s(tamplitude, bs="ts") + s(z, bs="ts")',
+      varname, ' s(t, bs="ts") + s(tmean, bs="ts") + s(tamplitude, bs="ts") + s(z, bs="ts")',
       ' + s(dZ, bs="ts") + s(ddZ, bs="ts")  + s(log.substrate.grainsize, bs="ts") ' )) 
 
     if (!exists("lbm_global_family", p)) p$lbm_global_family = gaussian()
