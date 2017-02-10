@@ -18,7 +18,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     if (!exists( "current.year", p)) p$current.year = current.year
     
-    p$yrs = c(1970:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+    p$yrs = c(1999:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
     
     p$ny = length(p$yrs)
     p$nt = p$ny # must specify, else assumed = 1 (1= no time)  ## nt=ny annual time steps, nt = ny*nw is seassonal
