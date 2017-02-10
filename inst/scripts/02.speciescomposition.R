@@ -2,7 +2,7 @@
  
   # -----------------------------
   # ordination
-  current.year = 2016
+  current.year = 2016  # starting from 1999-present
 
 
   p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
