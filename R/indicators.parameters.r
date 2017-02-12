@@ -11,6 +11,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
       "bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  
       "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
 
+    p$data.sources = c("groundfish", "snowcrab")
      
     p$spatial.domain = "SSE" 
     p$spatial.domain.subareas = c( "snowcrab")
@@ -47,7 +48,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     
     p$taxa =  "maxresolved"
-    p$data.sources = c("groundfish", "snowcrab")
     p$varstomodel = c()
   }
 
@@ -68,7 +68,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
-    p$data.sources = c("groundfish", "snowcrab")
     p$taxa = "maxresolved"
     p$timescale = c( 0,1,2,5,10 ) # yr
     p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
@@ -115,9 +114,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # for spatial interpolation of nss stats
     # p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
     p$varstomodel = c( "nss.b0", "nss.b1", "nss.shannon" )
-    
-    p$modtype =  "complex"
- 
     p$timescale = c( 0,1,2,5 ) # yr
 
     # for generation of nss
@@ -139,7 +135,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
 
-    p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
+    p$libs = unique( c( p$libs, RLibrary ( "bigmemory" ) ) )
 
     p$varstomodel = c( "C", "Z", "T", "Npred" )
 
@@ -147,8 +143,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # configure SHM (shared RAM memory to be >18 GB .. in fstab .. in windows not sure how to do this?)
     # file-backing is slower but can use all cpu's in a distributed cluster
     p$use.bigmemory.file.backing = FALSE
-
-    p$data.sources = c("groundfish", "snowcrab")
     p$speciesarea.method = "glm"
     p$pred.radius = 50 # km
     p$timescale = c( 0, 1, 2 ) # yr
@@ -171,7 +165,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p = spatial_parameters( p )  # reset as SSE.mpa is a little larger
 
     p$taxa =  "maxresolved"
-    p$data.sources = c("groundfish", "snowcrab")  # for survey.db
 
     p$map.regions = c("Canada", "USA") # library "map" coastline polygon designations
     p$map.output.directory = file.path( p$project.outdir.root, "maps")
