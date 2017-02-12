@@ -23,8 +23,8 @@
     lbm( p=p, DATA=DATA, tasks=c("initiate", "globalmodel") ) # 5 min
     # lbm( p=p, tasks=c( "stage0" ) ) # serial mode
     # lbm( p=p, tasks=c( "continue" ) )    
-    lbm( p=p, tasks=c( "stage1" ) ) #  ~1 hrs (1999-2016) 
-    lbm( p=p, tasks=c( "stage2" ) ) #  < 1 hrs
+    lbm( p=p, tasks=c( "stage1" ) ) #  ~1-2 hrs (1999-2016) 
+    lbm( p=p, tasks=c( "stage2" ) ) #  ~ 1 hrs
     lbm( p=p, tasks=c( "save" ) )
     NULL
 

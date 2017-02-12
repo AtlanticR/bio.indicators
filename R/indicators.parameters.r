@@ -48,7 +48,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     
     p$taxa =  "maxresolved"
     p$data.sources = c("groundfish", "snowcrab")
-    p$interpolation.distances = c( 2, 4, 8, 16, 32, 64 ) # pseudo-log-scale
     p$varstomodel = c()
   }
 
@@ -72,13 +71,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$data.sources = c("groundfish", "snowcrab")
     p$taxa = "maxresolved"
     p$timescale = c( 0,1,2,5,10 ) # yr
-    p$interpolation.distances =  25 # for interpolation of habitat vars
     p$yearstomodel = 1970:p$current.year
-    # p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
-    p$varstomodel = c( "ca1", "ca2" )
-    
-    p$spatial.knots = 100
-
+    p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
+    # p$varstomodel = c( "ca1", "ca2" )
+  
   }
 
   # ---------------------
@@ -87,11 +83,9 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
-    p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 ) / 2 # half distances
     p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
-    p$spatial.knots = 100
     
   }
 
@@ -103,11 +97,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$taxa = "alltaxa"   # do not use any other category
-    p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
     p$yearstomodel = 1970:p$current.year
-    p$spatial.knots = 100
-    p$interpolation.distances =  25 # for interpolation of habitat vars
   }
 
   # ---------------------
@@ -130,10 +121,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     
     p$yearstomodel = 1970:p$current.year
     p$modtype =  "complex"
-    p$spatial.knots = 100
-
+ 
     p$timescale = c( 0,1,2,5 ) # yr
-    p$interpolation.distances =  25 # for interpolation of habitat vars
 
     # for generation of nss
     p$ntimescale = length(p$timescale)
@@ -169,48 +158,10 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$pred.radius = 50 # km
     p$timescale = c( 0, 1, 2 ) # yr
     p$lengthscale = c( 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120 )  # km used in counting for rarefaction curve
-    p$interpolation.distances = 25  # habitat interpolation scale
     p$taxa = "maxresolved" # p$taxa = "family.or.genera", "alltaxa"
     
-    p$spatial.knots = 100
-
+ 
   }
-
-
-  # ---------------------
-
-  # if (DS=="indicators") {
-
-  #   p$taxa = "maxresolved"
-  #   p$interpolation.distances = c( 2, 4, 8, 16, 32, 64, 80 )
-  #   p$interpolation.nmax = 100
-  #   p$nw = 10  # from temperature.r, number of intervals in a year
-  #   p$yearstomodel = 1970:p$current.year
-
-  #   p$speciesarea.modeltype = "complex"
-  #   p$speciesarea.method = "glm"   ## this is chosen in speciesarea.r ... make sure it matches up
-  #   p$speciesarea.taxa = "maxresolved"  # use only unique taxa
-  #   p$speciesarea.data.sources = c("groundfish", "snowcrab")
-  #   p$speciesarea.variables = c( "C", "Z", "T", "Npred" )
-
-  #   p$speciescomposition.modeltype = "complex"
-  #   p$speciescomposition.taxa = "maxresolved"
-  #   p$speciescomposition.variables = c( "ca1", "ca2" )
-
-  #   p$sizespectrum.modeltype = "complex"
-  #   p$sizespectrum.taxa = "maxresolved"
-  #   p$sizespectrum.variables = c( "nss.b1", "nss.rsquared", "nss.shannon")
-
-  #   p$condition.modeltype = "complex"
-  #   p$condition.taxa = "maxresolved"
-  #   p$condition.variables = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
-  #                             "coSmallPelagic", "coLargePelagic", "coSmallDemersal", "coLargeDemersal")
-
-  #   p$metabolism.modeltype = "complex"
-  #   p$metabolism.taxa = "alltaxa"
-  #   p$metabolism.variables = c( "smr", "Pr.Reaction" , "Ea", "A", "qn", "qm", "mass", "len"  )
-  # }
-
 
   # ---------------------
 

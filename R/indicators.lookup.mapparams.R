@@ -3,8 +3,8 @@ indicators.lookup.mapparams = function( DS="datarange", vn ){
 
   if (DS=="datarange") {
     datarange = NULL
-    if ( vn == "ca1" ) datarange = seq(-2, 2, length.out=100)
-    if ( vn == "ca2" ) datarange = seq(-2.5, 5, length.out=100)
+    if ( vn == "ca1" ) datarange = seq(-3, 3, length.out=100)
+    if ( vn == "ca2" ) datarange = seq(-3, 3, length.out=100)
     if ( vn == "pca1" ) datarange = seq(-0.4, 0.6, length.out=100)
     if ( vn == "pca2" ) datarange = seq(-0.5, 0.6, length.out=100)
     if ( vn == "smr" )  datarange = seq(0.003, 0.009, length.out=100)
