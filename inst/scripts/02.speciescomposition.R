@@ -12,7 +12,7 @@
 
 
   # -----------------------------
-  # lbm; vn="ca1"
+  # lbm; vn="pca2"
   for ( vn in p$varstomodel) {
     print(vn)
 
@@ -26,11 +26,10 @@
     lbm( p=p, tasks=c( "stage1" ) ) #  ~1-2 hrs (1999-2016) 
     lbm( p=p, tasks=c( "stage2" ) ) #  ~ 1 hrs
     lbm( p=p, tasks=c( "save" ) )
-    NULL
-
-    p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
-    p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
-    p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
+  
+    # p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
+    # p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
+    # p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
   
     p = make.list( list( yrs=p$yrs), Y=p )
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
@@ -127,41 +126,72 @@ GCV = 0.27272  Scale est. = 0.2725    n = 20956
 
 # -------------------
 #  vn ="pca1"
-
 Family: gaussian 
 Link function: identity 
 
 Formula:
-pca1 ~ s(yr) + s(dyear, k = 3, bs = "ts") + s(yr, dyear, k = 36, 
-    bs = "ts") + s(t, bs = "ts") + s(tmean, bs = "ts") + s(tamplitude, 
-    bs = "ts") + s(z, bs = "ts") + s(dZ, bs = "ts") + s(ddZ, 
-    bs = "ts") + s(log.substrate.grainsize, bs = "ts")
+pca1 ~ s(t, k = 3, bs = "ts") + s(tsd.climatology, k = 3, bs = "ts") + 
+    s(tmean.climatology, k = 3, bs = "ts") + s(log(t.range), 
+    k = 3, bs = "ts") + s(log(b.range), k = 3, bs = "ts") + s(log(z), 
+    k = 3, bs = "ts") + s(log(dZ), k = 3, bs = "ts") + s(log(ddZ), 
+    k = 3, bs = "ts") + s(log.substrate.grainsize, k = 3, bs = "ts")
 
 Parametric coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 0.0582201  0.0006144   94.75   <2e-16 ***
+(Intercept) 0.0584274  0.0007373   79.25   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Approximate significance of smooth terms:
-                              edf Ref.df       F  p-value    
-s(yr)                       4.787  4.898   0.523   0.7346    
-s(dyear)                    1.987  2.000 574.538  < 2e-16 ***
-s(yr,dyear)                28.648 33.000  41.190  < 2e-16 ***
-s(t)                        8.631  9.000 210.376  < 2e-16 ***
-s(tmean)                    8.393  9.000 418.908  < 2e-16 ***
-s(tamplitude)               3.068  9.000   7.410 2.28e-16 ***
-s(z)                        8.719  9.000 155.098  < 2e-16 ***
-s(dZ)                       6.647  9.000   1.854   0.0106 *  
-s(ddZ)                      7.265  9.000   7.519 3.78e-13 ***
-s(log.substrate.grainsize)  8.345  9.000  62.564  < 2e-16 ***
+                              edf Ref.df        F  p-value    
+s(t)                       1.9999      2  360.999  < 2e-16 ***
+s(tsd.climatology)         1.9883      2  127.604  < 2e-16 ***
+s(tmean.climatology)       1.9974      2 7192.129  < 2e-16 ***
+s(log(t.range))            1.8631      2   82.989  < 2e-16 ***
+s(log(b.range))            1.9895      2   26.450  2.6e-12 ***
+s(log(z))                  1.9881      2  121.207  < 2e-16 ***
+s(log(dZ))                 0.9554      2    4.122 0.001560 ** 
+s(log(ddZ))                1.1569      2    6.504 0.000124 ***
+s(log.substrate.grainsize) 1.9812      2  400.642  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-R-sq.(adj) =  0.767   Deviance explained = 76.8%
-GCV = 0.0079537  Scale est. = 0.0079206  n = 20979
----
+R-sq.(adj) =  0.664   Deviance explained = 66.5%
+GCV = 0.011401  Scale est. = 0.011392  n = 20956
 
 
 # -------------------
 #  vn ="pca2"
+Family: gaussian 
+Link function: identity 
+
+Formula:
+pca2 ~ s(t, k = 3, bs = "ts") + s(tsd.climatology, k = 3, bs = "ts") + 
+    s(tmean.climatology, k = 3, bs = "ts") + s(log(t.range), 
+    k = 3, bs = "ts") + s(log(b.range), k = 3, bs = "ts") + s(log(z), 
+    k = 3, bs = "ts") + s(log(dZ), k = 3, bs = "ts") + s(log(ddZ), 
+    k = 3, bs = "ts") + s(log.substrate.grainsize, k = 3, bs = "ts")
+
+Parametric coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 0.0106285  0.0006277   16.93   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                                 edf Ref.df        F  p-value    
+s(t)                       1.971e+00      2   95.780  < 2e-16 ***
+s(tsd.climatology)         1.999e+00      2  426.149  < 2e-16 ***
+s(tmean.climatology)       1.992e+00      2  134.237  < 2e-16 ***
+s(log(t.range))            1.957e+00      2   18.671 5.24e-09 ***
+s(log(b.range))            1.973e+00      2   45.553  < 2e-16 ***
+s(log(z))                  1.973e+00      2 2782.931  < 2e-16 ***
+s(log(dZ))                 1.041e-07      2    0.000 0.648521    
+s(log(ddZ))                1.940e+00      2    8.724 0.000125 ***
+s(log.substrate.grainsize) 1.811e+00      2  516.626  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.676   Deviance explained = 67.6%
+GCV = 0.0082627  Scale est. = 0.0082561  n = 20956
+---
