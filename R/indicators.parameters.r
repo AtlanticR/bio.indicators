@@ -71,7 +71,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$data.sources = c("groundfish", "snowcrab")
     p$taxa = "maxresolved"
     p$timescale = c( 0,1,2,5,10 ) # yr
-    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
     # p$varstomodel = c( "ca1", "ca2" )
   
@@ -83,7 +82,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
-    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "coAll", "coFish", "coElasmo", "coGadoid", "coDemersal", "coPelagic",
                        "coSmallPelagic", "coLargePelagic", "coSmallDemersal",   "coLargeDemersal" )
     
@@ -98,7 +96,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$taxa = "alltaxa"   # do not use any other category
     p$varstomodel = c( "mr", "smr", "Pr.Reaction" , "Ea", "A", "zn", "zm", "qn", "qm", "mass", "len"  )
-    p$yearstomodel = 1970:p$current.year
   }
 
   # ---------------------
@@ -119,7 +116,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
     p$varstomodel = c( "nss.b0", "nss.b1", "nss.shannon" )
     
-    p$yearstomodel = 1970:p$current.year
     p$modtype =  "complex"
  
     p$timescale = c( 0,1,2,5 ) # yr
@@ -145,7 +141,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     p$libs = c( p$libs, RLibrary ( "bigmemory" ) )
 
-    p$yearstomodel = 1970:p$current.year
     p$varstomodel = c( "C", "Z", "T", "Npred" )
 
     # faster to use RAM-based data objects but this forces use only of local cpu's
