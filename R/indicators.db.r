@@ -46,15 +46,14 @@
       p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
-      PS = cbind( PS, substrate.db ( p=p, DS="complete"  ) )
+      PS = cbind( PS, substrate.db ( p=p0, DS="complete"  ) )
       
       # override voi (variable of interest) to obtain results
       p0 = bio.temperature::temperature.parameters(p=p, current.year=p$current.year )
       p0 = bio.temperature::temperature.parameters( DS="lbm", p=p0 )
       p0 = bio.spacetime::spatial_parameters( p=p0, type=p$spatial.domain ) # return to correct domain      
-      tclim = temperature.db( p=p0, DS="bottom.statistics.climatology" ) 
-
-      names(tclim) = paste(names(tclim), "climatology", sep="." )
+      tclim = temperature.db( p=p0, DS="complete" ) 
+      names(PS)[which(names(PS)=="amplitude.climatology")] = "tamplitude.climatology"
       PS = cbind( PS, tclim)
 
       save (PS, file=outfile, compress=T )
@@ -66,17 +65,21 @@
 
 
     if (DS %in% c("spatial.annual", "spatial.annual.redo") ) {
-      # spatial and temporal (annual)
+      # spatial and temporal (annual) .. only temperature at this point
+
       outdir = file.path( project.datadirectory("bio.indicators"), "PS", p$spatial.domain )
       dir.create(outdir, recursive=T, showWarnings=F)
 
       dyear_index = 1
       if (exists("dyears", p) & exists("prediction.dyear", p))  dyear_index = which.min( abs( p$prediction.dyear - p$dyears))
 
+<<<<<<< HEAD
       outdir =  file.path( project.datadirectory("bio.indicators", "habitat"), p$spatial.domain, "environmentals" )
       if ( p$spatial.domain =="snowcrab" ) outdir = file.path( project.datadirectory("bio.indicators",  "habitat"), "SSE","environmentals" )
       dir.create(outdir, recursive=T, showWarnings=F)
       
+=======
+>>>>>>> master
       outfile =  file.path( outdir, paste("PS.spatial.annual", dyear_index, "rdata", sep=".") )
 
       if ( DS=="spatial.annual" ) {
@@ -91,7 +94,7 @@
  
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
-      for ( ret in p0$bstats ) {
+      for ( ret in p0$bstats ) { # ] "tmean"     "tsd"       "tmin"      "tmax"      "amplitude"
         PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
       }
 
@@ -138,12 +141,6 @@
 
       # depth is the primary constraint, baseline = area-prefiltered for depth/bounds
       PS = indicators.db(p=p, DS="spatial")
-      names(PS)[which(names(PS)=="tmean")] = "tmean.climatology"
-      names(PS)[which(names(PS)=="tsd")] = "tsd.climatology"
-      names(PS)[which(names(PS)=="tmin")] = "tmin.climatology"
-      names(PS)[which(names(PS)=="tmax")] = "tmax.climatology"
-      names(PS)[which(names(PS)=="amplitude")] = "tamplitude.climatology"
-      
       nPS = nrow( PS )
       PS = as.list(PS)
       
@@ -175,9 +172,8 @@
         lbm::array_map( "xy->1", bathymetry.db(p=p, DS="baseline"), gridparams=p$gridparams ) )
 
       # spatial vars and climatologies 
-      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean", "tsd" )
+      newvars = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology",  "b.range", "s.range", "t.range" )
       sn = indicators.lookup( p=p, DS="spatial", locsmap=locsmap, varnames=newvars )
-      names( sn ) = c("dZ", "ddZ", "log.substrate.grainsize", "tmean.climatology", "tsd.climatology" )
       INP = cbind( INP,  sn )
 
       # for space-time(year-averages) 
@@ -195,6 +191,19 @@
       }
       INP = na.omit(INP)
 
+# the following are modelled on a log-scale ... need zero-checks
+## hack -- zero-values : predictions of log(0) fail 
+INP$dZ [ which( INP$dZ < exp(-5)) ] = exp(-5)
+INP$dZ [ which( INP$dZ > exp(5)) ] = exp(5)
+
+## hack -- zero-values : predictions of log(0) fail 
+INP$ddZ [ which( INP$ddZ < exp(-6)) ] = exp(-6)
+INP$ddZ [ which( INP$ddZ > exp(5)) ] = exp(5)
+
+## hack -- extreme-values .. error in exptrapolation of substrate 
+INP$log.substrate.grainsize[ which( INP$log.substrate.grainsize < -6) ] = -6
+INP$log.substrate.grainsize [ which( INP$log.substrate.grainsize > 5) ] = 5
+
     # cap quantiles of dependent vars
       dr = list()
       for (voi in p$varnames) {
@@ -207,12 +216,28 @@
 
       PS = indicators.db( p=p, DS="prediction.surface" ) # a list object with static and annually varying variables  
       names(PS)[ names(PS)=="amplitude"] ="tamplitude" 
+      names(PS)[ names(PS)=="amplitude.climatology"] ="tamplitude.climatology" 
+
+
+# the following are modelled on a log-scale ... need zero-checks
+## hack -- zero-values : predictions of log(0) fail 
+PS$dZ [ which( PS$dZ < exp(-5)) ] = exp(-5)
+PS$dZ [ which( PS$dZ > exp(5)) ] = exp(5)
+
+## hack -- zero-values : predictions of log(0) fail 
+PS$ddZ [ which( PS$ddZ < exp(-6)) ] = exp(-6)
+PS$ddZ [ which( PS$ddZ > exp(5)) ] = exp(5)
+
+## hack -- extreme-values .. error in exptrapolation of substrate .. fisx this in bio.substrate
+PS$log.substrate.grainsize[ which( PS$log.substrate.grainsize < -6) ] = -6
+PS$log.substrate.grainsize [ which( PS$log.substrate.grainsize > 5) ] = 5
+
 
       ps_varnames = setdiff( p$varnames, p$variables$LOCS )
 
       PS = PS[ which(names(PS) %in% ps_varnames ) ] # time vars, if they are part of the model will be created within lbm
-
-      oo = setdiff(p$varnames, ps_varnames )
+ 
+      oo = setdiff(p$varnames, c(ps_varnames, p$variables$LOCS) )
       if (length(oo) > 0 ) {
         print(oo )
         warning("Some variables are missing in the prediction surface, PS")
@@ -467,3 +492,4 @@
     }
 
  }
+ 

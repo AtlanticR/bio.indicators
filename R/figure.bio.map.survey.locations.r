@@ -10,9 +10,9 @@ figure.bio.map.survey.locations = function( p ) {
 
   dscols=c( snowcrab="green", groundfish="orange" )
   points( set$lon, set$lat, pch=20, cex=0.5, col=dscols[set$data.source]  )
-
-  sp::compassRose( sab.loc[1]+2.3 , sab.loc[2]-4.3, cex= 0.7 )
-  maps::map.scale( sab.loc[1]+1 , sab.loc[2]-5.1, ratio=FALSE, cex=0.8 )
+  rose.loc = c( mean( set$lon), mean(set$lat) ) 
+  sp::compassRose( rose.loc[1]+2.3 , rose.loc[2]-4.3, cex= 0.7 )
+  maps::map.scale( rose.loc[1]+1 , rose.loc[2]-5.1, ratio=FALSE, cex=0.8 )
   box()
 
 }

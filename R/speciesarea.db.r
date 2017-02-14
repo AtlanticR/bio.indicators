@@ -156,7 +156,7 @@
       yrs = sort( unique( SA$yr ) )
 
       # check for duplicates
-      for ( y in p$yearstomodel ) {
+      for ( y in p$yrs ) {
         yy = which (SA$yr == y)
         ii = which( duplicated( SA$id[yy] ) )
 

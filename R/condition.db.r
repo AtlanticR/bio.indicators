@@ -23,7 +23,7 @@
       if (length(igood)>0) set = set[igood, ]
 
       # last filter on set:: filter years
-      set = set[ which(set$yr %in% p$yearstomodel) , ]
+      set = set[ which(set$yr %in% p$yrs) , ]
 
       oo = which(!is.finite( set$plon+set$plat ) )
       if (length(oo)>0)  set = set[ -oo, ]  # a required field for spatial interpolation

@@ -24,7 +24,7 @@
       if (length(oo)>0)  set = set[ -oo, ]  # a required field for spatial interpolation
 
       # last filter on set:: filter years
-      set = set[ which(set$yr %in% p$yearstomodel) , ]
+      set = set[ which(set$yr %in% p$yrs) , ]
       save( set, file=fn, compress=T )
       return (fn)
     }

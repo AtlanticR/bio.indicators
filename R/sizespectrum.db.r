@@ -159,7 +159,7 @@
       if (length(oo)>0) SS = SS[ -oo , ]  # a required field for spatial interpolation
 
       # check for duplicates
-      for ( y in p$yearstomodel ) {
+      for ( y in p$yrs ) {
         yy = which (sm$yr == y)
         ii = which( duplicated( sm$id[yy] ) )
 
