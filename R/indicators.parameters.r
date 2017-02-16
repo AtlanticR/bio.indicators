@@ -9,7 +9,7 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$libs = c( p$libs, RLibrary ( "lubridate", "rgdal", "parallel", "sp", "lattice", "fields", "mgcv" ) )
     p$libs = c( p$libs, bioLibrary (
       "bio.base", "bio.utilities", "bio.taxonomy", "bio.spacetime",  
-      "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators") )
+      "bio.bathymetry", "bio.temperature", "bio.substrate", "bio.indicators", "lbm") )
 
     p$data.sources = c("groundfish", "snowcrab")
      
@@ -69,7 +69,6 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     p$project.name=DS    
     p$project.root = file.path( project.datadirectory( "bio.indicators"), p$project.name )
     p$taxa = "maxresolved"
-    p$timescale = c( 0,1,2,5,10 ) # yr
     p$varstomodel = c( "ca1", "ca2", "pca1", "pca2" )
     # p$varstomodel = c( "ca1", "ca2" )
   
@@ -114,10 +113,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     # for spatial interpolation of nss stats
     # p$varstomodel = c( "nss.rsquared", "nss.df", "nss.b0", "nss.b1", "nss.shannon" )
     p$varstomodel = c( "nss.b0", "nss.b1", "nss.shannon" )
-    p$timescale = c( 0,1,2,5 ) # yr
 
     # for generation of nss
-    p$ntimescale = length(p$timescale)
     p$nss.distances=50  # km
     p$nss.stimes= 50 # days
     p$nss.type ="mass"

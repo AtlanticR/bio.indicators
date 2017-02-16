@@ -15,7 +15,7 @@
   # lbm; vn="pca2"
   for ( vn in p$varstomodel) {
     print(vn)
-
+    require(lbm)
     p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
     p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
     p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
@@ -26,10 +26,6 @@
     lbm( p=p, tasks=c( "stage1" ) ) #  ~1-2 hrs (1999-2016) 
     lbm( p=p, tasks=c( "stage2" ) ) #  ~ 1 hrs
     lbm( p=p, tasks=c( "save" ) )
-  
-    # p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
-    # p = bio.indicators::indicators.parameters( p=p, DS="speciescomposition"  )
-    # p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
   
     p = make.list( list( yrs=p$yrs), Y=p )
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
