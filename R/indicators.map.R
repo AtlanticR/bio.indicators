@@ -66,7 +66,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       xyz = xyz[uu,]
       datarange = indicators.lookup.mapparams( DS="datarange", voi ) # hardcoded data ranges 
       if (is.null(datarange)) {
-        datarange=quantile(xyz[,3], probs=c(0.005,0.995), na.rm=TRUE) 
+        datarange=quantile(xyz[,3], probs=c(0.001,0.999), na.rm=TRUE) 
         datarange = seq( datarange[1], datarange[2], length.out=100 )
       }
       cols = color.code( "blue.black", datarange )
@@ -102,7 +102,7 @@ indicators.map = function( ip=NULL, p=NULL, type="all", voi=NULL ) {
       datarange= NULL
       datarange = indicators.lookup.mapparams( DS="datarange", vn) # hardcoded data ranges 
       if (is.null(datarange)) {
-        datarange=quantile(xyz[,3], probs=c(0.005,0.995), na.rm=TRUE) 
+        datarange=quantile(xyz[,3], probs=c(0.001,0.999), na.rm=TRUE) 
         datarange = seq( datarange[1], datarange[2], length.out=100 )
       }
       cols = color.code( "blue.black", datarange )

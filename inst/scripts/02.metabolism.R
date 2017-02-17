@@ -28,10 +28,6 @@
     lbm( p=p, tasks=c( "stage2" ) ) #  1 hrs
     lbm( p=p, tasks=c( "save" ) )
  
-    p = bio.indicators::indicators.parameters( DS="default", current.year=current.year )
-    p = bio.indicators::indicators.parameters( p=p, DS="metabolism"  )
-    p = bio.indicators::indicators.parameters( p=p, DS="lbm", varname=vn )
-  
     p = make.list( list( yrs=p$yrs), Y=p )
     parallel.run( indicators.db, p=p, DS="predictions.redo" ) # warp predictions to other grids
     indicators.db( p=p, DS="lbm.stats.redo" ) # warp stats to other grids
@@ -84,7 +80,6 @@ GCV = 9.1465e+08  Scale est. = 9.1399e+08  n = 22230
 ---
 
 
-
 Family: gaussian 
 Link function: identity 
 
@@ -97,27 +92,27 @@ smr ~ s(t, k = 3, bs = "ts") + s(tsd.climatology, k = 3, bs = "ts") +
 
 Parametric coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 5.238e-03  1.061e-05   493.7   <2e-16 ***
+(Intercept) 0.0055192  0.0000149   370.3   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Approximate significance of smooth terms:
-                             edf Ref.df        F  p-value    
-s(t)                       1.882      2 1295.313  < 2e-16 ***
-s(tsd.climatology)         1.986      2   64.725  < 2e-16 ***
-s(tmean.climatology)       1.988      2  210.982  < 2e-16 ***
-s(log(t.range))            1.799      2    9.598 2.68e-05 ***
-s(log(b.range))            1.999      2   14.937 3.16e-07 ***
-s(log(z))                  1.967      2   57.916  < 2e-16 ***
-s(log(dZ))                 1.776      2    2.336   0.0721 .  
-s(log(ddZ))                1.967      2   17.261 1.82e-08 ***
-s(log.substrate.grainsize) 1.857      2  109.109  < 2e-16 ***
+                             edf Ref.df       F  p-value    
+s(t)                       1.983      2 586.368  < 2e-16 ***
+s(tsd.climatology)         1.998      2  74.818  < 2e-16 ***
+s(tmean.climatology)       1.463      2  76.785  < 2e-16 ***
+s(log(t.range))            1.800      2   5.143   0.0034 ** 
+s(log(b.range))            1.999      2  22.493 1.67e-10 ***
+s(log(z))                  1.973      2  81.062  < 2e-16 ***
+s(log(dZ))                 1.785      2   1.585   0.1684    
+s(log(ddZ))                1.976      2  27.487 5.79e-13 ***
+s(log.substrate.grainsize) 1.976      2  34.289 7.35e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-R-sq.(adj) =   0.14   Deviance explained = 14.1%
-GCV = 2.5048e-06  Scale est. = 2.5028e-06  n = 22230
----
+R-sq.(adj) =  0.125   Deviance explained = 12.6%
+GCV = 2.8606e-06  Scale est. = 2.8566e-06  n = 12860
+
 
 
 
@@ -267,3 +262,6 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 R-sq.(adj) =  0.103   Deviance explained = 10.4%
 GCV = 0.020771  Scale est. = 0.020755  n = 23302
 ---
+
+
+

@@ -94,8 +94,7 @@
 
       p$nsets = nrow( sm )
       p$nlengthscale = length(p$nss.bins)
-      p$ntimescale = length(p$nss.stimes)
-
+    
       if (p$use.bigmemory.file.backing) {
         p$fn.tmp = file.path(  make.random.string( "nss.bigmemory.tmp" ) )
         p$fn.desc = paste( p$fn.tmp, "desc", sep="." )
