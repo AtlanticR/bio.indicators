@@ -7,7 +7,9 @@ indicators.lookup.mapparams = function( DS="datarange", vn ){
     if ( vn == "ca2" ) datarange = seq(-3, 3, length.out=100)
     if ( vn == "pca1" ) datarange = seq(-0.4, 0.6, length.out=100)
     if ( vn == "pca2" ) datarange = seq(-0.5, 0.6, length.out=100)
-    if ( vn == "smr" )  datarange = seq(0.003, 0.009, length.out=100)
+    if ( vn == "smr" )  datarange = seq(0.006, 0.019, length.out=100)
+    if ( vn == "mr" )  datarange = seq(0, 80000, length.out=100)
+    if ( vn == "Npred" )  datarange = seq(70, 140, length.out=100)
     
     if ( grepl("rsquared", vn, ignore.case=TRUE) ) datarange = seq(0.1, 0.99, length.out=100)
     if ( grepl("phi", vn) ) datarange = seq(0.5, 50, length.out=100)

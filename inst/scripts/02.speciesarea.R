@@ -16,7 +16,8 @@
 
 
   # -----------------------------
-  # lbm; vn="smr" 
+  # lbm 
+  # vn="Npred" 
   for ( vn in p$varstomodel) {
     print(vn)
 

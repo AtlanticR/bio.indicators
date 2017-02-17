@@ -404,17 +404,17 @@ PS$log.substrate.grainsize [ which( PS$log.substrate.grainsize > 5) ] = 5
           PSsd[,iy] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="sd")
         }
 
-        qPS = quantile( PS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
-        u = which( PS < qPS[1])
-        if (length(u)>0) PS[u] = qPS[1]
-        v = which( PS > qPS[2])
-        if (length(v)>0) PS[v] = qPS[2]
+        # qPS = quantile( PS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        # u = which( PS < qPS[1])
+        # if (length(u)>0) PS[u] = qPS[1]
+        # v = which( PS > qPS[2])
+        # if (length(v)>0) PS[v] = qPS[2]
         
-        qPSsd = quantile( PSsd, probs=p$lbm_quantile_bounds, na.rm=TRUE )
-        u = which( PSsd < qPSsd[1])
-        if (length(u)>0) PSsd[u] = qPSsd[1]
-        v = which( PSsd > qPSsd[2])
-        if (length(v)>0) PSsd[v] = qPSsd[2]
+        # qPSsd = quantile( PSsd, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        # u = which( PSsd < qPSsd[1])
+        # if (length(u)>0) PSsd[u] = qPSsd[1]
+        # v = which( PSsd > qPSsd[2])
+        # if (length(v)>0) PSsd[v] = qPSsd[2]
       
         CL = cbind( apply( PS, 1, mean, na.rm=TRUE ), apply( PSsd, 1, mean, na.rm=TRUE ) )
         colnames(CL) = paste( voi, c("mean", "sd"), "climatology", sep=".")
@@ -466,11 +466,11 @@ PS$log.substrate.grainsize [ which( PS$log.substrate.grainsize > 5) ] = 5
           TS[,i] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="mean")
          }
 
-        qTS = quantile( TS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
-        u = which( TS < qTS[1])
-        if (length(u)>0) TS[u] = qTS[1]
-        v = which( TS > qTS[2])
-        if (length(v)>0) TS[v] = qTS[2]
+        # qTS = quantile( TS, probs=p$lbm_quantile_bounds, na.rm=TRUE )
+        # u = which( TS < qTS[1])
+        # if (length(u)>0) TS[u] = qTS[1]
+        # v = which( TS > qTS[2])
+        # if (length(v)>0) TS[v] = qTS[2]
   
 
         projectdir = file.path(p$project.root, "modelled", voi, p1$spatial.domain )
