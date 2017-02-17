@@ -398,6 +398,7 @@ PS$log.substrate.grainsize [ which( PS$log.substrate.grainsize > 5) ] = 5
         nL1 = nrow(L1)
         PS = PSsd = matrix( NA, nrow=nL1, ncol=p$ny )
         if (is.null(voi)) p1$variables$Y = voi # need to send this to get the correct results
+        p1$savedir = file.path(p1$project.root, "modelled", p1$variables$Y, p1$spatial.domain )
         for (iy in 1:p$ny) {
           yr = p$yrs[iy]
           PS[,iy] = lbm_db( p=p1, DS="lbm.prediction", yr=yr, ret="mean")
