@@ -187,8 +187,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     
     if (!exists("lbm_rsquared_threshold", p)) p$lbm_rsquared_threshold = 0.1 # lower threshold
     if (!exists("lbm_distance_statsgrid", p)) p$lbm_distance_statsgrid = 2 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
-    if (!exists("lbm_distance_prediction", p)) p$lbm_distance_prediction = p$lbm_distance_statsgrid # this is a half window km
-    if (!exists("lbm_distance_scale", p)) p$lbm_distance_scale = 25 # km ... approx guess of 95% AC range 
+    if (!exists("lbm_distance_prediction", p)) p$lbm_distance_prediction = p$lbm_distance_statsgrid *0.75 # this is a half window km
+    if (!exists("lbm_distance_scale", p)) p$lbm_distance_scale = 30 # km ... approx guess of 95% AC range 
     if (!exists("lbm_distance_min", p)) p$lbm_distance_min = p$lbm_distance_statsgrid 
     if (!exists("lbm_distance_max", p)) p$lbm_distance_max = 75
   
