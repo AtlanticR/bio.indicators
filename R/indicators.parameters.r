@@ -188,11 +188,11 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
     if (!exists("lbm_rsquared_threshold", p)) p$lbm_rsquared_threshold = 0.1 # lower threshold
     if (!exists("lbm_distance_statsgrid", p)) p$lbm_distance_statsgrid = 2 # resolution (km) of data aggregation (i.e. generation of the ** statistics ** )
     if (!exists("lbm_distance_prediction", p)) p$lbm_distance_prediction = p$lbm_distance_statsgrid *0.75 # this is a half window km
-    if (!exists("lbm_distance_scale", p)) p$lbm_distance_scale = 30 # km ... approx guess of 95% AC range 
+    if (!exists("lbm_distance_scale", p)) p$lbm_distance_scale = 40 # km ... approx guess of 95% AC range 
     if (!exists("lbm_distance_min", p)) p$lbm_distance_min = p$lbm_distance_statsgrid 
     if (!exists("lbm_distance_max", p)) p$lbm_distance_max = 75
   
-    if (!exists("n.min", p)) p$n.min = 50 # n.min/n.max changes with resolution must be more than the number of knots/edf
+    if (!exists("n.min", p)) p$n.min = 100 # n.min/n.max changes with resolution must be more than the number of knots/edf
     # min number of data points req before attempting to model timeseries in a localized space
     if (!exists("n.max", p)) p$n.max = 8000 # no real upper bound
 
@@ -224,8 +224,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
       p$lbm_local_modelformula = formula( paste(
         varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
-          ' + s(cos.w, sin.w, yr, bs="ts", k=10) ',
-          ' + s(plon, k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=10, bs="ts") ' ) )
+          ' + s(cos.w, sin.w, yr, bs="ts", k=16) ',
+          ' + s(plon, k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=16, bs="ts") ' ) )
       p$lbm_local_model_distanceweighted = TRUE
 
       # p$lbm_twostep_space = "spatial.process"
@@ -237,8 +237,8 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
       p$lbm_local_modelformula = formula( paste(
      varname, '~ s(yr, k=5, bs="ts") + s(cos.w, k=3, bs="ts") + s(sin.w, k=3, bs="ts") ', 
-          ' + s(cos.w, sin.w, yr, bs="ts", k=10) ',
-          ' + s(plon, k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=10, bs="ts") ' ) )
+          ' + s(cos.w, sin.w, yr, bs="ts", k=16) ',
+          ' + s(plon, k=3, bs="ts") + s(plat, k=3, bs="ts") + s(plon, plat, k=16, bs="ts") ' ) )
 
       p$lbm_local_model_distanceweighted = TRUE
       p$lbm_gam_optimizer="perf"
