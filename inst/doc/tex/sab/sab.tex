@@ -45,7 +45,7 @@
 
 
 %%% Equation and float numbering
-\usepackage{amsmath,amsfonts,amlbm}										% Math packages
+\usepackage{amsmath,amsfonts}										% Math packages
 \numberwithin{equation}{section}		% Equationnumbering: section.eq#
 \numberwithin{figure}{section}		% Figurenumbering: section.fig#
 \numberwithin{table}{section}				% Tablenumbering: section.tab#
@@ -159,15 +159,13 @@ hyperref,
 
 \date{}
 %%% misc commands
-\newcommand{\ecomod}{\string~/ecomod_data/}   %  \string~ is a representation of the home directory 
-\newcommand{\mpa}{\ecomod/mpa/}       %  \string~ is a representation of the home directory 
-\newcommand{\sab}{\ecomod/mpa/sab/}   %  \string~ is a representation of the home directory 
-\newcommand{\analysis}{\ecomod/mpa/analysis/}   %  \string~ is a representation of the 
-
+\newcommand*{\D}{.} 
+\newcommand{\biodata}{\string~/bio\D data}   %  \string~ is a representation of the home directory 
+\newcommand{\mpa}{\biodata/bio\D indicators/mpa}  %  \string~ is a representation of the home directory 
 
 \begin{document}
 
-% \include{\mpa /tex/sab/sab/csas_coverpage.tex}
+% \include{\mpa/sab/csas_coverpage.tex}
 % \maketitle
 
 \setlength{\parskip}{12 pt} % spacing between paragraphs
@@ -229,8 +227,8 @@ In, An Ecological Overview and Assessment Report for SAB \parencite{Ford:2013:sa
 \begin{figure}[h]
 
   \centering
-  %\includegraphics[width=0.6\textwidth]{\analysis/maps/mpa_closeup.pdf}
-  \includegraphics[width=0.6\textwidth]{\sab SAB_MPA.pdf}
+  %\includegraphics[width=0.6\textwidth]{\mpa/maps/mpa_closeup.pdf}
+  \includegraphics[width=0.6\textwidth]{\mpa/sab/SAB_MPA.pdf}
   \caption{Bathymetic (100 m resolution) chart of the  St. Anns Bank area with the proposed St Anns Bank Marine Protected Area (thick maroon polygon) and limited fishing zones (maroon lined polygons). See Figure\ref{fig:SAB} for geographic location in a larger map.}
     \label{fig:SABCloseup}
 \end{figure}
@@ -268,7 +266,7 @@ As such, we emphasize that this report is a simplistic first attempt at developi
 
 In this section we focus upon a description of the data chosen for inclusion in this assessment. The purpose of the section is basic: to clearly identify the data, sampling design, and the associated assumptions and methods required/used to filter and integrate them in an informative manner. 
 
-For the sake of transparency, all data assimilation and QA/QC methods have been encoded in an open-sourced analytical environment R \parencite{rCran} and made publicly accessible at \url{https://github.com/jae0/ecomod/} to permit flexible and adaptive multiuser contributions through the \textbf{Git revision control system} and a uniform  data system. This approach permits the development of a coherent and vetted data system that can be used by multiple parties to develop further methods and approaches. In this way, we see this project as a real and flexible \textbf{structural framework} in the sense of a scaffolding, to build a monitoring and assessment system that can be easily transfered to other Regions and domains and assist in other mandates. 
+For the sake of transparency, all data assimilation and QA/QC methods have been encoded in an open-sourced analytical environment R \parencite{rCran} and made publicly accessible at \url{https://github.com/jae0/} and \url{https://github.com/Beothuk/} to permit flexible and adaptive multiuser contributions through the \textbf{Git revision control system} and a uniform  data system. This approach permits the development of a coherent and vetted data system that can be used by multiple parties to develop further methods and approaches. In this way, we see this project as a real and flexible \textbf{structural framework} in the sense of a scaffolding, to build a monitoring and assessment system that can be easily transfered to other Regions and domains and assist in other mandates. 
 
 
 \subsection{Study area}
@@ -278,7 +276,7 @@ Any evaluation of MPA status and effectiveness in meeting conservation objective
   \caption{Map of the data extraction area 37N to 48N and from 48W to 71W and the relative location of the St Anns Bank MPA.}
   \label{fig:SAB}
   \centering
-  \includegraphics[width=0.6\textwidth]{\analysis/maps/mpa.pdf}
+  \includegraphics[width=0.6\textwidth]{\mpa/maps/mpa.pdf}
 
 \end{figure}
 
@@ -323,7 +321,7 @@ To characterise human usage patterns, the following have been chosen for inclusi
   \item Sampling: AZMP surveys, Groundfish surveys, pelagic net tows and water profiles
   \item Spatial coverage: variable no. stations, 143,499 records, 829 missions
   \item Temporal coverage:,  1955 to present, annual surveys
-  \item Source code: \url{https://github.com/jae0/ecomod/biochem/src/biochem.r}
+  \item Source code: \url{https://github.com/jae0/bio.indicators/inst/scripts/biochem.r}
 \end{itemize}
 
 Discrete bottle data consisting of chlorophyll-a and nutrient records (nitrate, phosphate and silicate) were obtained by laboratory analysis of water samples collected at discrete depths. For this study all available nutrient and chlorophyll-a discrete bottle data were extracted from DFO's BioChem database for the study area. This dataset contains more than 500,000 records with the earliest records starting in 1955. After QA/QC, the discrete bottle data retained for analysis was comprised of 143,499 profiles, collected on 829 missions (Figure~\ref{fig:BottleMap}).
@@ -333,28 +331,28 @@ The number of profiles available in each year (Figure~\ref{fig:ChloroMap}) shows
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 2.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/2.png}
   \caption{Number of chlorophyll and nutrient profiles extracted from the BioChem database for each year since 1955.}
     \label{fig:ChloroMap}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 3.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/3.png}
   \caption{Number of chlorophyll and nutrient profiles extracted from the BioChem database for the time period 1955-2014, grouped monthly.}
     \label{fig:ChloroFreq}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 4.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/4.png}
   \caption{Monthly spatial distribution of discrete bottle data for the time period 1955-2014.}
    \label{fig:BottleMap}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 5.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/5.png}
   \caption{Depth profiles of chlorophyll-a and nutrients; all data for the time period 1955-2014.}
     \label{fig:ChloroProfiles}
 \end{figure}
@@ -367,7 +365,7 @@ The number of profiles available in each year (Figure~\ref{fig:ChloroMap}) shows
   \item Sampling:  AZMP surveys, Groundfish surveys, pelagic net tows, 400 taxonomic species
   \item Spatial coverage: 2367 net deployments, 126 missions 
   \item Temporal coverage:,  1999 to 2014, annual surveys
-  \item Source code: https://github.com/jae0/ecomod/biochem/src/biochem.r
+  \item Source code: https://github.com/jae0/bio.indicators/inst/scripts/biochem.r
 \end{itemize}
 
 Number of net deployments for each month is shown in Figure~\ref{fig:AZMPdeploymentsMonthly} and the corresponding spatial distribution of the net deployments are shown in Figure~\ref{fig:AZMPdeploymentsMonthlyMap}. Note that most of the net data were collected in July during summer groundfish survey missions and in April and October on AZMP spring and fall missions while winter months contain mostly fixed station data (Halifax 2 and Prince 5).
@@ -376,14 +374,14 @@ Abundance patterns are found in Figure~\ref{fig:AZMPBiomassMonthly}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 6.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/6.png}
   \caption{Total number of net deployments for each month during the time period 1999-2014.}
     \label{fig:AZMPdeploymentsMonthly}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 7.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/7.png}
   \caption{Spatial distribution of net deployments included in the zooplankton dataset. }
   \label{fig:AZMPdeploymentsMonthlyMap}
 \end{figure}
@@ -391,12 +389,12 @@ Abundance patterns are found in Figure~\ref{fig:AZMPBiomassMonthly}.
 \begin{figure}[h]
   \centering
   \begin{tabular}{cc}
-      \includegraphics[width=0.45\textwidth]{\sab 8.png}
-      \includegraphics[width=0.45\textwidth]{\sab 9.png}
+      \includegraphics[width=0.45\textwidth]{\mpa/sab/8.png}
+      \includegraphics[width=0.45\textwidth]{\mpa/sab/9.png}
   \end{tabular}
   \begin{tabular}{cc}
-      \includegraphics[width=0.45\textwidth]{\sab 10.png}
-      \includegraphics[width=0.45\textwidth]{\sab 11.png}
+      \includegraphics[width=0.45\textwidth]{\mpa/sab/10.png}
+      \includegraphics[width=0.45\textwidth]{\mpa/sab/11.png}
   \end{tabular}
   \caption{Monthly averages of all data from 1999 to 2014: total abundance (top left), total biomass computed from wet weight (top right), ratio of total biomass computed from wet weight  to total abundance (bottom left) as a potential measure of the average weight of the individual organism, and abundance of \textit{Calanus finmarchicus}, \textit{Calanus hyperboreus}, and \textit{Calanus glacialis} (botton right) }
   \label{fig:AZMPBiomassMonthly}
@@ -413,7 +411,7 @@ Abundance patterns are found in Figure~\ref{fig:AZMPBiomassMonthly}.
   \item Sampling:  MODIS
   \item Spatial coverage: 39 N to 62.5 N and 42 W to 71 W, resolution of 1.5 km
   \item Temporal coverage: August 2002 to March 2015, 610 quarter-monthly (8-day) composite  images
-  \item Source code: \url{https://github.com/jae0/ecomod/remote.sensing/src/remoting.sensing.r}
+  \item Source code: \url{https://github.com/jae0/bio.indicators/inst/scripts/remoting.sensing.r}
 \end{itemize}
 
 Ocean colour refers to the spectral distribution of light emerging from the ocean which carries information about water constituents, particularly about biologically useful chlorophyll concentration in the surface layer. When measured from satellites it provides unique synoptic view of chlorophyll spatial distribution over large areas of the ocean on a daily time scale.
@@ -430,12 +428,12 @@ The values of chlorophyll-a pixels within St. Anns Bank polygon were extracted f
 
   \centering
   \begin{tabular}{cc}
-    \includegraphics[width=0.45\textwidth]{\sab 12.jpg}
-    \includegraphics[width=0.45\textwidth]{\sab 13.jpg}
+    \includegraphics[width=0.45\textwidth]{\mpa/sab/12.jpg}
+    \includegraphics[width=0.45\textwidth]{\mpa/sab/13.jpg}
   \end{tabular}
   \begin{tabular}{cc}
-    \includegraphics[width=0.45\textwidth]{\sab 14.jpg}
-    \includegraphics[width=0.45\textwidth]{\sab 15.jpg}
+    \includegraphics[width=0.45\textwidth]{\mpa/sab/14.jpg}
+    \includegraphics[width=0.45\textwidth]{\mpa/sab/15.jpg}
   \end{tabular}
   \caption{MODIS semi-monthly Chl-a concentration showing spring bloom progression in the NW Atlantic in 2012. Note the intense bloom at St. Anns Bank during the last two weeks in March.}
    \label{fig:MapChlaBloomSpring}
@@ -445,7 +443,7 @@ The values of chlorophyll-a pixels within St. Anns Bank polygon were extracted f
 \begin{figure}[h]
  
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 16.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/16.png}
   \caption{Chlorophyll-a concentration extracted from MODIS 8-day composite images for St.Anns Bank polygon for the time period 2002-2015.}
    \label{fig:modisChlaTS}
 \end{figure}
@@ -454,7 +452,7 @@ The values of chlorophyll-a pixels within St. Anns Bank polygon were extracted f
 \begin{figure}[h]
 
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 17.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/17.png}
   \caption {Average Chorophyll-a concentration computed from 8-day composite images for St.Anns bank polygon for the time period 2002-2015. }
     \label{fig:ChlaSeasonal}
 \end{figure}
@@ -468,7 +466,7 @@ The values of chlorophyll-a pixels within St. Anns Bank polygon were extracted f
   \item Sampling:  MODIS, ...
   \item Spatial coverage: 39 N to 62.5 N and 42 W to 71 W, resolution of 1.5 km
   \item Temporal coverage: July 2002 to December 2014, 150 monthly  images
-  \item Source code \url{https://github.com/jae0/ecomod/remote.sensing/src/remoting.sensing.r}
+  \item Source code \url{https://github.com/jae0/bio.indicators/inst/scripts/remoting.sensing.r}
 \end{itemize}
 
 Marine primary production plays an important role in biogeochemical cycles, in food web dynamics, and in marine fisheries. It may be defined as the amount of organic material (or organic carbon) produced per unit area (or volume) per unit time by photosynthetic plants, predominately by phytoplankton.
@@ -482,7 +480,7 @@ Primary production for each pixel within St. Anns Bank polygon was extracted fro
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 18.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/18.png}
   \caption{Annual monthly Primary Production (PP) computed from PP composite images for St.Anns bank polygon for the time period 2002-2014.}
     \label{fig:ppTSmonthly}
 \end{figure}
@@ -490,7 +488,7 @@ Primary production for each pixel within St. Anns Bank polygon was extracted fro
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 19.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/19.png}
   \caption{Average Primary Production (PP) computed from monthly composite images for St.Anns bank polygon for the time period 2002-2014.}
     \label{fig:ppTSannual}
 \end{figure}
@@ -505,7 +503,7 @@ Primary production for each pixel within St. Anns Bank polygon was extracted fro
   \item Sampling:  AVHRR
   \item Spatial coverage: 39 N to 62.5 N and 42 W to 71 W, resolution of 1.5 km
   \item Temporal coverage: December 1997 to March 2015, 845 8-day composite images
-  \item Source code: \url{https://github.com/jae0/ecomod/remote.sensing/src/remoting.sensing.r}
+  \item Source code: \url{https://github.com/jae0/bio.indicators/inst/scripts/remoting.sensing.r}
 \end{itemize}
 
 Sea Surface Temperature (SST) from space is measured using infrared channels of the Advanced Very High Resolution Radiometer (AVHRR) on board the polar-orbiting satellites.
@@ -517,12 +515,12 @@ The SST pixels within St. Anns Bank polygon were extracted from each 8-day compo
 \begin{figure}[h]
   \centering
   \begin{tabular}{cc}
-    \includegraphics[width=0.5\textwidth]{\sab 20.jpg}
-    \includegraphics[width=0.5\textwidth]{\sab 21.jpg} 
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/20.jpg}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/21.jpg} 
   \end{tabular}
   \begin{tabular}{cc}
-    \includegraphics[width=0.5\textwidth]{\sab 22.jpg}
-    \includegraphics[width=0.5\textwidth]{\sab 23.jpg}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/22.jpg}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/23.jpg}
   \end{tabular}
   \caption{Bi-weekly composites from AVHRR showing SST in the North West Atlantic in the spring of 2012, corresponding to the intense spring bloom at St.Anns bank shown in Figure~\ref{fig:ChlaSeasonal}.}
     \label{fig:SSTfromAVHRRmap}
@@ -530,7 +528,7 @@ The SST pixels within St. Anns Bank polygon were extracted from each 8-day compo
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 24.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/24.png}
   \caption{Sea Surface Temperature (SST) extracted from 8-day AVHRR composite images for St.Anns bank polygon for the time period 1997-2015.}
     \label{fig:SSTfromAVHRRts}
 \end{figure}
@@ -538,7 +536,7 @@ The SST pixels within St. Anns Bank polygon were extracted from each 8-day compo
 \begin{figure}[h]
 
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 25.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/25.png}
   \caption{Average Sea Surface Temperature (SST) computed from 8-day AVHRR composite images for St.Anns bank polygon for the time period 1997-2015.}
     \label{fig:SstSeasonal}
 \end{figure}
@@ -553,7 +551,7 @@ The SST pixels within St. Anns Bank polygon were extracted from each 8-day compo
   \item Sampling:  Groundfish survey, snow crab survey, AZMP profiles 
   \item Spatial coverage: full extent, varied sampling
   \item Temporal coverage: 1950 - present (more historical data present but coverage is variable)
-  \item Source code: https://github.com/jae0/ecomod/temperature/src/temperature.r
+  \item Source code: https://github.com/jae0/bio.temperature/inst/scripts/temperature.r
 \end{itemize}
 
 Numerous data sources have been compiled by Ocean Sciences Division. The data were QA/QC controlled and then modeled in a two-part process, temporal (first order harmonic analysis) and then simple spatial interpolations via localized Generalized Additive Models with a spatial extent that varied as a function of data density. 
@@ -561,7 +559,7 @@ Numerous data sources have been compiled by Ocean Sciences Division. The data we
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.5\textwidth]{\ecomod temperature/maps/SSE/bottom.predictions/global/{temperatures.bottom}.png}
+  \includegraphics[width=0.5\textwidth]{\biodata/bio\D temperature/maps/SSE/bottom.predictions/global/{temperatures.bottom}.png}
   \caption{Average bottom temperatures computed from all available data 1950-2016.}
     \label{fig:TemperatureBottomMap}
 \end{figure}
@@ -585,8 +583,8 @@ Numerous data sources have been compiled by Ocean Sciences Division. The data we
 
   \item Source code
       \begin{itemize}
-        \item https://github.com/jae0/ecomod/groundfish/src/groundfish.r
-        \item https://github.com/jae0/ecomod/snowcrab/src/1.snowcrab.r
+        \item https://github.com/jae0/bio.groundfish/inst/scripts/groundfish.r
+        \item https://github.com/jae0/bio.snowcrab/inst/scripts/1.snowcrab.r
       \end{itemize}
   
 \end{itemize}
@@ -599,8 +597,8 @@ The Groundfish survey (Figure~\ref{fig:trawlLocationsMap}) utilizes a Western II
 \begin{figure}[h]
   \centering
   	\begin{tabular}{cc}
-      \includegraphics[width=0.5\textwidth]{\analysis maps/{trawl.spatial.density}.pdf} &
-      \includegraphics[width=0.5\textwidth]{\analysis {trawl.time.density}.pdf}
+      \includegraphics[width=0.5\textwidth]{\mpa/maps/{trawl.spatial.density}.pdf} &
+      \includegraphics[width=0.5\textwidth]{{\mpa/sab/trawl.time.density}.pdf}
     \end{tabular}
   \caption{Left: Survey locations in the Groundfish survey (orange) and snow crab survey (green). Right: Timing of surveys in the Groundfish survey (orange) and snow crab survey (green). }
    \label{fig:trawlLocationsMap}
@@ -621,7 +619,7 @@ To address these important and incorrect assumptions, algorithms were developed 
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/analysis/numberOfSets.pdf}
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/numberOfSets.pdf}
   \caption{Number of sets in the Groundfish surveys and the number of sets with usable net configuration data.}
   \label{fig:groundfishNoSets}
 \end{figure}
@@ -630,7 +628,7 @@ To address these important and incorrect assumptions, algorithms were developed 
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/analysis/toweddistance.pdf}
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/toweddistance.pdf}
   \caption{Towed distance comparisons in the groundfish survey.}
     \label{fig:groundfishTowDistance}
 \end{figure}
@@ -639,7 +637,7 @@ To address these important and incorrect assumptions, algorithms were developed 
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\textwidth]{\ecomod mpa/analysis/{wing.v.door.byyear}.pdf}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/{wing.v.door.byyear}.pdf}
  \caption{Net spread variations by year. Note in 2011, the doorspread sensors seem to have failed completely. Note also that wingspread has been significantly larger from 2013 to 2015.}
    \label{fig:groundfishWingDoorAnnual}
 \end{figure}
@@ -648,7 +646,7 @@ To address these important and incorrect assumptions, algorithms were developed 
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/analysis/{wing.v.door}.pdf}
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/{wing.v.door}.pdf}
   \caption{Net spread variations: doorspread vs wingspread. Note also that wingspread has been significantly larger from 2013 to 2015 but not doorspread.}
   \label{fig:groundfishWingDoorComparison}
 \end{figure}
@@ -657,8 +655,8 @@ To address these important and incorrect assumptions, algorithms were developed 
 \begin{figure}
   \centering
   \begin{tabular}{cc}
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/analysis/{sa.comparison}.pdf} &
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/analysis/{sa.comparison.all}.pdf}
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/{sa.comparison}.pdf} &
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/{sa.comparison.all}.pdf}
   \end{tabular}
   \caption{Left: Surface area estimates based on GSINF logged start-end positions vs computed surface area estimated from tow track and net configuration. Right: Surface area estimates based on GSINF logged start-end positions vs computed surface area estimated from tow track and net configuration \textbf{as well as modeled solutions}.}
    \label{fig:groundfishSweptArea}
@@ -699,7 +697,7 @@ An overview (in Google Earth format) of the catch and sampling at these stations
 	\item Sampling:  MarfIS and ZIFF
 	\item Spatial coverage: full extent 
 	\item Temporal coverage: 1999 - present
-	\item Source code: \url{https://github.com/jae0/ecomod/marfissci/src/}
+	\item Source code: \url{https://github.com/jae0/bio.indicators/R/marfissci*}
 \end{itemize}	
 
 
@@ -726,7 +724,7 @@ Most log records included the spatial location of the catch, and some catches ha
 Many logs have no usable coordinates \textendash  either they are left blank, or they are clearly incorrect (i.e. on land).  Rather than discarding this data, we still extracted it, and attempted to account for this biomass in the next section.
 
 The extraction logic is captured in: \\
-\url{https://github.com/jae0/ecomod/mpa/src/\_Rfunctions/marfissci.get.data.R}.
+\url{https://github.com/jae0/bio.indicators/R/marfissci.get.data.R}.
 
 The script above allows the user to specify one or more species and on or more years, and the data will be extracted and saved in a local file.  This file serves as the input to the next step \textendash Data Layer Aggregation.
 
@@ -747,7 +745,7 @@ identified all \textquotedblleft un-positionable\textquotedblright  data and re-
 
 %In addition to the landings, we have also included several other forms of catch so as to better reflect the removal of biomass. These catches include those used as bait or discarded (including live, dead and unspecified). The position logic was the same as that used above. Additionally, these catches are self-reported in a variety of units, so they are converted to kg as necessary to match the logged landings The catch consisting of "live discards" will not be included in the final report.
 
-%The extraction logic is captured in the script found at: \url{https://github.com/jae0/ecomod/mpa/src/\_Rfunctions/get.marfis.data.R}
+%The extraction logic is captured in the script found at: \url{https://github.com/jae0/bio.indicators/R/get.marfis.data.R}
 
 \subsubsection{MARFIS data quality control and aggregation}
 Once data was extracted, it was processed through a second script, \textquotedblleft marfissci.process.data.r\textquotedblright.  This script serves to QC and aggregate the data, as well as apply un-positionable catches of a species proportionally to the positioned data.
@@ -764,7 +762,7 @@ For example, one cell might have a total catch of 3269.7 kg, and this cell repre
 
 The data QC and aggregation logic is captured in the script found at: 
 
-\url{https://github.com/jae0/ecomod/mpa/src/\_Rfunctions/marfissci.process.data.R}.
+\url{https://github.com/jae0/bio.indicators/R/marfissci.process.data.R}.
 
 The script above allows the user to specify the input data, the aggregation level, and how the results should be output.
 
@@ -780,8 +778,8 @@ An example of the annually aggregated (2010) reported commercial catches for sea
 
 
 %The data aggregation logic is captured in 2 scripts: 
-%\\url{https://github.com/jae0/ecomod/mpa/src/\_Rfunctions/process.marfis.mpa.R} 
-%\\url{https://github.com/jae0/ecomod/marfissci/src/\_Rfunctions/aggregate.marfis.R}
+%\\url{https://github.com/jae0/bio.indicators/R/process.marfis.mpa.R} 
+%\\url{https://github.com/jae0/bio.indicators/R/aggregate.marfis.R}
 
 
 %An example of the annually aggregated (2010) reported commercial catches for sea scallops (\textit{Placopecten magellanicus}) is presented in Figure \ref{fig:Scallop}.  Nominal catches ranged from 1kg to $\sim$ 5360000 kg) in Bay of Fundy, Georges Bank, and the Scotian Shelf.  Data presented here are uncorrected for fishing position reported on land and missing fishing locations.  
@@ -791,7 +789,7 @@ An example of the annually aggregated (2010) reported commercial catches for sea
 
 \begin{figure}[h]
 	\centering
- \includegraphics[width=0.8\textwidth]{\sab Rplot.png}
+ \includegraphics[width=0.8\textwidth]{\mpa/sab/Rplot.png}
 	\caption{Commercial catch weights of sea scallops (\textit{Placopecten magellanicus}) on Georges Bank, the Scotian Shelf, and in the Bay of Fundy.}
 		\label{fig:Scallop}
 \end{figure}
@@ -804,7 +802,7 @@ Similarly, an example of annually aggregated (2011) reported commercial catches 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.8\textwidth]{\sab Rplot01.png}
+	\includegraphics[width=0.8\textwidth]{\mpa/sab/Rplot01.png}
 	\caption{Commercial catch weights of halibut (\textit{Hippoglossus hippoglossus}) on Georges Bank, the Scotian Shelf, and in the Bay of Fundy.}
 	\label{fig:halibut}
 \end{figure}
@@ -818,7 +816,7 @@ Similarly, an example of annually aggregated (2011) reported commercial catches 
 	\item Sampling:  AIS
 	\item Spatial coverage: Global for satellite AIS, coastal ($\sim$ 100km) for Canadian Coast Guard terrestrial AIS network.
 	\item Temporal coverage: 2013 - present
-	\item Source code: https://github.com/jae0/ecomod/AIS/src/ais.r
+	\item Source code: https://github.com/jae0/bio.indicators/inst/scripts/ais.r
 \end{itemize}	
 
 
@@ -833,7 +831,7 @@ The CCG terrestrial system as 21 AIS coastal receiving stations in in the Mariti
 
 \begin{figure}[h]
   \centering
-	\includegraphics[width=1.0\textwidth]{\sab CCG_AIS.pdf}
+	\includegraphics[width=1.0\textwidth]{\mpa/sab/CCG_AIS.pdf}
 	\caption{Automatic Identification System (AIS) data collected from the Canadian Coast Guard terrestrial network of AIS receiving stations on 08 Dec 2015. A total of 127 vessels were detected in the area with each colour representing a unique vessel.}
     \label{fig:TAIS}
 \end{figure}
@@ -841,14 +839,14 @@ The CCG terrestrial system as 21 AIS coastal receiving stations in in the Mariti
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.8\textwidth]{\sab Line_of_Sight.pdf}
+	\includegraphics[width=0.8\textwidth]{\mpa/sab/Line_of_Sight.pdf}
 	\caption{Bathymetic (100 m resolution) chart of the  St. Anns Bank area with line of sight detection (red circles) for the terrestrial AIS receiving stations (red dots) around St. Anns Bank Area of Interest.}
    \label{fig:LOF}
 \end{figure}
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.8\textwidth]{\sab Simard_Sight.pdf}
+	\includegraphics[width=0.8\textwidth]{\mpa/sab/Simard_Sight.pdf}
 	\caption{Bathymetic (100 m resolution) chart of the  St. Anns Bank area with  \textcite{Simard2014shipping} estimated vessel detection distances (blue circles) for the terrestrial AIS receiving stations (blue dots) around St. Anns Bank Area of Interest.}
   \label{fig:DetAIS}
 \end{figure}
@@ -858,7 +856,7 @@ The satellite AIS data are available globally for the years 2013, 2014, and 2015
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=1.0\textwidth]{\sab Interpolation_Example1.pdf}
+	\includegraphics[width=1.0\textwidth]{\mpa/sab/Interpolation_Example1.pdf}
 	\caption{Detected vessel positions (large filled circles) and interpolated vessel positions (lines) for three unique vessels transiting through the St. Anns Bank Area, where each colour represents a unique vessel.}
 	\label{fig:astar}
 \end{figure}
@@ -868,8 +866,8 @@ The satellite AIS data are available globally for the years 2013, 2014, and 2015
 
 	\centering
 	\begin{tabular}{cc}
-		\includegraphics[width=0.5\textwidth]{\sab Counts_2013-2015_Q1.pdf} &
-		\includegraphics[width=0.5\textwidth]{\sab Counts_2013-2015_Q1_NNF.pdf}
+		\includegraphics[width=0.5\textwidth]{\mpa/sab/Counts_2013-2015_Q1.pdf} &
+		\includegraphics[width=0.5\textwidth]{\mpa/sab/Counts_2013-2015_Q1_NNF.pdf}
 	\end{tabular}
 	\caption{Vessel density maps for the first quarter of a year based on satellite AIS data from 2013-2015 for all vessels (left panel) and all vessels except of the Newfoundland ferries (right panel).}
 	\label{fig:countmaps}
@@ -881,8 +879,8 @@ The satellite AIS data are available globally for the years 2013, 2014, and 2015
 \begin{figure}[h]
 	\centering
 	\begin{tabular}{cc}
-		\includegraphics[width=0.5\textwidth]{\sab Cost_2013-2015_Q1.pdf} &
-		\includegraphics[width=0.5\textwidth]{\sab Cost_2013-2015_Q1_NNF.pdf}
+		\includegraphics[width=0.5\textwidth]{\mpa/sab/Cost_2013-2015_Q1.pdf} &
+		\includegraphics[width=0.5\textwidth]{\mpa/sab/Cost_2013-2015_Q1_NNF.pdf}
 	\end{tabular}
 	\caption{Cost maps developed for the A$^{\star}$ function to interpolate undetected vessel positions as vessels transit in and out of the Gulf of St. Lawrence.}
   \label{fig:costmap}
@@ -1067,7 +1065,7 @@ The use of a Bayesian approach to solve the above nonlinear state space problem 
 
 This latter ability is particularly important as parameter estimates and forecasts based on observation-only errors provide unrealistically optimistic (small and constant) error bounds; and parameter estimates and forecasts based on process-only errors expand rapidly into the future, resulting in potentially unrealistically pessimistic (large and usually growing) error bounds.
 
-The posterior distribution of the parameters of interest, $\theta$, conditional upon the data were estimated via MCMC (Gibbs) sampling using the JAGS platform (Plummer 2003, 2010). The JAGS model used for parameter estimation can be found at: \url{https://github.com/jae0/ecomod/mpa/bugs/}
+The posterior distribution of the parameters of interest, $\theta$, conditional upon the data were estimated via MCMC (Gibbs) sampling using the JAGS platform (Plummer 2003, 2010). The JAGS model used for parameter estimation can be found at: \url{https://github.com/jae0/bio.indicators/inst/mpa.r}
 
 \subsection{Anthropogenic Threats}
 Productivity, habitat and biodiversity monitoring is essential if one is to assess if MPAs are achieving their primary objectives. It is also essential to examine the anthropogenic threats in the St. Anns bank area and examine the cumulative impacts on productivity, habitat, biodiversity, and endangered or threatened species. From the data available we can examine trawling and dredging disturbances, exploitation of marine resources by fisheries, fishing-gear entanglement threats to marine mammals and sea turtles, and vessel collision threats due to marine traffic, and vessel-noise disturbances. Each threat can be normalised on a zero-one scale to compare the intensity of threats across the region and then weighted and combined to examine cumulative anthropogenic threats as in \textcite{coll:2012:mediterranean}.
@@ -1087,7 +1085,7 @@ At present, only the models for snow crab have been completed using this method 
   \caption{Predicted biomass density of snow crab in Maritimes Region based upon a combination of a Functional-habitat method and simple spatial interpolation.}
   \label{fig:snowcrabAbundance}
   \centering
-  \includegraphics[width=0.6\textwidth]{\ecomod snowcrab/R/gam/maps/{prediction.abundance.mean.R0.mass.2010}.png}
+  \includegraphics[width=0.6\textwidth]{\biodata/bio\D snowcrab/R/gam/maps/{prediction.abundance.mean.R0.mass.2010}.png}
 \end{figure}
 
 
@@ -1102,12 +1100,12 @@ At present, only the models for snow crab have been completed using this method 
 	 \caption{Predicted probability of observing snow crab in Maritimes Region based upon a Functional-habitat method.}
   \label{fig:snowcrabHabitat}
   \centering
-  \includegraphics[width=0.6\textwidth]{\ecomod snowcrab/R/gam/maps/{prediction.habitat.mean.R0.mass.2010}.png}
+  \includegraphics[width=0.6\textwidth]{\biodata/bio\D snowcrab/R/gam/maps/{prediction.habitat.mean.R0.mass.2010}.png}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\textwidth]{\ecomod snowcrab/assessments/2012/timeseries/interpolated/{snowcrab.habitat.sa}.png}
+  \includegraphics[width=0.6\textwidth]{\biodata/bio\D snowcrab/assessments/2012/timeseries/interpolated/{snowcrab.habitat.sa}.png}
   \caption{Surface area of potential habitat of snow crab in Maritimes Region based upon a Functional-habitat method.}
    \label{fig:snowcrabHabitatTS}
 \end{figure}
@@ -1120,8 +1118,8 @@ An example of \textbf{Integral habitat} as expressed through an ordination of ta
 
 \begin{figure}[h]
   \centering
-  %  \includegraphics[width=0.75\textwidth]{\ecomod speciescomposition/analysis/SSE/allseasons/complex/maps/{maps.pca1.2010}.png}
-  \includegraphics[width=1.0\textwidth]{\mpa oneoffs/ca.png}
+  %  \includegraphics[width=0.75\textwidth]{\biodata/bio\D indicators/speciescomposition/analysis/SSE/allseasons/complex/maps/{maps.pca1.2010}.png}
+  \includegraphics[width=1.0\textwidth]{\biodata/bio\D indicators/oneoffs/ca.png}
   \caption{Integral habitat based upon species composition variations in Maritimes Region. Note the first (left) is primarily a temperature gradient expressed through species composition and the second (right) is a depth-related gradient in species assemblages.}
     \label{fig:speciesCompostionMap}
 \end{figure}
@@ -1135,7 +1133,7 @@ This is a first attempt at describing the spatial range of SAB and outlying area
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\textwidth]{\mpa oneoffs/{range.bathy}.jpg}
+  \includegraphics[width=0.6\textwidth]{\biodata/bio\D indicators/oneoffs/{range.bathy}.jpg}
   \caption{First estimate of log(spatial range; km) based upon depth variations.}
     \label{fig:spatialrangeBathy}
 \end{figure}
@@ -1164,7 +1162,7 @@ None yet.
   
 \section{Data quality control}
 
-All data extraction, quality control and processing methods are documented in R scripts found in https://github.com/jae0/ecomod/.
+All data extraction, quality control and processing methods are documented in R scripts found in https://github.com/jae0/bio.indicators/.
 
 \subsection{Discrete bottle data}
 
@@ -1252,7 +1250,7 @@ Additional steps from IML QC procedure such as checks for constant profile, exce
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.75\textwidth]{\sab 26.png}
+  \includegraphics[width=0.75\textwidth]{\mpa/sab/26.png}
   \caption{Polygons used for separation of coastal and ocean data, arbitrarily assumed to be a 5 km buffer from the coastline.}
    \label{fig:aoiBuffer}
 \end{figure}
@@ -1282,7 +1280,7 @@ In a number of cases, the same water sample was processed using two different me
 \begin{figure}[h]
 
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 27.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/27.png}
   \caption{Time series of chlorophyll-a data from BioChem grouped by methods.}
     \label{fig:ChlaTimeseries}
 \end{figure}
@@ -1291,12 +1289,12 @@ In a number of cases, the same water sample was processed using two different me
 \begin{figure}[h]
   \centering
   \begin{tabular}{cc}
-    \includegraphics[width=0.5\textwidth]{\sab 28.png}
-    \includegraphics[width=0.5\textwidth]{\sab 29.png} 
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/28.png}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/29.png} 
   \end{tabular}
   \begin{tabular}{cc}
-    \includegraphics[width=0.5\textwidth]{\sab 30.png}
-    \includegraphics[width=0.5\textwidth]{\sab 31.png}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/30.png}
+    \includegraphics[width=0.5\textwidth]{\mpa/sab/31.png}
   \end{tabular}
   \caption{Comparison of the chlorophyll-a values collected using different methods is shown on the scatter plots on the top panel and the geographical locations of those samples is shown on the maps in the bottom panel.}
   \label{fig:ChlaComparison}
@@ -1329,7 +1327,7 @@ Nitrate estimates are derived from 10 methods. The methods are listed and descri
 \begin{figure}[h]
 
   \centering
-  \includegraphics[width=0.8\textwidth]{\sab 32.png}
+  \includegraphics[width=0.8\textwidth]{\mpa/sab/32.png}
   \caption{Time series of nitrate data from BioChem grouped by methods.}
     \label{fig:NTimeseries}
 \end{figure}
@@ -1356,7 +1354,7 @@ Phosphate  data available in BioChem are mapped to 7 methods. The methods are li
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 33.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/33.png}
   \caption{Time series of phosphate data from BioChem grouped by methods.}
   \label{fig:PhosphateTimeseries}
 \end{figure}
@@ -1386,7 +1384,7 @@ Silicate data available in BioChem are mapped to 8 methods (Table~\ref{table:Sil
 \begin{figure}[h]
 
   \centering
-  \includegraphics[width=1.0\textwidth]{\sab 34.png}
+  \includegraphics[width=1.0\textwidth]{\mpa/sab/34.png}
   \caption{Time series of silicate data from BioChem grouped by methods.}
     \label{fig:silicateTimeseries}
 \end{figure}
@@ -1538,7 +1536,7 @@ and $\alpha=2$ by default and so $\lambda=1$ such that:
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{\ecomod mpa/matern.jpg}
+  \includegraphics[width=0.5\textwidth]{\mpa/sab/matern.jpg}
   \caption{Mat\'{e}rn semivariance as a function of distance for different values of $\kappa$.}
   \label{fig:matern}
 \end{figure}
