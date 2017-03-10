@@ -87,7 +87,7 @@
  
       PS = list()
       PS[["t"]] = temperature.db( p=p0, DS="timeslice", ret="mean" )
-      for ( ret in p0$bstats ) { # ] "tmean"     "tsd"       "tmin"      "tmax"      "amplitude"
+      for ( ret in p0$bstats ) { # ] "tmean"     "tsd"       "tmin"      "tmax"      "amplitude" "degreedays"
         PS[[ret]] = temperature.db( p=p0, DS="bottom.statistics.annual", ret=ret )
       }
 
@@ -199,7 +199,8 @@ INP$log.substrate.grainsize [ which( INP$log.substrate.grainsize > 5) ] = 5
 
     # cap quantiles of dependent vars
       dr = list()
-      for (voi in p$varnames) {
+      ps_varnames = setdiff( p$varnames, p$variables$LOCS )
+      for (voi in ps_varnames) {
         dr[[voi]] = quantile( INP[,voi], probs=p$lbm_quantile_bounds, na.rm=TRUE ) # use 95%CI
         il = which( INP[,voi] < dr[[voi]][1] )
         if ( length(il) > 0 ) INP[il,voi] = dr[[voi]][1]
