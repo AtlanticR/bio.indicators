@@ -119,11 +119,11 @@
         "totmass.female.CC1to2", "totmass.female.CC3to4", "totmass.female.CC5", 
         "R1.mass", "R2.mass", "R3.mass", "R4.mass", "R5p.mass", "dwarf.mass" 
       ),
-      snowcrab.bycatch = c(
-        "grd", "pel", "shark", "pred1", "pred2", "prey", "invert",
-        "amPlaice", "atSpinyLumpsucker", "loScuplin", "noSandlance", "spDogfish", 
-        "thSkate", "wiFlounder", "yeFlounder", "cod"
-      ),
+      snowcrab.bycatch = c( 
+           paste( "ms.no", variable.list.expand("sp.list"), sep="." ),
+            paste( "ms.mass", variable.list.expand("sp.list"),  sep="." )
+            ),
+
       snowcrab.indicators = c(      
         "sexratio.all", "sexratio.mat", "sexratio.imm" 
       ),
@@ -142,7 +142,7 @@
         variable.list.expand("females.general"),
         variable.list.expand("snowcrab.general"),
         variable.list.expand("snowcrab.unused"),
-        variable.list.expand("snowcrab.bycatch"),
+        #variable.list.expand("snowcrab.bycatch"),
         variable.list.expand("snowcrab.indicators"),
         variable.list.expand("snowcrab.cw"),
          "landings", "cpue",  "effort"

@@ -46,7 +46,8 @@
           for (vn in varnames){
             out = cbind( out, DB[[vn]][dindex] )
           }
-          names(out) = c( vnames_DB, varnames )
+          out = data.frame(out)
+          names(out) =  varnames 
           return(out)
         }
 
@@ -57,9 +58,7 @@
           dyear = lubridate::decimal_date( timestamp ) -yrs
           dyear_index = as.numeric( cut( dyear, breaks=p$dyears, include.lowest=T, ordered_result=TRUE ) )
           dindex = cbind(locsmap, match( yrs, p$yrs ), dyear_index ) # check this
-          if (is.null(DB)) {
-            if (!is.null(varnames)) DB=indicators.db(p=p, DS=varnames) # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
-          }
+          if (is.null(DB)) DB=indicators.db(p=p, DS="spatial.annual.seasonal") # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
           if (is.null(varnames)) varnames=names(DB)
           vnames_DB = names(DB)
           varnames = intersect( vnames_DB, varnames )
