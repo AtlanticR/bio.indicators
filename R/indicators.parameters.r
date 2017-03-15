@@ -19,8 +19,11 @@ indicators.parameters = function( p=NULL, DS="default", current.year=NULL, varna
 
     if (!exists( "current.year", p)) p$current.year = current.year
     
-    p$yrs = c(1999:p$current.year)  # 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
-    
+    tp = bio.temperature::temperature.parameters( current.year=current.year )
+    p$tyears = tp$tyears # 1950:p$current.year  # for temp database .. 1945 gets sketchy -- mostly interpolated data ... earlier is even more sparse.
+
+    p$yrs = c(1999:p$current.year)  # years for modelling and interpolation
+
     p$ny = length(p$yrs)
     p$nt = p$ny # must specify, else assumed = 1 (1= no time)  ## nt=ny annual time steps, nt = ny*nw is seassonal
     p$nw = 10 # default value of 10 time steps for all temp and indicators
