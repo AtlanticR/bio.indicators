@@ -38,8 +38,7 @@ indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, va
 
   if (DS=="spatial.annual"){ 
     out = NULL
-    if (!exists("tyears", p)) p$tyears = bio.temperature::temperature.parameters( current.year=current.year )$tyears
-    dindex = cbind(locsmap, match( lubridate::year(timestamp), p$tyears ) )
+    dindex = cbind(locsmap, match( lubridate::year(timestamp), p$yrs ) )
     if (is.null(DB)) DB = indicators.db(p=p, DS="spatial.annual")
     if (is.null(varnames)) varnames=names(DB)
     vnames_DB = names(DB)
@@ -54,12 +53,11 @@ indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, va
 
   if (DS=="spatial.annual.seasonal"){ 
     # only temp for now
-    if (!exists("tyears", p)) p$tyears = bio.temperature::temperature.parameters( current.year=current.year )$tyears
     out = NULL
     yrs = lubridate::year(timestamp)
     dyear = lubridate::decimal_date( timestamp ) -yrs
     dyear_index = as.numeric( cut( dyear, breaks=p$dyears, include.lowest=T, ordered_result=TRUE ) )
-    dindex = cbind(locsmap, match( yrs, p$tyears ), dyear_index ) # check this
+    dindex = cbind(locsmap, match( yrs, p$yrs ), dyear_index ) # check this
     if (is.null(DB)) DB=indicators.db(p=p, DS="spatial.annual.seasonal") # at this point this is the only database with seasonality .. other stats (than mean) will require supplemntary functionss
     if (is.null(varnames)) varnames=names(DB)
     vnames_DB = names(DB)
@@ -71,9 +69,8 @@ indicators.lookup = function( p, DS, locsmap=NULL, locs=NULL, timestamp=NULL, va
 
   if (DS=="baseline"){ 
     # all interpolated fields
-    if (!exists("tyears", p)) p$tyears = bio.temperature::temperature.parameters( current.year=current.year )$tyears
     out = NULL
-    dindex = cbind(locsmap, match( lubridate::year(timestamp), p$tyears ) )
+    dindex = cbind(locsmap, match( lubridate::year(timestamp), p$yrs ) )
     DB = indicators.db(p=p, DS="baseline")
     if (is.null(varnames)) varnames=names(DB)
     vnames_DB = names(DB)
