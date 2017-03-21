@@ -158,6 +158,8 @@
     if (DS %in% c("lbm_inputs", "lbm_inputs.redo") ) {
 
       INP = bio.indicators::indicators.db( DS="indicators", p=p ) # dependent vars
+      INP = INP[ which(INP$yr %in% p$yrs), ]
+
       INP$tiyr = lubridate::decimal_date( INP$timestamp ) 
 
       locsmap = match( 
